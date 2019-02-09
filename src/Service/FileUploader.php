@@ -30,28 +30,21 @@ final class FileUploader
      * @param KernelInterface     $kernel
      * @param ValidatorInterface  $validator
      * @param TranslatorInterface $translator
+     * @param string              $mimeTypesExtensions
+     * @param array               $mimeTypesTypes
      */
-    public function __construct(KernelInterface $kernel, ValidatorInterface $validator, TranslatorInterface $translator)
-    {
+    public function __construct(
+        KernelInterface $kernel,
+        ValidatorInterface $validator,
+        TranslatorInterface $translator,
+        string $mimeTypesExtensions,
+        array $mimeTypesTypes
+    ) {
         $this->kernel = $kernel;
         $this->validator = $validator;
         $this->translator = $translator;
-    }
-
-    /*
-     * @param string $extensions
-     */
-    public function setMimeTypesExtensions(string $extensions)
-    {
-        $this->mimeTypesExtensions = $extensions;
-    }
-
-    /*
-     * @param array $types
-     */
-    public function setMimeTypesTypes(array $types)
-    {
-        $this->mimeTypesTypes = $types;
+        $this->mimeTypesExtensions = $mimeTypesExtensions;
+        $this->mimeTypesTypes = $mimeTypesTypes;
     }
 
     /**

@@ -5,14 +5,17 @@ services:
         arguments:
             - '@security.encoder_factory'
 
+    symfony_admin.service.file_uploader:
+        class: EWZ\SymfonyAdminBundle\Service\FileUploader
+        arguments:
+            - '@kernel'
+            - '@validator'
+            - '@translator'
+            - '%symfony_admin.mime_types.extensions%'
+            - '%symfony_admin.mime_types.types%'
+
     EWZ\SymfonyAdminBundle\Service\FileUploader:
-        calls:
-            - method: setMimeTypesExtensions
-              arguments:
-                  - '%symfony_admin.mime_types.extensions%'
-            - method: setMimeTypesTypes
-              arguments:
-                  - '%symfony_admin.mime_types.types%'
+        alias: 'symfony_admin.service.file_uploader'
 
     #
     # Twig Extension
