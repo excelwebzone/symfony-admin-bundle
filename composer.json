@@ -38,7 +38,6 @@
     "symfony/yaml": "^4.1",
     "white-october/pagerfanta-bundle": "^1.2"
   },
-  "minimum-stability": "dev",
   "extra": {
     "branch-alias": {
       "dev-master": "1.0-dev"
