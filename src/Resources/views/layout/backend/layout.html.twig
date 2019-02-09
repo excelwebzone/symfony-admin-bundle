@@ -1,0 +1,29 @@
+{% extends '@SymfonyAdmin/base.html.twig' %}
+
+{% block javascripts %}
+  <script>const CONFIG = {{ {
+    userId: app.user.id,
+    userName: app.user|trim
+  }|json_encode|raw }};</script>
+
+  {{ parent() }}
+{% endblock %}
+
+{% block layout %}
+  <div class="application-content">
+    {% include '@SymfonyAdmin/layout/backend/sidebar.html.twig' %}
+
+    <div class="content-wrapper">
+      <div class="content-overlay"></div>
+
+      {% include '@SymfonyAdmin/layout/backend/header.html.twig' %}
+      {% include '@SymfonyAdmin/layout/backend/navigation.html.twig' %}
+
+      <div class="body-content">
+        {% block body %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <div class="toasters"></div>
+{% endblock %}

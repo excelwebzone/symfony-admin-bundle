@@ -1,0 +1,464 @@
+{% use 'bootstrap_4_layout.html.twig' %}
+
+{# Widgets #}
+
+{% block rating_widget %}
+{% spaceless %}
+  <div {{ block('rating_widget_container_attributes') }}>
+    <div class="rating-well">
+      {{- block('form_widget_simple') -}}
+      {%- for star in 1..stars -%}
+        {%- set value = stars - star + 1 -%}
+        <div id="rating_star_{{ value }}" class="star {% if value <= form.vars.value %}is-selected{% endif %} {% if loop.first %}is-max{% endif %}" data-value="{{ value }}" title="{{ value }}"></div>
+      {%- endfor -%}
+      {%- if not required -%}
+        <div id="rating_star_0" class="star is-empty is-selected" data-value="0" title="None"></div>
+      {%- endif -%}
+    </div>
+  </div>
+{% endspaceless %}
+{% endblock rating_widget %}
+
+{% block rating_widget_container_attributes %}
+{% spaceless %}
+  {%- for attrname, attrvalue in attr -%}
+    {{- " " -}}
+    {%- if attrname in ['placeholder', 'title'] -%}
+      {{- attrname }}="{{ attrvalue|trans({}, translation_domain) }}"
+    {%- elseif attrvalue is same as(true) -%}
+      {{- attrname }}="{{ attrname }}"
+    {%- elseif attrvalue is not same as(false) -%}
+      {{- attrname }}="{{ attrvalue }}"
+    {%- endif -%}
+  {%- endfor -%}
+{% endspaceless %}
+{% endblock rating_widget_container_attributes %}
+
+{% block address_widget -%}
+  <div class="row address">
+    <div class="col-md-12">
+      {{ form_row(form.street, {disabled: disabled}) }}
+    </div>
+    <div class="col-sm-6 col-md-6">
+      {{ form_row(form.city, {disabled: disabled}) }}
+    </div>
+    <div class="col-sm-3 col-md-3">
+      {{ form_row(form.state, {disabled: disabled}) }}
+    </div>
+    <div class="col-sm-3 col-md-3">
+      {{ form_row(form.zip, {disabled: disabled}) }}
+    </div>
+  </div>
+{%- endblock address_widget %}
+
+{% block date_widget -%}
+  {{ form_widget(form, {type: 'hidden'}) }}
+
+  {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-datepicker')|trim}) -%}
+  <input type="text"
+    {{ block('attributes') }}
+    {%- if disabled %} disabled="disabled"{% endif -%}
+    {%- if required %} required="required"{% endif -%}
+    {%- if value is not empty %}value="{{ value|date(app.user.dateFormat, app.user.timezone) }}"{% endif -%}
+    data-format="{% if app.user.dateFormat == 'm/d/Y' %}MM/DD/YYYY{% else %}DD/MM/YYYY{% endif %}"
+  />
+{%- endblock date_widget %}
+
+{% block autocomplete_widget -%}
+  {% set multiple = multiple|default(false) %}
+  {% set text = text|default('') %}
+  {% set placeholder = attr.placeholder|default('') -%}
+  {%- if placeholder is not none -%}
+    {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
+  {%- endif -%}
+
+  <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %} js-autocomplete-dropdown"
+    data-endpoint="{{ filter_url|default('') }}"
+    data-placeholder="{{ placeholder }}"
+    {% if json|default(false) %}
+      data-json="{{ json }}"
+    {% endif %}
+  >
+    {% if multiple %}
+      <div class="dropdown-tags tag-collection"></div>
+    {% endif %}
+
+    <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
+      <span class="dropdown-text {% if multiple or text is empty %}dropdown-placeholder{% endif %}">
+        {% if multiple %}{{ placeholder }}{% else %}{{ text|default(placeholder) }}{% endif %}
+      </span>
+
+      {% if not attr.readonly|default(false) %}
+        <div class="dropdown-indicator">
+          <i class="zmdi zmdi-caret-down"></i>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if not multiple and not disabled and not attr.readonly|default(false) %}
+      <div class="dropdown-reset {% if text is empty %}hide{% endif %}">
+        <i class="zmdi zmdi-close"></i>
+      </div>
+    {% endif %}
+
+    <div class="dropdown-menu dropdown-options {{ dropdown_options_class|default('') }}">
+      <div class="dropdown-filter">
+        <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+      </div>
+      <div class="option-list">
+        <ul>
+          {% if not multiple %}
+            <li class="option-list-label option-list-label-empty">
+              <div class="option-list-label-label">No Results Found</div>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="d-none">
+      {{ form_widget(form, {type: 'hidden'}) }}
+    </div>
+  </div>
+{%- endblock autocomplete_widget %}
+
+{% block textarea_widget -%}
+  {% set attr = attr|merge({rows: 1}) %}
+  {{- parent() -}}
+{%- endblock textarea_widget %}
+
+{% block password_widget -%}
+  <div class="password-input">
+    {% if show_password|default(false) %}
+      <div class="checkbox">
+        <label class="checkbox-label">
+          <input type="checkbox" value="1" class="checkbox-input js-show-password" data-target="#{{ form.vars.id }}" />
+          <span class="checkbox-display">
+            <i class="zmdi zmdi-eye checked"></i>
+            <i class="zmdi zmdi-eye-off unchecked"></i>
+          </span>
+        </label>
+      </div>
+    {% endif %}
+
+    {{- parent() -}}
+  </div>
+
+{%- endblock password_widget %}
+
+{% block checkbox_widget -%}
+  {%- set parent_attr = parent_attr|default({})|merge({class: (parent_attr.class|default('') ~ ' checkbox')|trim}) -%}
+  {%- if not compound -%}
+    {% set label_attr = label_attr|merge({'for': id}) %}
+  {%- endif -%}
+  {%- if required -%}
+    {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' required')|trim}) -%}
+  {%- endif -%}
+  {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' checkbox-label')|trim}) -%}
+  {%- if label is not same as(false) and label is empty -%}
+    {%- if label_format is not empty -%}
+      {%- set label = label_format|replace({
+        '%name%': name,
+        '%id%': id,
+      }) -%}
+    {%- else -%}
+      {%- set label = name|humanize -%}
+    {%- endif -%}
+  {%- endif -%}
+  <div {% if parent_attr %}{% with { attr: parent_attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>
+    <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+      {% set attr = attr|merge({class: (attr.class|default('') ~ ' checkbox-input')|trim}) %}
+      {% if 'checkbox-no-empty' not in attr.class %}
+        <input type="hidden" name="{{ full_name }}" value="0" />
+      {% endif %}
+      <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+      <span class="checkbox-display">
+        <i class="zmdi zmdi-{{ onIcon|default('check-square') }} checked"></i>
+        <i class="zmdi zmdi-{{ offIcon|default('square-o') }} unchecked"></i>
+      </span>
+      <span class="checkbox-text">
+        {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
+        {{- form_errors(form) -}}
+      </span>
+    </label>
+  </div>
+{%- endblock checkbox_widget %}
+
+{% block radio_widget -%}
+  {%- set parent_attr = parent_attr|default({})|merge({class: (parent_attr.class|default('') ~ ' radio-button-group-item')|trim}) -%}
+  {%- if parent_multiline|default(false) -%}
+    {%- set parent_attr = parent_attr|default({})|merge({class: (parent_attr.class|default('') ~ ' is-multiline')|trim}) -%}
+  {%- endif -%}
+  {%- if not compound -%}
+    {% set label_attr = label_attr|merge({'for': id}) %}
+  {%- endif -%}
+  {%- if required -%}
+    {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' required')|trim}) -%}
+  {%- endif -%}
+  {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' radio-button-inline radio-button')|trim}) -%}
+  {%- if label is not same as(false) and label is empty -%}
+    {%- if label_format is not empty -%}
+      {%- set label = label_format|replace({
+        '%name%': name,
+        '%id%': id,
+      }) -%}
+    {%- else -%}
+      {%- set label = name|humanize -%}
+    {%- endif -%}
+  {%- endif -%}
+  <span {% if parent_attr %}{% with { attr: parent_attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' radio-input')|trim}) %}
+    <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+    <label {% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
+      <i class="zmdi zmdi-{{ onIcon|default('dot-circle') }} checked"></i>
+      <i class="zmdi zmdi-{{ offIcon|default('circle-o') }} unchecked"></i>
+      <span>
+        {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
+        {{- form_errors(form) -}}
+      </span>
+    </label>
+  </span>
+{%- endblock radio_widget %}
+
+{% block choice_widget_expanded -%}
+  <div {{ block('widget_container_attributes') }}>
+    {%- for child in form %}
+      {{- form_widget(child, {
+        parent_label_class: label_attr.class|default(''),
+        translation_domain: choice_translation_domain,
+        valid: valid,
+        disabled: disabled,
+        attr: attr,
+        onIcon: onIcon|default(false),
+        offIcon: offIcon|default(false)
+      }) -}}
+    {% endfor -%}
+  </div>
+{%- endblock choice_widget_expanded %}
+
+{%- block choice_widget_collapsed -%}
+  {% set allow_reset = not required and not disabled and not attr.readonly|default(false) and placeholder %}
+  {%- if required and placeholder is none and not placeholder_in_choices and not multiple and (attr.size is not defined or attr.size <= 1) -%}
+    {% set required = false %}
+  {%- endif -%}
+  {%- if placeholder is not none -%}
+    {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
+  {%- endif -%}
+
+  <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %}"
+    data-placeholder="{{ placeholder }}"
+  >
+    {% if multiple %}
+      <div class="dropdown-tags tag-collection"></div>
+    {% endif %}
+
+    <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
+      <span class="dropdown-text {% if multiple or form.vars.value is empty %}dropdown-placeholder{% endif %}">
+        {{ placeholder }}
+      </span>
+
+      {% if not attr.readonly|default(false) %}
+        <div class="dropdown-indicator">
+          <i class="zmdi zmdi-caret-down"></i>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if not multiple and allow_reset|default(false) %}
+      <div class="dropdown-reset {% if form.vars.value is empty %}hide{% endif %}">
+        <i class="zmdi zmdi-close"></i>
+      </div>
+    {% endif %}
+
+    <div class="dropdown-menu dropdown-options {{ dropdown_options_class|default('') }}">
+      {%- if filtered|default(false) -%}
+        <div class="dropdown-filter">
+          <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+        </div>
+      {%- endif -%}
+      <div class="option-list">
+        <ul>
+          {%- if preferred_choices|length > 0 -%}
+            {% set options = preferred_choices %}
+            {{- block('choice_dropdown_widget_options') -}}
+            {%- if choices|length > 0 and separator is not none -%}
+              <li class="option-list-item-disabled">
+                <span class="option-list-item-text">{# separator #}<hr/></span>
+              </li>
+            {%- endif -%}
+          {%- endif -%}
+          {%- set options = choices -%}
+          {{- block('choice_dropdown_widget_options') -}}
+        </ul>
+      </div>
+    </div>
+
+    <div class="d-none">
+      {{ parent() }}
+    </div>
+  </div>
+{%- endblock choice_widget_collapsed -%}
+
+{%- block choice_dropdown_widget_options -%}
+  {% for group_label, choice in options %}
+    {%- if choice is iterable -%}
+      <li class="option-list-label">
+        <span class="option-list-label-text">{{ choice_translation_domain is same as(false) ? group_label : group_label|trans({}, choice_translation_domain) }}</span>
+      </li>
+      {% set options = choice %}
+      {{- block('choice_dropdown_widget_options') -}}
+    {%- else -%}
+      <li class="option-list-item {% if choice is selectedchoice(value) %}is-selected is-highlighted{% endif %}" data-value="{{ choice.value }}" {% if choice.attr %}{% with { attr: choice.attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>
+        {%- if abbreviation|default(false) -%}
+          <span class="option-list-info-item-abbreviation">{{ choice.value }}</span>
+          <span class="option-list-info-item-text">{{ choice_translation_domain is same as(false) ? choice.label : choice.label|trans({}, choice_translation_domain) }}</span>
+        {%- else -%}
+          <span class="option-list-item-text">{{ choice_translation_domain is same as(false) ? choice.label : choice.label|trans({}, choice_translation_domain) }}</span>
+        {%- endif -%}
+      </li>
+    {%- endif -%}
+  {% endfor %}
+{%- endblock choice_dropdown_widget_options -%}
+
+{#
+ # Adds the following html attributes to the root node of your collection fields:
+ #
+ # - data-prototype-name: placeholder used in the prototype to replace element indexes on the collection
+ # - data-allow-add: if set to false, plugin will automatically set allow_add option to false
+ # - data-allow-delete: if set to false, plugin will automatically set allow_remove option to false
+ # - data-name-prefix: contains the collection's prefix used in descendant field names
+ #}
+{% block key_value_widget %}
+  {% if prototype is defined %}
+    {% set child = prototype %}
+    {% set attr = attr|merge({'data-prototype': block('key_value_widget_prototype')}) %}
+    {% set attr = attr|merge({'data-prototype-name': prototype.vars.name}) %}
+  {% endif %}
+  {% set attr = attr|merge({'data-allow-add': allow_add ? 1 : 0}) %}
+  {% set attr = attr|merge({'data-allow-remove': allow_delete ? 1 : 0 }) %}
+  {% set attr = attr|merge({'data-add-more': full_name }) %}
+  {% set attr = attr|merge({'data-index': form.count }) %}
+  {% set attr = attr|merge({class: (attr.class|default('') ~ ' typed-property-layout')|trim}) %}
+  <div {{ block('widget_container_attributes') }}>
+    <ul class="typed-property-list">
+      {{ form_errors(form) }}
+      {% for child in form %}
+        {{ block('key_value_widget_prototype') }}
+      {% endfor %}
+      {{ form_rest(form) }}
+    </ul>
+    {% if form.vars.allow_add and form|length > 0 %}
+      <a href="#" class="typed-property-add">{{ full_name }}</a>
+    {% endif %}
+  </div>
+{% endblock key_value_widget %}
+
+{% block key_value_widget_prototype %}
+  <li class="typed-property-item">
+    {{ form_widget(child.key, {
+      required: true,
+      label: false,
+      attr: {
+        class: 'typed-property-key-field'
+      },
+      dropdown_class: 'dropdown-label typed-property-key-dropdown'
+    }) }}
+    {{ form_widget(child.value, {
+      label: false,
+      attr: {
+        class: 'typed-property-value-field'
+      }
+    }) }}
+  </li>
+{% endblock key_value_widget_prototype %}
+
+{% block icon_choice_widget %}
+  <div class="icon-selector-component">
+    {% for child in form %}
+      <div class="icon-selector-component-option">
+        {{- form_widget(child) -}}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock icon_choice_widget %}
+
+{# Rows #}
+
+{% block form_row -%}
+  {%- if compound is defined and compound -%}
+    {%- set element = 'fieldset' -%}
+  {%- endif -%}
+  {%- set widget_attr = {} -%}
+  {%- if help is not empty -%}
+    {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
+  {%- endif -%}
+  <{{ element|default('div') }} class="form-group {{ element_class|default('') }} {% if required %}is-required{% endif %} {% if disabled %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
+    {{- form_label(form) -}}
+    {%- if icon is defined and icon -%}
+      <i class="{{ icon }}"></i>
+    {%- endif -%}
+    {{- form_widget(form, widget_attr) -}}
+    <div class="form-control-error">
+      {{- form_errors(form) -}}
+    </div>
+    {{- form_help(form) -}}
+  </{{ element|default('div') }}>
+{%- endblock form_row %}
+
+{% block key_value_row -%}
+  <div class="form-property-container">
+    {{- form_row(form) -}}
+  </div>
+{%- endblock key_value_row %}
+
+{# Errors #}
+
+{% block form_errors -%}
+  {%- if errors|length > 0 -%}
+    {%- if form is not rootform -%}
+      <span class="invalid-feedback d-block">
+        {%- for error in errors -%}
+          <span class="mb-0 d-block">
+            <span class="initialism form-error-icon badge badge-danger">{{ 'Error'|trans({}, 'validators') }}</span> <span class="form-error-message">{{ error.message|trans }}</span>
+          </span>
+        {%- endfor -%}
+      </span>
+    {%- else -%}
+      <div class="banner-block banner-block-is-urgent">
+        <div class="banner-block-row media">
+          <div class="media-left">
+            <i class="zmdi zmdi-info banner-block-icon"></i>
+          </div>
+          <div class="media-body">
+            <div class="banner-block-title"></div>
+            <ul class="banner-block-content">
+              {%- for error in errors -%}
+                <li>{{ error.message|trans }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {%- endif %}
+  {%- endif %}
+{%- endblock form_errors %}
+
+{# Help #}
+
+{% block form_help -%}
+  {%- if help is not empty -%}
+    <small id="{{ id }}_help" class="form-text text-muted">
+      {%- if help_indent is defined and help_indent -%}
+        <span class="indent">
+      {%- endif -%}
+      {%- if translation_domain is same as(false) -%}
+        {{- help|raw -}}
+      {%- else -%}
+        {{- help|trans({}, translation_domain)|raw -}}
+      {%- endif -%}
+      {%- if help_indent is defined and help_indent -%}
+        </span>
+      {%- endif -%}
+    </small>
+  {%- endif -%}
+{%- endblock form_help %}

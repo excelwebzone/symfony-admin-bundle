@@ -1,0 +1,75 @@
+{% set items = items|default([])|merge([
+  {
+    path: path('security_logout'),
+    name: 'Log Out'
+  }
+]) %}
+
+<div class="navigation-main">
+  <div class="navigation-main-wrapper">
+    <ul>
+      {% for item in items %}
+        {% if item.hide is not defined or not item.hide %}
+          {% if item.items is defined %}
+            <li class="navigation-tier-one navigation-has-secondary glue-zippy">
+              <a href="#" class="navigation-item navigation-item-secondary material-icons-extended-pseudo glue-zippy-btn">{{ item.name }}</a>
+              <div class="navigation-tier-two">
+                <div class="navigation-tier-two-inner">
+                  {% if item.multiLevel is defined and item.multiLevel %}
+                    <ul class="navigation-products-categories navigation-subnav">
+                      {% for category in item.items %}
+                        {% if category.hide is not defined or not category.hide %}
+                          <li class="navigation-category glue-zippy">
+                            <p class="navigation-item navigation-category-cta glue-zippy-btn">{{ category.name }}</p>
+                            <div>
+                              <ul class="navigation-products">
+                                {% for menu in category.items %}
+                                  {% if menu.hide is not defined or not menu.hide %}
+                                    <li class="navigation-products-item">
+                                      <a href="{{ menu.path }}" class="navigation-item">
+                                        {% if menu.icon is defined and menu.icon %}
+                                          <i class="zmdi zmdi-{{ menu.icon }}"></i>
+                                        {% endif %}
+
+                                        {{ menu.name }}
+                                      </a>
+                                    </li>
+                                  {% endif %}
+                                {% endfor %}
+                              </ul>
+                            </div>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <ul class="navigation-subnav">
+                      {% for menu in item.items %}
+                        {% if menu.hide is not defined or not menu.hide %}
+                          <li>
+                            <a href="{{ menu.path }}" class="navigation-item">
+                              {% if menu.icon is defined and menu.icon %}
+                                <i class="zmdi zmdi-{{ menu.icon }}"></i>
+                              {% endif %}
+
+                              {{ menu.name }}
+                            </a>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              </div>
+            </li>
+          {% else %}
+            <li class="navigation-tier-one">
+              <a href="{{ item.path }}" class="navigation-item">{{ item.name }}</a>
+            </li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+</nav>

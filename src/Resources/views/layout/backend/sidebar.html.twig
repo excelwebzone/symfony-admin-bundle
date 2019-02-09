@@ -1,0 +1,125 @@
+{% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+{% if items is not defined %}
+  {% set items = [] %}
+{% endif %}
+
+<div class="sidebar">
+  <div class="content">
+    <div class="nav-header">
+      <div class="nav-icons">
+        <div class="nav-logo toggle-nav">
+          <i class="zmdi zmdi-menu"></i>
+        </div>
+
+        <div class="profile-icon">
+          <a href="{{ path('admin_settings_users_profile_edit', {id: app.user.id}) }}">
+            <div class="left image">
+              {% if app.user.photoFile is defined %}
+                <img src="{{ asset(app.user.photoFile|default('images/avatar.png')) }}" />
+              {% else %}
+                <img src="{{ asset('images/avatar.png') }}" />
+              {% endif %}
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-text">
+        <div class="option-text">
+          <a href="{{ path('admin_settings_users_profile_edit', {id: app.user.id}) }}">
+            <div class="left text">
+              <div class="name">{{ app.user }}</div>
+              <div class="username">{{ app.user.username }}</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-action">
+          <div class="close-nav">
+            <i class="zmdi zmdi-close"></i>
+          </div>
+      </div>
+    </div>
+
+    {% for item in items %}
+      {% if item.partition is defined and item.partition %}
+        <div class="nav-partition"></div>
+      {% endif %}
+
+      {% if item.spacer is defined and item.spacer %}
+        <div class="nav-spacer"></div>
+      {% endif %}
+
+      <div class="{% if item.navOptionClass is defined and item.navOptionClass %}{{ item.navOptionClass }}{% else %}nav-options{% endif %} {% if item.active %}selected{% endif %}">
+        <a href="{{ item.path }}">
+          <div class="nav-icons icon-tooltip" data-original-title="{{ item.name }}">
+            <div class="icon">
+              {% if item.icon is defined and item.icon %}
+                <i class="zmdi zmdi-{{ item.icon }}"></i>
+              {% endif %}
+              {% if item.image is defined and item.image %}
+                {{ item.image|raw }}
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="{% if item.navTextClass is defined and item.navTextClass %}{{ item.navTextClass }}{% else %}nav-text{% endif %}">
+            <div class="option-text">
+              <div class="left text">
+                <div class="name">{{ item.name }}</div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <div class="{% if item.navActionClass is defined and item.navActionClass %}{{ item.navActionClass }}{% else %}nav-action{% endif %}">
+          {% if item.action is defined and item.action %}
+            {{ item.action|raw }}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="nav-partition"></div>
+
+    <div class="nav-logo-option">
+      <a href="{{ path('admin_homepage') }}">
+        <div class="nav-icons">
+          <div class="icon">
+            <img src="{{ asset('images/logo-dashboard.png') }}" height="30" id="logoPNG" />
+          </div>
+        </div>
+
+        <div class="nav-logo-text">
+          <div class="option-text">
+            <div class="left text">
+              <div class="name">
+                <img src="{{ asset('images/logo-word-dashboard.png') }}" height="30" id="wordPNG" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div class="nav-logo-action">
+        <div class="nav-dropdown-options">
+          {{ UI.dropdownButton({
+            label: false,
+            right: true,
+            aCss: 'dropdown-icon',
+            iCss: 'button button-icon zmdi zmdi-more',
+            elements: [
+              {
+                path: path('security_logout'),
+                label: 'Log Out',
+                iCss: 'zmdi zmdi-square-right',
+                opCss: 'option-list-item-divider'
+              }
+            ]
+          }) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

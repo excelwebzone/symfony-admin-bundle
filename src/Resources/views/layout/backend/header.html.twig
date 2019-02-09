@@ -1,0 +1,57 @@
+{% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+<header>
+  <div class="header {{ header_class|default('') }}">
+    <div class="header-left">
+      <a href="#" class="navigation-mobile-toggle js-navigation-toggle">
+        <span class="navigation-mobile-toggle-icon material-icons">menu</span>
+      </a>
+
+      <div class="header-title">
+        <span>{{ header_title|default('')|raw }}</span>
+      </div>
+    </div>
+
+    {% block global_search %}
+      <div class="header-center">
+        <div class="header-search">
+          <div class="typeahead typeahead-global-search is-empty"
+            data-endpoint="#"
+            data-redirect="#"
+          >
+            <div class="typeahead-header">
+              <input type="text" class="global-search-typeahead-text-field" placeholder="Search.." autocomplete="off" />
+              <div class="typeahead-global-search-icon">
+                <i class="zmdi zmdi-search"></i>
+              </div>
+            </div>
+            <div class="typeahead-options"></div>
+          </div>
+        </div>
+      </div>
+    {% endblock %}
+
+    <div class="header-right">
+      <div class="header-action-bar">
+        {% block dropdown_add_new %}{% endblock %}
+        {% block drawers %}{% endblock %}
+
+        {{ UI.dropdownButton({
+          label: false,
+          right: true,
+          aCss: 'header-icon dropdown-header-icon popup-container',
+          mCss: 'popup-content list-settings',
+          iCss: 'button button-toggle zmdi zmdi-more-vert',
+          elements: [
+            {
+              path: path('security_logout'),
+              label: 'Log Out',
+              iCss: 'zmdi zmdi-square-right',
+              opCss: 'option-list-item-divider'
+            }
+          ]
+        }) }}
+      </div>
+    </div>
+  </div>
+</header>

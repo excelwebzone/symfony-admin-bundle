@@ -1,0 +1,5 @@
+<div class="rating p-0">
+  {% for i in 1..max %}
+    <div class="star star-2x {% if i <= rating %}is-selected{% else %}is-empty{% endif %} {{ class }}"></div>
+  {% endfor %}
+</div>

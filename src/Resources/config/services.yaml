@@ -1,0 +1,64 @@
+services:
+    EWZ\SymfonyAdminBundle\Doctrine\UserSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+        arguments:
+            - '@security.encoder_factory'
+
+    EWZ\SymfonyAdminBundle\Service\FileUploader:
+        calls:
+            - method: setMimeTypesExtensions
+              arguments:
+                  - '%symfony_admin.mime_types.extensions%'
+            - method: setMimeTypesTypes
+              arguments:
+                  - '%symfony_admin.mime_types.types%'
+
+    #
+    # CronScheduleRepository
+    #
+
+    symfony_admin.command.cron_command:
+        class: EWZ\SymfonyAdminBundle\Command\CronCommand
+        arguments:
+            - '@symfony_admin.cron_schedule_repository'
+
+    symfony_admin.command.cron_definitions_load_command:
+        class: EWZ\SymfonyAdminBundle\Command\CronDefinitionsLoadCommand
+        arguments:
+            - '@symfony_admin.cron_schedule_repository'
+
+    symfony_admin.cron_schedule_repository.default:
+        class: EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository
+        arguments:
+            - '@doctrine'
+            - '@security.token_storage'
+
+    EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository:
+        alias: 'symfony_admin.cron_schedule_repository'
+
+    #
+    # UserRepository
+    #
+
+    symfony_admin.security.user_provider:
+        class: EWZ\SymfonyAdminBundle\Security\UserProvider
+        arguments:
+            - '@symfony_admin.user_repository'
+
+    symfony_admin.event_subscriber.last_login_subscriber:
+        class: EWZ\SymfonyAdminBundle\EventSubscriber\LastLoginSubscriber
+        tags:
+            - kernel.event_subscriber
+        arguments:
+            - '@symfony_admin.user_repository'
+
+    symfony_admin.user_repository.default:
+        class: EWZ\SymfonyAdminBundle\Repository\UserRepository
+        arguments:
+            - '@doctrine'
+            - '@security.token_storage'
+            - '@security.encoder_factory'
+
+    EWZ\SymfonyAdminBundle\Repository\UserRepository:
+        alias: 'symfony_admin.user_repository'

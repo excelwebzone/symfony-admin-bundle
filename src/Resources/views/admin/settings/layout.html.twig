@@ -1,0 +1,52 @@
+{% extends '@SymfonyAdmin/layout/backend/layout.html.twig' %}
+
+{% block title 'Settings' %}
+
+{% set header_title = 'Settings' %}
+{% set header_class = 'header-settings' %}
+
+{% block body %}
+  <div class="settings-left-column">
+    <ul class="settings-nav">
+      {% block settings_nav %}{% endblock %}
+    </ul>
+  </div>
+
+  <div class="settings-right-column">
+    {% block settings_main %}
+      <div class="settings-content-main">
+        <section class="page-title">
+          {% if settings_title_back is defined and settings_title_back %}
+            <div class="page-title-back-link">
+              <i class="zmdi zmdi-arrow-left"></i>
+              <a href="{{ settings_title_back.link }}">{{ settings_title_back.title }}</a>
+            </div>
+          {% endif %}
+
+          <div class="media">
+            <div class="media-body">
+              <h1 >{{ section_title|default('') }}</h1>
+
+              {% if section_action_icon is defined and section_action_icon %}
+                <span class="ml-4 settings-content-action-icon js-entity-modal" data-endpoint="{{ section_action_icon.link }}">
+                  <i class="{{ section_action_icon.icon }}"></i>
+                </span>
+              {% endif %}
+            </div>
+
+            {% if section_help_link is defined and section_help_link %}
+              <a href="{{ section_help_link.link }}" class="page-title-help-link media-right" target="_blank">
+                <i class="zmdi zmdi-help"></i> {{ section_help_link.title }}
+              </a>
+            {% endif %}
+          </div>
+          <div class="media">
+            <div class="page-title-description media-body">{{ section_description|default('') }}</div>
+          </div>
+        </section>
+
+        {% block section_blocks %}{% endblock %}
+      </div>
+    {% endblock %}
+  </div>
+{% endblock %}

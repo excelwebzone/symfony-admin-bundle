@@ -1,0 +1,21 @@
+{% extends '@SymfonyAdmin/layout/backend/layout.html.twig' %}
+
+{% block title 'Unauthorized' %}
+
+{% set icon = 'close' %}
+
+{% block body %}
+  <div class="unauthorized">
+    <div class="unauthorized-icon">
+      <i class="unauthorized-small-icon zmdi zmdi-eye-off"></i>
+      <i class="unauthorized-large-icon zmdi zmdi-{{ icon }}"></i>
+    </div>
+    <div class="unauthorized-content">
+      Looks like you don't have access to this section.
+      <div class="unauthorized-subtext">
+        If you need access contact your admin.
+      </div>
+    </div>
+    <button class="button button-raised button-raised-primary unauthorized-button">Go to the Dashboard</button>
+  </div>
+{% endblock %}

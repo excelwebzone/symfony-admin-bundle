@@ -1,0 +1,973 @@
+{#
+  Create the link
+  Parameters - array:
+    [
+      path - button url
+      label - button label
+      title - button title
+      class - default class
+      aCss - additional button class
+      iCss - css class for 'i' tag (icon)
+      iSelf - show icon before link
+      data - additional data attributes
+    ]
+#}
+{% macro link(parameters) %}
+  {# need to remove spaces just before label #}
+  {% set iconHtml = '' %}
+  {% if parameters.iCss is defined and parameters.iCss %}
+    {% set iconHtml %}
+    <i class="{{ parameters.iCss }}"></i>
+    {% endset %}
+  {% endif %}
+  {% if parameters.iSelf is defined and parameters.iSelf %}
+   {{ iconHtml|trim|raw }}
+  {% endif %}
+  {% spaceless %}
+  <a href="{{ parameters.path is defined ? parameters.path : 'javascript: void(0);' }}"
+    {% if (parameters.id is defined) %}
+      id="{{ parameters.id }}"
+    {% endif %}
+    {% if parameters.data is defined %}
+      {% for dataItemName, dataItemValue in parameters.data %}
+        data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+      {% endfor %}
+    {% endif %}
+    {% if parameters.title is defined %}
+      title="{{ parameters.title }}"
+    {% endif %}
+    class="{{ parameters.class is defined ? parameters.class : '' }} {{ parameters.aCss is defined ? parameters.aCss : '' }}"
+  >
+    {% if parameters.iSelf is not defined or not parameters.iSelf %}
+     {{ iconHtml|trim|raw }}
+    {% endif %}
+    {{- parameters.label|trim }}
+  </a>
+  {% endspaceless %}
+{% endmacro %}
+
+{#
+  Create dropdown button
+  Parameters - array:
+    [
+      label - button label
+      elements - dropdown elements
+      html - html from placeholder
+      aCss - additional drop down class
+      lCss - additional drop down label class
+      mCss - additional drop down menu class
+      iCss - css class for 'i' tag (icon)
+      iWrapCss - css class for 'i' tag wrapper
+      right - float menu right
+      multiSelect - multi select menu
+      filtered - dropdown filter
+    ]
+#}
+{% macro dropdownButton(parameters) %}
+  {% import _self as UI %}
+
+  <div class="dropdown {% if parameters.filtered|default(false) %}has-filter{% endif %} {{ parameters.aCss|default('')}} {% if parameters.multiSelect|default(false) %}multi-select-dropdown{% endif %}">
+    <div class="{{ parameters.lCss|default('') }}" data-toggle="dropdown">
+      {% if parameters.label %}
+        <span class="dropdown-text">{{ parameters.label|raw }}</span>
+      {% endif %}
+
+      {% if parameters.iWrapCss is defined %}
+        <div class="{{ parameters.iWrapCss }}">
+      {% endif %}
+      {% if parameters.iCss is defined %}
+        <i class="{{ parameters.iCss }}"></i>
+      {% endif %}
+      {% if parameters.iWrapCss is defined %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="dropdown-menu {{ parameters.right|default(false) ? 'dropdown-menu-right' : '' }} dropdown-options {{ parameters.mCss|default('') }} {% if parameters.multiSelect|default(false) %}multi-select-dropdown-options{% endif %}">
+      {%- if parameters.filtered|default(false) -%}
+        <div class="dropdown-filter">
+          <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+        </div>
+      {%- endif -%}
+      <div class="option-list">
+        <ul>
+          {% if parameters.elements is defined and parameters.elements is not empty %}
+            {% for item in parameters.elements %}
+              {% if parameters.multiSelect is defined %}
+                {{ UI.dropdownItemSelect(item) }}
+              {% else %}
+                {% if item.isLabel is defined and item.isLabel %}
+                  {{ UI.dropdownLabel(item) }}
+                {% else %}
+                  {{ UI.dropdownItem(item) }}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if parameters.html is defined and parameters.html is not empty %}
+            {{ parameters.html|raw }}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{#
+  Create the dropdown button item
+  Parameters - array:
+    [
+      name - button name
+      label - button label
+      value - button value
+      opCss - css class for 'li' tag (option item)
+      opData - additional data attributes
+      isChecked - whether or not item checked
+    ]
+#}
+{% macro dropdownItemSelect(parameters) %}
+  {% import _self as UI %}
+
+  <li class="multi-select-dropdown-option-item js-multi-select{% if 'all' == parameters.value %}-all{% endif %} {{ parameters.opCss is defined ? parameters.opCss : '' }}"
+    {% if parameters.opData is defined %}
+      {% for dataItemName, dataItemValue in parameters.opData %}
+        data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+      {% endfor %}
+    {% endif %}
+  >
+    <div class="checkbox">
+      <label class="checkbox-label">
+        <input name="{{ parameters.name }}" type="checkbox" value="{{ parameters.value }}" class="checkbox-input" {% if parameters.isChecked is defined and parameters.isChecked %}checked="checked"{% endif %} />
+        <span class="checkbox-display">
+          <i class="zmdi zmdi-check-square checked"></i>
+          <i class="zmdi zmdi-square-o unchecked"></i>
+        </span>
+        <span class="checkbox-text">{{ parameters.label }}</span>
+      </label>
+    </div>
+  </li>
+{% endmacro %}
+
+{#
+  Create the dropdown button item
+  Parameters - array:
+    [
+      iCss - css class for 'i' tag (icon)
+      opCss - css class for 'li' tag (option item)
+      opData - additional data attributes
+    ]
+#}
+{% macro dropdownItem(parameters) %}
+  {% import _self as UI %}
+
+  <li class="option-list-item {{ parameters.opCss is defined ? parameters.opCss : '' }}"
+    {% if parameters.opData is defined %}
+      {% for dataItemName, dataItemValue in parameters.opData %}
+        data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+      {% endfor %}
+    {% endif %}
+  >
+    {% if parameters.iCss is defined and parameters.iCss %}
+      <i class="option-list-item-icon {{ parameters.iCss }}"></i>
+    {% endif %}
+
+    {% set parameters = parameters|merge({class: (parameters.class|default('') ~ ' option-list-item-text')|trim}) %}
+    {% set parameters = parameters|merge({iCss: false}) %}
+    {{ UI.link(parameters) }}
+  </li>
+{% endmacro %}
+
+{% macro dropdownLabel(parameters) %}
+  {% import _self as UI %}
+
+  <li class="option-list-label {{ parameters.opCss is defined ? parameters.opCss : '' }}">
+    {% if parameters.iCss is defined and parameters.iCss %}
+      <i class="option-list-item-icon {{ parameters.iCss }}"></i>
+    {% endif %}
+
+    <div class="option-list-item-text">{{- parameters.label|trim }}</div>
+  </li>
+{% endmacro %}
+
+{% macro profileImageComponentEntity(entity, class = null) %}
+  {% import _self as UI %}
+
+  {% if entity.photo is defined and entity.photo %}
+    {{ UI.profileImageComponentImage(entity.photo, class) }}
+  {% else %}
+    {% set initials = [] %}
+    {% for word in entity|trim|split(' ') %}
+      {% set initials = initials|merge([word[:1]|upper]) %}
+    {% endfor %}
+    {{ UI.profileImageComponentInitials(initials|slice(0, 2)|join(''), class) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro profileImageComponentImage(image, class = null) %}
+  <div class="profile-image-component profile-image-component-circle {% if image %}is-photo-loaded{% else %}is-empty{% endif %} {{ class }}">
+    <div class="profile-image-component-image">
+      <img src="{{ asset(image|default('images/avatar.png')) }}" />
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro profileImageComponentIcon(icon, class = null) %}
+  <div class="profile-image-component profile-image-component-circle is-empty {{ class }}">
+    <div class="profile-image-component-icon">
+      <i class="{{ icon }}"></i>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro profileImageComponentInitials(initials, class = null) %}
+  <div class="profile-image-component profile-image-component-circle {{ class }}">
+    <div class="profile-image-component-initials">
+      {{ initials }}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro listPageColumns(layoutTableName, column, index, fixedColumns, defaultColumns) %}
+  {% import _self as UI %}
+
+  {% set columns = app.user.tableColumns(layoutTableName) %}
+  {% set defaultSortField = app.request.get('sort')|default('createdAt-desc')|split('-')[0] %}
+  {% set defaultSortDir = app.request.get('sort')|default('createdAt-desc')|split('-')[1] %}
+
+  {{ fixedColumns }}
+
+  {% if columns %}
+    {% for column in columns[column] %}
+      {% set sortDir = null %}
+      {% set classList = column.mobileCell ? 'table-cell-mobile' : null %}
+      {% if defaultSortField == column.field %}
+        {% set sortDir = defaultSortDir %}
+        {% set classList = (classList ~ ' js-default-sort')|trim %}
+      {% endif %}
+
+      {{ UI.itemColumn(loop.index + index, column.width, column.field, column.name, column.align, column.sortable, sortDir, classList) }}
+    {% endfor %}
+  {% else %}
+    {{ defaultColumns }}
+  {% endif %}
+{% endmacro %}
+
+{% macro listPageTable(rightColumns, leftColumns = null, data = {}, headerHeight = 53, rowHeight = 53, defaultColumnWidth = 185, relatedObject = null) %}
+  {% import _self as UI %}
+
+  <div class="ember-table-tables-container js-ember-table"
+    data-header-height="{{ headerHeight }}"
+    data-row-height="{{ rowHeight }}"
+    data-default-column-width="{{ defaultColumnWidth }}"
+    data-related-object="{{ relatedObject }}"
+
+    {% if data.parameters is defined %}
+      {% for dataItemName, dataItemValue in data.parameters %}
+        data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+      {% endfor %}
+    {% endif %}
+
+    {% if data.layoutTableName|default(false) %}
+      data-resizable="true"
+      data-sortable="true"
+      data-settings-endpoint="{{ path('admin_api_user_settings_table', {id: app.user.id, table: data.layoutTableName}) }}"
+    {% endif %}
+  >
+    <div class="ember-table-table-container ember-table-fixed-table-container ember-table-header-container js-ember-table-header-height js-ember-table-width">
+      <div class="ember-table-table-fixed-wrapper">
+        {% if leftColumns is not empty %}
+          <div class="ember-table-left-table-block ember-table-table-block ember-table-header-block js-ember-table-header-height js-ember-column-left-width">
+            <div class="ember-table-table-row ember-table-header-row js-ember-row-left-width">
+              <div class="js-ember-row-left-width">
+                {{ leftColumns }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="ember-table-right-table-block ember-table-table-block ember-table-header-block js-ember-table-header-height js-ember-column-right-width">
+          <div class="ember-table-table-row ember-table-header-row {{ data.scrollBlockClass|default('js-scroll-left') }} js-ember-row-right-width">
+            <div class="js-ember-row-right-width">
+              {{ rightColumns }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ember-table-table-container ember-table-table-container ember-table-body-container antiscroll-wrap js-antiscroll js-ember-table-max-height js-ember-table-width" data-scroll-block="{{ data.scrollBlockTarget|default('.js-scroll-left') }}" data-horizontal="true" data-vertical="true">
+      <div class="antiscroll-box antiscroll-inner">
+
+        {% if leftColumns is not empty %}
+          <div class="ember-table-left-table-block ember-table-table-block js-ember-table-height js-ember-column-left-width">
+            <div class="js-ember-table-max-height js-ember-row-left-width">
+              {{ data.left|default('') }}
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="ember-table-right-table-block ember-table-table-block js-ember-table-height js-ember-row-right-width">
+          <div class="js-ember-table-max-height js-ember-row-right-width">
+            {{ data.right|default('') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro listPageEmptyContent(icon, hide = true, relative = false) %}
+  <div class="list-page-empty-content {% if relative %}is-relative{% endif %}" {% if hide %}style="display: none"{% endif %}>
+    <div class="empty-icon"><i class="zmdi zmdi-{{ icon|default('alert-circle-o') }}"></i></div>
+    <div class="empty-title">No Results Found</div>
+    <div class="empty-message">Search for something new or clear your filters</div>
+  </div>
+{% endmacro %}
+
+{% macro listPageLoadingPopup(hide = false) %}
+  <div class="list-page-loading-popup" {% if hide %}style="display: none"{% endif %}>
+    <div class="list-loading-content">
+      <div class="list-loading-content-loading-spinner circle-spinner circle-spinner-white"></div> Loading..
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro emptyColumn(index, width) %}
+  <div class="ember-table-cell ember-table-header-cell table-header-cell table-header-cell-empty text-center js-ember-table-header-height js-ember-table-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
+    <div class="table-header-cell-content">
+      <span></span>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro selectColumn(index, width, jsClass = 'js-bulk-select-all') %}
+  <div class="ember-table-cell ember-table-header-cell table-header-cell table-header-cell-select text-right js-ember-table-header-height js-ember-table-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
+    <div class="table-header-cell-content">
+      <span class="checkbox">
+        <label class="checkbox-label">
+          <input type="checkbox" value="1" class="checkbox-input {{ jsClass }}" />
+          <span class="checkbox-display">
+            <i class="zmdi zmdi-check-square checked"></i>
+            <i class="zmdi zmdi-square-o unchecked"></i>
+          </span>
+          <span class="checkbox-text"></span>
+        </label>
+      </span>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro itemColumn(index, width, field, name, align = 'left', sortable = true, sortDir = null, class = null) %}
+  <div class="ember-table-cell ember-table-header-cell table-header-cell {{ class }} text-{{ align }} {% if sortable %}table-header-cell-sortable sortable {% if sortDir %}table-header-cell-sort-{{ sortDir }}ending{% endif %}{% endif %} js-ember-table-header-height js-ember-table-column-width"
+    data-index="{{ index }}"
+    data-column-width="{{ width }}"
+    data-field="{{ field }}"
+  >
+    <div class="table-header-cell-content">
+      <span>{{ name|title }} {% if sortable %}<i class="zmdi zmdi-sort-amount-desc"></i>{% endif %}</span>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro checkboxCell(index, id, jsClass = 'js-bulk-select') %}
+  <div class="ember-table-cell table-cell-select text-right js-ember-table-column-width" data-index="{{index }}">
+    <span class="checkbox">
+      <label class="checkbox-label">
+        <input  type="checkbox" value="{{ id }}" class="checkbox-input {{ jsClass }}" />
+        <span class="checkbox-display">
+          <i class="zmdi zmdi-check-square checked"></i>
+          <i class="zmdi zmdi-square-o unchecked"></i>
+        </span>
+        <span class="checkbox-text"></span>
+      </label>
+    </span>
+  </div>
+{% endmacro %}
+
+{% macro followCell(index, id, isChecked, followUrl) %}
+  <div class="ember-table-cell table-cell-follow text-center js-ember-table-column-width" data-index="{{ index }}">
+    <span class="checkbox">
+      <label class="checkbox-label">
+        <input type="checkbox" value="{{ id }}" class="checkbox-input js-follow-item" {% if isChecked %}checked="checked"{% endif %} data-endpoint="{{ followUrl }}" />
+        <span class="checkbox-display">
+          <i class="zmdi zmdi-star checked"></i>
+          <i class="zmdi zmdi-star-outline unchecked"></i>
+        </span>
+        <span class="checkbox-text"></span>
+      </label>
+    </span>
+  </div>
+{% endmacro %}
+
+{% macro taskCheckboxCell(index, id, isChecked, completeUrl) %}
+  <div class="ember-table-cell table-cell-task text-right js-ember-table-column-width" data-index="{{index }}">
+    <span class="task-check-box-small task-check-box checkbox">
+      <label class="task-check-box-container {% if isChecked %}is-completed{% endif %}">
+        <input type="checkbox" value="{{ id }}" class="checkbox-input js-complete-item" {% if isChecked %}checked="checked"{% endif %} data-endpoint="{{ completeUrl }}" />
+        <span class="task-check-box-checkbox">
+          <i class="zmdi zmdi-square-o unchecked"></i>
+          <i class="zmdi zmdi-check-square checked"></i>
+        </span>
+        <div class="task-check-box-activity-icon">
+          <i class="zmdi zmdi-check-circle"></i>
+        </div>
+      </label>
+    </span>
+  </div>
+{% endmacro %}
+
+{% macro avatarCell(index, avatar, class = null) %}
+  {% import _self as UI %}
+
+  <div class="ember-table-cell table-cell-avatar text-center js-ember-table-column-width" data-index="{{ index }}">
+    {% if avatar.id is defined %}
+      {{ UI.profileImageComponentEntity(avatar, class) }}
+    {% else %}
+      {{ UI.profileImageComponentIcon(avatar, class) }}
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro itemCell(index, value, key = 'text', link = null, align = 'left', class = null, params = {}) %}
+  <div class="ember-table-cell table-cell-{{ key }} {{ class }} text-{{ align }} js-ember-table-column-width" data-index="{{ index }}">
+    {% if link %}
+      <a href="{{ link }}">{{ value|default('—') }}</a>
+    {% elseif value %}
+      {% if 'badge' == key and params.color|default(false) %}
+        <div class="badge p-2" style="color: #fff; background-color: #{{ params.color }}">{{ value }}</div>
+      {% elseif 'date' == key %}
+        <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat, app.user.timezone) }}</time>
+      {% elseif 'datetime' == key %}
+        <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat ~ ' H:i:s', app.user.timezone) }}</time>
+      {% elseif 'email' == key %}
+        <a href="mailto:{{ value }}">{{ value }}</a>
+      {% elseif 'phone' == key %}
+        <a href="tel:{{ value }}">{{ value }}</a>
+      {% elseif 'name' == key %}
+        <div>{{ value }}</div>
+      {% elseif 'integer' == key %}
+        <div>{{ value|number_format }}</div>
+      {% elseif 'number' == key %}
+        <div>{{ value|number_format(2) }}</div>
+      {% elseif 'money' == key %}
+        <div>${{ value|number_format(2) }}</div>
+      {% elseif 'percent' == key %}
+        <div>{{ value|number_format(2) }}%</div>
+      {% elseif 'boolean' == key %}
+        {% if value %}Yes{% else %}—{% endif %}
+      {% else %}
+        {{ value|raw }}
+      {% endif %}
+    {% else %}
+      —
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro fieldCell(index, form, attr = {}) %}
+  <div class="ember-table-cell table-cell-text text-center js-ember-table-column-width" data-index="{{ index }}">
+    {{ form_row(form, attr) }}
+  </div>
+{% endmacro %}
+
+{% macro filterDropdown(defaultFilter, publicFilters, privateFilters = [], editUrl = null, deleteUrl = null) %}
+  {% import _self as UI %}
+
+  <div class="dropdown list-filter-selector-list list-filter-selector">
+    <div class="list-filter-selector-selected" data-toggle="dropdown">
+      <span class="dropdown-text">{{ defaultFilter.title }}</span> (<span class="dropdown-count">0</span>)
+      <div class="list-filter-selector-indicator">
+        <i class="zmdi zmdi-caret-down"></i>
+      </div>
+    </div>
+
+    <div class="dropdown-menu dropdown-options list-filter-selector-options">
+      <div class="option-list js-filter-active">
+        <ul>
+          {{ UI.filterDropdownItem(
+            defaultFilter.id,
+            defaultFilter.title,
+            defaultFilter.filter|default({}),
+            defaultFilter.isActive|default(false),
+            defaultFilter.isLocked|default(false)
+          ) }}
+        </ul>
+      </div>
+      <hr />
+      <div class="option-list js-filter-list">
+        <ul>
+          <li class="option-list-label">
+            <div class="option-list-label-label">Private Filters</div>
+          </li>
+          <li class="option-list-label option-list-label-empty js-no-private-filters {% if privateFilters|length %}hide{% endif %}">
+            <div class="option-list-label-label">No Private Filters</div>
+          </li>
+          {% for filter in privateFilters|default([]) %}
+            {{ UI.filterDropdownItem(
+              filter.id,
+              filter|title,
+              filter.params,
+              false,
+              false,
+              false,
+              editUrl,
+              deleteUrl
+            ) }}
+          {% endfor %}
+          <li class="option-list-label js-public-filters">
+            <div class="option-list-label-label">Public Filters</div>
+          </li>
+          {% for filter in publicFilters %}
+            {{ UI.filterDropdownItem(
+              filter.id,
+              filter.title,
+              filter.filter|default({}),
+              filter.isActive|default(false),
+              filter.isLocked|default(false),
+              filter.isDefault|default(false)
+            ) }}
+          {% endfor %}
+        </ul>
+      </div>
+      <hr />
+      <div class="option-list">
+        <ul>
+          <li class="option-list-item option-list-item-action-button" data-toggle="collapse" data-target=".drawer-frame">
+            <span class="option-list-item-text">Create a Custom Filter</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  {% if deleteUrl %}
+    <script type="text/template" id="deleteFilterModalTemplate">
+      <form class="modal-form js-entity-form"
+        data-endpoint="{{ path(deleteUrl, {id: '__ID__'})|replace({'__ID__': '<%- id %>'})|raw }}"
+        data-submit="true"
+        data-remove-row=".js-saved-filter[data-id=<%- id %>]"
+      >
+        <input type="hidden" name="_method" value="DELETE" />
+
+        <div class="modal-header modal-slim-header">
+          Are you sure you want to delete filter <%- name %>?
+        </div>
+        <div class="modal-footer modal-slim-footer">
+          <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="button button-flat button-flat-primary">Ok</button>
+        </div>
+        <div class="modal-corner">
+          <div class="button-close" data-dismiss="modal">
+            <i class="zmdi zmdi-close"></i>
+          </div>
+        </div>
+      </form>
+    </script>
+  {% endif %}
+{%- endmacro -%}
+
+{% macro filterDropdownItem(id, title, filters = null, isActive = false, isLocked = false, isDefault = false, editUrl = null, deleteUrl = null) %}
+  <li class="option-list-item option-list-item-filter option-list-item-has-overflow {% if isActive %}option-list-item-active{% endif %} {% if isLocked %}is-locked{% endif %} {% if isDefault %}is-default{% endif %} js-saved-filter" data-id="{{ id }}" data-filter="{% if filters %}{% if filters is iterable %}{{ filters|json_encode }}{% else %}{{ filters }}{% endif %}{% else %}{}{% endif %}">
+    <div class="option-list-item-right-content">
+      {% if isLocked %}
+        <div class="option-list-item-hover-content">
+          <i class="zmdi zmdi-icon zmdi-lock"></i>
+        </div>
+      {% else %}
+        <div class="option-list-item-hover-content">
+          {% if editUrl %}
+            <span data-toggle="tooltip" data-placement="top" title="Edit">
+              <i class="zmdi zmdi-icon zmdi-settings js-entity-modal" data-endpoint="{{ path(editUrl, {id: id}) }}"></i>
+            </span>
+          {% endif %}
+          {% if deleteUrl %}
+            <span data-toggle="tooltip" data-placement="top" title="Delete">
+              <i class="zmdi zmdi-icon zmdi-delete js-entity-modal-template" data-template="#deleteFilterModalTemplate" data-arguments="{{ {id: id, name: title}|json_encode }}"></i>
+            </span>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="option-list-item-text">{{ title }}</div>
+  </li>
+{%- endmacro -%}
+
+{% macro filterDrawer(section, title, filterForm, allowSaving = true) %}
+  <div class="filter-options drawer-frame drawer-frame-list collapse">
+    <div class="filter-options-header">
+      <div class="filter-options-close-button" data-toggle="collapse" data-target=".drawer-frame">
+        <i class="zmdi zmdi-arrow-right"></i>
+      </div>
+      <div class="filter-options-title">Filter {{ title|title }}</div>
+      <div class="filter-options-clear-button">
+        <button type="button" class="button button-flat button-flat-primary js-filter-clear-button">Clear All</button>
+      </div>
+    </div>
+
+    <div class="filter-options-scroll-wrapper show-footer {% if not allowSaving %}pb-0{% endif %}">
+      <div class="filter-options-content">
+        <div class="filter-options-group-list js-filter-form">
+          {{ filterForm|raw }}
+        </div>
+      </div>
+    </div>
+
+    {% if allowSaving %}
+      {% set report = section|split('|')[1]|default(null) %}
+      {% set section = section|split('|')[0] %}
+
+      <div class="filter-options-footer">
+        <button type="button" class="button button-raised button-raised-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
+        <button type="button" class="button button-raised button-raised-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create') }}">Save Filter Set</button>
+      </div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro filterToggle(title, filterWidget) %}
+  <div class="filter js-toggle-container">
+    <div class="filter-header js-toggle-button">
+      <div class="filter-label">{{ title|title }} <span></span></div>
+      <i class="zmdi zmdi-chevron-down"></i>
+    </div>
+    <div class="js-toggle-content hide">
+      {{ filterWidget|raw }}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro filterRange(id, label, title, filterWidget, jsClass, container = null) %}
+  <div class="filter filter-range">
+    <div class="filter-header js-{{ jsClass }}" data-filter-field="{{ id }}">
+      <span class="filter-range-label"><a>{{ label }}</a></span>
+      <div class="filter-label">{{ title|title }}</div>
+      {{ filterWidget|raw }}
+    </div>
+  </div>
+  {{ container }}
+{% endmacro %}
+
+{% macro filterTagsRange(id, title, filterWidget) %}
+  {% import _self as UI %}
+
+  {{ UI.filterRange(id, 'Select Tags', title, filterWidget, 'tagspicker') }}
+{% endmacro %}
+
+{% macro filterDateRange(id, title, filterWidget) %}
+  {% import _self as UI %}
+
+  {{ UI.filterRange(id, 'Select Date Range', title, filterWidget, 'daterangepicker') }}
+{% endmacro %}
+
+{% macro entityField(form, placeholder, isText = false, prop = {}) %}
+  <div class="entity-field">
+    <div class="entity-field-label">
+      {{ form.vars.label|trans|default(form.vars.name|humanize)|title }} <i class="bulk-edit-drawer-dot zmdi zmdi-circle"></i>
+    </div>
+    <div class="entity-field-value entity-field-smaller-width">
+      <div class="entity-field-summary-value js-entity-field">Click to edit</div>
+
+      {% if isText %}
+        {{ form_row(form, prop|merge({
+          label: false,
+          attr: {
+            placeholder: placeholder,
+            disabled: true
+          }
+        })) }}
+      {% else %}
+        {{ form_row(form, prop|merge({
+          label: false,
+          placeholder: placeholder,
+          attr: {
+            disabled: true
+          }
+        })) }}
+      {% endif %}
+    </div>
+    <div class="entity-field-edit-icon js-entity-field">CANCEL</div>
+  </div>
+{% endmacro %}
+
+{% macro bulkButton(id, title, icon, buttonStyle = 'toggle', class = null, data = {}) %}
+  <div class="button button-{{ buttonStyle }} {{ class }} js-bulk-{{ id }}"
+    {% for dataItemName, dataItemValue in data %}
+      data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+    {% endfor %}
+  >
+    <i class="{{ icon }}" data-toggle="tooltip" data-placement="bottom" title="{{ title|title }}"></i>
+  </div>
+{% endmacro %}
+
+{% macro bulkEditDrawerTemplate(section, form, fields, editUrl, singular, plural, drawerId = null) %}
+  <script type="text/template" id="bulk{{ drawerId|capitalize|replace({' ': ''}) }}EditDrawerTemplate">
+    <div class="drawer-frame drawer-frame-list collapse">
+      <div class="bulk-edit-drawer-header {{ section }}">
+        <div class="bulk-edit-drawer-close js-drawer-close">
+          <div class="button button-icon">
+            <i class="zmdi zmdi-arrow-right"></i>
+          </div>
+        </div>
+
+        <div class="bulk-edit-drawer-title">
+          Edit Details<br/><span><%- ids.length %></span> <span data-singular="{{ singular }}" data-plural="{{ plural }}"><% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %></span> Selected
+        </div>
+      </div>
+
+      {{ form_start(form, {
+        attr: {
+          class: 'bulk-edit-drawer-wrapper bulk-edit-drawer-' ~ section ~ ' js-entity-form',
+          'data-endpoint': editUrl,
+          'data-submit': true,
+          'data-close-drawer': true
+        }
+      }) }}
+
+        <% for (id of ids) { %>
+          <input type="hidden" name="ids[]" value="<%- id %>" />
+        <% } %>
+
+        <div class="bulk-edit-drawer-form">
+          <div class="bulk-edit-drawer-loading">
+            <div class="bulk-edit-drawer-loading-text">Loading..</div>
+            <div class="bulk-edit-drawer-loading-icon">
+              <div class="circle-spinner"></div>
+            </div>
+          </div>
+          <div class="bulk-edit-drawer-fields">
+            {{ fields|raw }}
+          </div>
+        </div>
+
+        <div class="bulk-edit-drawer-footer">
+          <button type="button" class="button button-flat js-drawer-close">Cancel</button>
+          <button type="submit" class="button button-raised button-raised-primary">Update</button>
+        </div>
+
+        <div class="d-none">
+          {{ form_rest(form) }}
+        </div>
+      {{ form_end(form) }}
+    </div>
+  </script>
+{% endmacro %}
+
+{% macro bulkDeleteModalTemplate(deleteUrl, singular, plural) %}
+  <script type="text/template" id="bulkDeleteModalTemplate">
+    <form class="modal-form js-entity-form"
+      data-endpoint="{{ deleteUrl }}"
+      data-submit="true"
+    >
+      <% for (id of ids) { %>
+        <input type="hidden" name="ids[]" value="<%- id %>" />
+      <% } %>
+
+      <div class="modal-header">
+        Delete <%- ids.length %> <% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %>
+      </div>
+      <div class="modal-body">
+        <div class="modal-explanation">
+          Are you sure you want to delete <%- ids.length %> <% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %>? All information related to them will be lost.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="button button-flat button-flat-primary">Delete</button>
+      </div>
+      <div class="modal-corner">
+        <div class="button-close" data-dismiss="modal">
+          <i class="zmdi zmdi-close"></i>
+        </div>
+      </div>
+    </form>
+  </script>
+{% endmacro %}
+
+{% macro entityDrawerTemplate(section, titleField = null, subtitleField = [], links = {}, entityDetailsBoxes = false, drawerId = 'entity') %}
+  {% import _self as UI %}
+
+  <script type="text/template" id="{{ drawerId }}DrawerTemplate">
+    <div id="{{ drawerId }}Drawer" class="drawer-frame drawer-frame-list entity-profile-frame {% if section %}entity-profile-frame-{{ section }}{% endif %} entity-profile-frame-preview <% if (isComplete) { %>is-complete<% } %> collapse" data-id="<%- id %>">
+      <div class="entity-profile-frame-header-box">
+        <div class="entity-profile-frame-header-actions-box">
+          <div class="entity-profile-frame-header-left-actions">
+            <span class="entity-profile-frame-header-action-button js-drawer-close">
+              <div class="button button-icon">
+                <i class="zmdi zmdi-arrow-right"></i>
+              </div>
+            </span>
+          </div>
+
+          {% if links.block_actions|default(false) %}
+            <div class="entity-profile-frame-header-right-actions js-block-request" data-endpoint="{{ links.block_actions|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+          {% endif %}
+        </div>
+        <div class="entity-profile-frame-title-box-container">
+          <div class="entity-profile-frame-title-box">
+            {% if links.complete_toggle|default(false) %}
+              <div class="entity-profile-frame-complete-toggle task-check-box checkbox">
+                <label class="task-check-box-container <% if (isComplete) { %>is-completed<% } %>">
+                  <input type="checkbox" value="<%- id %>" class="checkbox-input js-complete-item" <% if (isComplete) { %>checked="checked"<% } %> data-endpoint="{{ links.complete_toggle|replace({'__ID__': '<%- id %>'})|raw }}" />
+                  <span class="task-check-box-checkbox">
+                    <i class="zmdi zmdi-square-o unchecked"></i>
+                    <i class="zmdi zmdi-check-square checked"></i>
+                  </span>
+                  <div class="task-check-box-activity-icon">
+                    <i class="zmdi zmdi-check-circle"></i>
+                  </div>
+                </label>
+              </div>
+            {% else %}
+              <div class="entity-profile-frame-title-icon">
+                {% if links.update_photo|default(false) %}
+                  <div class="profile-image-component profile-image-component-circle dropzone <% if (photo) { %>is-photo-loaded<% } else { %>is-empty<% } %> js-file-chooser"
+                    data-endpoint="{{ links.update_photo|replace({'__ID__': '<%- id %>'})|raw }}"
+                    data-accepted-files="image/*"
+                    data-update-avatar="true"
+                    data-update-ember-table-avatar="true"
+                    data-id="<%- id %>"
+                  >
+                    <div class="profile-image-component-image">
+                      <img src="<%- photo %>" />
+                    </div>
+
+                    <div class="profile-image-component-icon">
+                      <i class="<%- icon %>"></i>
+                    </div>
+
+                    <div class="profile-image-component-overlay">
+                      <i class="zmdi zmdi-camera"></i>
+                    </div>
+
+                    <div class="profile-image-component-loading-overlay">
+                      <div class="profile-image-component-loading-icon circle-spinner circle-spinner-white"></div>
+                    </div>
+
+                    <label title="Upload Profile Image" class="profile-image-component-uploader drag-and-drop dz-default dz-message"></label>
+                  </div>
+                {% else %}
+                  <% if (photoFile) { %>
+                    {{ UI.profileImageComponentImage('__PHOTO__')|replace({'/__PHOTO__': '<%- photoFile %>'})|raw }}
+                  <% } else if (initials) { %>
+                    {{ UI.profileImageComponentInitials('__INITIALS__')|replace({'__INITIALS__': '<%- initials %>'})|raw }}
+                  <% } else { %>
+                    {{ UI.profileImageComponentIcon('__ICON__')|replace({'__ICON__': '<%- icon %>'})|raw }}
+                  <% } %>
+                {% endif %}
+              </div>
+            {% endif %}
+            <div class="entity-profile-frame-title-box-text">
+              <div class="entity-profile-frame-title" {% if titleField %}data-field="{{ titleField }}"{% endif %}><%- title %></div>
+              <div class="entity-profile-frame-subtitle">
+                {% for subtitle in subtitleField %}
+                  <span data-field="{{ subtitle.field }}"
+                    {% if subtitle.starts_with|default(false) %}data-starts-with="{{ subtitle.starts_with }}"{% endif %}
+                    {% if subtitle.ends_with|default(false) %}data-ends-with="{{ subtitle.ends_with }}"{% endif %}
+                    {% if subtitle.is_numeric|default(false) %}data-is-numeric="true"{% endif %}
+                    {% if subtitle.is_integer|default(false) %}data-is-integer="true"{% endif %}
+                  ><%- subtitle.{{ subtitle.field }} %></span>
+                {% else %}
+                  <%- subtitle %>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="entity-profile-frame-tab-box nav nav-tabs">
+          {% set defaultActive = false %}
+          {% if links.extra|default(false) %}
+            {% for tab, values in links.extra %}
+              {% if links.active_tab|default(false) == 'extra.' ~ tab %}
+                {% set defaultActive = links.active_tab %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if not defaultActive %}
+            {% set defaultActive = links.active_tab|default(false) %}
+          {% endif %}
+          {% if not defaultActive and defaultActive not in ['block_form', 'block_activity', 'block_related'] %}
+            {% set defaultActive = 'block_form' %}
+          {% endif %}
+
+          {% if links.block_form|default(false) %}
+            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_form' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-profile">Details</div>
+          {% endif %}
+          {% if links.block_activity|default(false) %}
+            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_activity' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-activity">Activity</div>
+          {% endif %}
+          {% if links.block_related|default(false) %}
+            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_related' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-related">Related</div>
+          {% endif %}
+          {% if links.extra|default(false) %}
+            {% for tab, values in links.extra %}
+              <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'extra.' ~ tab %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-{{ tab }}">{{ values.title }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      <div class="entity-profile-frame-content-box tab-content">
+        {% if links.block_form|default(false) %}
+          <div class="tab-pane tab-entity-profile h-100 {% if defaultActive == 'block_form' %}active{% endif %}">
+            <div class="entity-details {% if entityDetailsBoxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ links.block_form|replace({'__ID__': '<%- id %>'})|raw }}">
+              <div class="entity-details-loading-box">
+                <div class="entity-details-loading-icon">
+                  <div class="circle-spinner"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% if links.block_activity|default(false) %}
+          <div class="tab-pane tab-entity-activity h-100 {% if defaultActive == 'block_activity' %}active{% endif %} js-block-request js-activity-block" data-endpoint="{{ links.block_activity|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+        {% endif %}
+        {% if links.block_related|default(false) %}
+          <div class="tab-pane tab-entity-related h-100 {% if defaultActive == 'block_related' %}active{% endif %} js-block-request" data-endpoint="{{ links.block_related|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+        {% endif %}
+        {% if links.extra|default(false) %}
+          {% for tab, values in links.extra %}
+            {% if values.entity_details is not defined or values.entity_details %}
+              <div class="tab-pane tab-entity-{{ tab }} h-100">
+                <div class="entity-details {% if values.details_boxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
+                  <div class="entity-details-loading-box">
+                    <div class="entity-details-loading-icon">
+                      <div class="circle-spinner"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <div class="tab-pane tab-entity-{{ tab }} h-100  {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </script>
+
+  {% if links.delete|default(false) %}
+    {{ UI.deleteModalTemplate(links.delete) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro deleteModalTemplate(deleteUrl) %}
+  <script type="text/template" id="deleteModalTemplate">
+    <form class="modal-form js-entity-form"
+      data-endpoint="{{ deleteUrl|replace({'__ID__': '<%- id %>'})|raw }}"
+      data-submit="true"
+    >
+      <input type="hidden" name="_method" value="DELETE" />
+
+      <div class="modal-header modal-slim-header">
+        Are you sure you want to remove <%- name %>
+      </div>
+      <div class="modal-footer modal-slim-footer">
+        <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="button button-flat button-flat-primary">Delete</button>
+      </div>
+      <div class="modal-corner">
+        <div class="button-close" data-dismiss="modal">
+          <i class="zmdi zmdi-close"></i>
+        </div>
+      </div>
+    </form>
+  </script>
+{% endmacro %}

@@ -1,0 +1,14 @@
+{% macro containerBlock(title, cta, description, body) %}
+  <div class="container-block">
+    <div class="container-block-header">
+      <span class="container-block-title">{{ title|title }}</span>
+      <span class="container-block-cta">{{ cta|raw }}</span>
+    </div>
+    <div class="container-block-subheader">
+      <span class="container-block-description">{{ description }}</span>
+    </div>
+    {% if body is not empty %}
+      <div class="container-block-body">{{ body|raw }}</div>
+    {% endif %}
+  </div>
+{% endmacro %}

@@ -1,0 +1,28 @@
+error:
+    file:
+        file_empty: This file is empty.
+        too_big: Please upload a file smaller than %size% MB.
+        bad_dimensions: Please upload a file smaller than %dimensions%.
+        bad_file: We only support %mimeTypes% files.
+        bad_format: File contents don't match the file extension.
+        failed_request: Something went really wrong and we can't process that file.
+
+alert:
+    bulk_edit: '%total% records were updated.'
+    bulk_edit_empty: No records were updated.
+    bulk_delete: '%total% records were deleted.'
+    bulk_delete_empty: No records were deleted.
+    export_completed: Export completed.
+
+link:
+    download_file: Download File
+
+form:
+    address:
+        label: Address
+        street: Street
+        city: City
+        state: State
+        zip: Zip
+    filter:
+        name: Enter Filter Name

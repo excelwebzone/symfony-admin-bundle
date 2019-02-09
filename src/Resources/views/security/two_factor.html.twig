@@ -1,0 +1,32 @@
+{% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
+
+{% if authenticationError %}
+  {% set errors = [authenticationError|trans(authenticationErrorData)] %}
+{% endif %}
+
+{% block body %}
+  <div class="title">Two-factor authentication</div>
+
+  <form action="{{ path('two_factor_login_check') }}" autocomplete="off" method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+
+    <div class="form-group">
+      <input type="text" name="{{ authCodeParameterName }}" class="form-control" placeholder="Enter code" autofocus />
+    </div>
+
+    <button type="submit" class="button-submit">Verify</button>
+  </form>
+{% endblock %}
+
+{% block footer %}
+  <footer>
+    <div class="footer-text d-flex item-center justify-content-center">
+      <div class="col-1 text-right">
+        <i class="zmdi zmdi-hc-2x zmdi-smartphone-iphone"></i>
+      </div>
+      <div class="col-10 col-sm-5 text-left">
+         Open the two-factor authentication app on your device to view your authentication code and verify your identity.
+      </div>
+    </div>
+  </footer>
+{% endblock %}

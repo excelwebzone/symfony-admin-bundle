@@ -1,0 +1,22 @@
+{% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
+
+{% block body %}
+  <div class="title">Sign in to your account</div>
+
+  <form action="{{ path('security_login') }}" autocomplete="off" method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+    <input type="hidden" name="_target_path" value="{{ app.request.get('_target_path') }}" />
+
+    <div class="form-group">
+      <i class="zmdi zmdi-email"></i>
+      <input type="text" name="_username" value="{{ last_username }}" class="form-control" placeholder="Enter your username" autofocus />
+    </div>
+
+    <div class="form-group">
+      <i class="zmdi zmdi-lock"></i>
+      <input type="password" name="_password" class="form-control" placeholder="Enter your password" />
+    </div>
+
+    <button type="submit" class="button-submit button-login">Sign in</button>
+  </form>
+{% endblock %}
