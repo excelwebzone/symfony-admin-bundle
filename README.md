@@ -33,15 +33,7 @@ services:
         arguments:
             - '@doctrine'
             - '@security.token_storage'
-
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    EWZ\SymfonyAdminBundle\:
-        resource: '../../vendor/excelwebzone/symfony-admin-bundle/src/*'
-        exclude: '../../vendor/excelwebzone/symfony-admin-bundle/src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 ```
-
-> Note: we enabled autowire for automatically injects dependencies in your services. Will be removed later.
 
 ```yaml
 # config/routes.yaml
