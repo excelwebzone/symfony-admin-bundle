@@ -15,7 +15,27 @@ services:
                   - '%symfony_admin.mime_types.types%'
 
     #
-    # CronScheduleRepository
+    # Twig Extension
+    #
+
+    symfony_admin.twig.extension.app_extension:
+        class: EWZ\SymfonyAdminBundle\Twig\Extension\AppExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            - '@twig'
+            - '@kernel'
+            - '@scheb_two_factor.security.google_authenticator'
+
+    symfony_admin.twig.extension.string_extension:
+        class: EWZ\SymfonyAdminBundle\Twig\Extension\StringExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            - '@twig'
+
+    #
+    # Cron-Schedule Repository
     #
 
     symfony_admin.command.cron_command:
@@ -38,7 +58,7 @@ services:
         alias: 'symfony_admin.cron_schedule_repository'
 
     #
-    # UserRepository
+    # User Repository
     #
 
     symfony_admin.security.user_provider:
