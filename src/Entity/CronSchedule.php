@@ -4,6 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use EWZ\SymfonyAdminBundle\Modal\CronSchedule as BaseCronSchedule;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass
