@@ -43,6 +43,13 @@ services:
 
 > Note: we enabled autowire for automatically injects dependencies in your services. Will be removed later.
 
+```yaml
+# config/routes.yaml
+symfony_admin:
+    resource: '@SymfonyAdminBundle/Controller'
+    type: annotation
+```
+
 ## Usage
 
 TODO..
