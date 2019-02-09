@@ -16,8 +16,11 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="security_login")
      */
-    public function login(AuthenticationUtils $helper): Response
+    public function login(): Response
     {
+        /** @var AuthenticationUtils $helper */
+        $helper = $this->get('security.authentication_utils');
+
         // last authentication error (if any)
         if ($error = $helper->getLastAuthenticationError()) {
             $this->addFlash('error', $error->getMessage());
