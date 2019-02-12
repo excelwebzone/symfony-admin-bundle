@@ -17,6 +17,12 @@ services:
     EWZ\SymfonyAdminBundle\Service\FileUploader:
         alias: 'symfony_admin.service.file_uploader'
 
+    EWZ\SymfonyAdminBundle\Form\Type\AutocompleteType:
+        tags:
+            - { name: form.type }
+        arguments:
+            - '@doctrine'
+
     #
     # Twig Extension
     #
