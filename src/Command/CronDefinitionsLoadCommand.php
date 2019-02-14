@@ -29,7 +29,7 @@ class CronDefinitionsLoadCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('app:cron:definitions:load')
+            ->setName('admin:cron:definitions:load')
             ->setDescription('Loads cron commands definitions from application to database')
         ;
     }
@@ -43,7 +43,7 @@ class CronDefinitionsLoadCommand extends Command
 
         $this->cronScheduleRepository->clearCommands();
 
-        $applicationCommands = $this->getApplication()->all('app:cron');
+        $applicationCommands = $this->getApplication()->all('admin:cron');
 
         foreach ($applicationCommands as $name => $command) {
             $output->write(sprintf('Processing command "<info>%s</info>": ', $name));

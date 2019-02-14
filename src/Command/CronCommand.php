@@ -17,10 +17,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * ## Usage
  *
- * All you need is to add `app:cron` command to a system cron (on *nix systems), for example:
+ * All you need is to add `admin:cron` command to a system cron (on *nix systems), for example:
  *
  * ``` bash
- * *\/1 * * * * /usr/local/bin/php /path/to/bin/console --env=prod app:cron >> /dev/null
+ * *\/1 * * * * /usr/local/bin/php /path/to/bin/console --env=prod admin:cron >> /dev/null
  * ``
  *
  * On Windows you can use Task Scheduler from Control Panel.
@@ -50,7 +50,7 @@ class CronCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('app:cron')
+            ->setName('admin:cron')
             ->setDescription('Cron commands launcher')
         ;
     }
