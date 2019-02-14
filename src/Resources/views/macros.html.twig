@@ -229,7 +229,7 @@
 {% macro listPageColumns(layoutTableName, column, index, fixedColumns, defaultColumns) %}
   {% import _self as UI %}
 
-  {% set columns = app.user.tableColumns(layoutTableName) %}
+  {% set columns = app.user.tableColumns(layoutTableName)|default(false) %}
   {% set defaultSortField = app.request.get('sort')|default('createdAt-desc')|split('-')[0] %}
   {% set defaultSortDir = app.request.get('sort')|default('createdAt-desc')|split('-')[1] %}
 
