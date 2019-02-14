@@ -50,14 +50,14 @@ services:
     symfony_admin.command.cron_command:
         class: EWZ\SymfonyAdminBundle\Command\CronCommand
         tags:
-            - { name: console.command, command:"admin:cron" }
+            - { name: console.command, command: "admin:cron" }
         arguments:
             - '@symfony_admin.cron_schedule_repository'
 
     symfony_admin.command.cron_definitions_load_command:
         class: EWZ\SymfonyAdminBundle\Command\CronDefinitionsLoadCommand
         tags:
-            - { name: console.command, command:"admin:cron:definitions:load" }
+            - { name: console.command, command: "admin:cron:definitions:load" }
         arguments:
             - '@symfony_admin.cron_schedule_repository'
 
