@@ -14,7 +14,7 @@ abstract class CronScheduleRepository extends AbstractRepository
      */
     public function filterByArguments(array $schedules, array $arguments): array
     {
-        $argsSchedule = new CronSchedule();
+        $argsSchedule = $this->create();
         $argsSchedule->setArguments($arguments);
 
         return array_filter(
@@ -61,7 +61,7 @@ abstract class CronScheduleRepository extends AbstractRepository
             throw new \LogicException('Schedule with same parameters already exists.');
         }
 
-        $schedule = new CronSchedule();
+        $schedule = $this->create();
         $schedule->setCommand($command);
         $schedule->setArguments($arguments);
         $schedule->setDefinition($definition);

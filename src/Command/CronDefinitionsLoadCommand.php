@@ -71,7 +71,7 @@ class CronDefinitionsLoadCommand extends Command
     ): CronSchedule {
         $output->writeln('<comment>setting up schedule..</comment>');
 
-        $schedule = new CronSchedule();
+        $schedule = $this->cronScheduleRepository->create();
         $schedule->setCommand($name);
         $schedule->setDefinition($command->getDefaultDefinition());
         $schedule->setArguments($arguments);
