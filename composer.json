@@ -21,9 +21,8 @@
     "giggsey/libphonenumber-for-php": "^8.10",
     "html2text/html2text": "^4.2",
     "mtdowling/cron-expression": "^1.2",
-    "phpoffice/phpexcel": "^1.8",
-    "ramsey/uuid": "^3.8",
-    "scheb/two-factor-bundle": "^3.17",
+    "ramsey/uuid": "^3.8",,
+    "scheb/two-factor-bundle": "^3.17"
     "symfony/asset": "^4.2",
     "symfony/console": "^4.2",
     "symfony/form": "^4.2",
@@ -37,6 +36,9 @@
     "symfony/validator": "^4.2",
     "symfony/yaml": "^4.2",
     "white-october/pagerfanta-bundle": "^1.2"
+  },
+  "require-dev": {
+    "phpoffice/phpexcel": "^1.8"
   },
   "extra": {
     "branch-alias": {
