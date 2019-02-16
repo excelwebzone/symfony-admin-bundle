@@ -20,11 +20,11 @@ final class AppExtension extends AbstractExtension
     private $twoFactor;
 
     /**
-     * @param \Twig_Environment            $twig
-     * @param string                       $publicDir
-     * @param GoogleAuthenticatorInterface $twoFactor
+     * @param \Twig_Environment                 $twig
+     * @param string                            $publicDir
+     * @param GoogleAuthenticatorInterface|null $twoFactor
      */
-    public function __construct(\Twig_Environment $twig, string $publicDir, GoogleAuthenticatorInterface $twoFactor)
+    public function __construct(\Twig_Environment $twig, string $publicDir, GoogleAuthenticatorInterface $twoFactor = null)
     {
         $this->twig = $twig;
         $this->publicDir = $publicDir;
@@ -77,7 +77,7 @@ final class AppExtension extends AbstractExtension
      */
     public function getQRCodeUrl(User $user): string
     {
-        return $this->twoFactor->getUrl($user);
+        return $this->twoFactor ? $this->twoFactor->getUrl($user) : null;
     }
 
     /**

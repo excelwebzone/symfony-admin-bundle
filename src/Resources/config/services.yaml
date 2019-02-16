@@ -34,7 +34,7 @@ services:
         arguments:
             - '@twig'
             - '%kernel.project_dir%/public'
-            - '@scheb_two_factor.security.google_authenticator'
+            - '@?scheb_two_factor.security.google_authenticator'
 
     symfony_admin.twig.extension.string_extension:
         class: EWZ\SymfonyAdminBundle\Twig\Extension\StringExtension
