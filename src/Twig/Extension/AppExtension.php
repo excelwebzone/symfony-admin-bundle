@@ -4,7 +4,6 @@ namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
 use EWZ\SymfonyAdminBundle\Modal\User;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -21,14 +20,14 @@ final class AppExtension extends AbstractExtension
     private $twoFactor;
 
     /**
-     * @param KernelInterface              $kernel
      * @param \Twig_Environment            $twig
+     * @param string                       $publicDir
      * @param GoogleAuthenticatorInterface $twoFactor
      */
-    public function __construct(\Twig_Environment $twig, KernelInterface $kernel, GoogleAuthenticatorInterface $twoFactor)
+    public function __construct(\Twig_Environment $twig, string $publicDir, GoogleAuthenticatorInterface $twoFactor)
     {
         $this->twig = $twig;
-        $this->publicDir = $kernel->getPublicDir();
+        $this->publicDir = $publicDir;
         $this->twoFactor = $twoFactor;
     }
 
