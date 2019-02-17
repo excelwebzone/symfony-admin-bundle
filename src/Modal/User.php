@@ -153,7 +153,7 @@ class User implements UserInterface, TwoFactorInterface
     /**
      * @return bool
      */
-    public function isAllowSystemAdmin()
+    public function isAllowSystemAdmin(): bool
     {
         return $this->allowSystemAdmin;
     }
