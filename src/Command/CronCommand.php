@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EWZ\SymfonyAdminBundle\Modal\CronSchedule;
 use EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository;
 use EWZ\SymfonyAdminBundle\Util\CommandRunner;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -29,7 +29,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * - add new record to modal `EWZ\SymfonyAdminBundle\Modal\CronSchedule`
  */
-class CronCommand extends ContainerAwareCommand
+class CronCommand extends Command
 {
     /** @var CronScheduleRepository */
     private $cronScheduleRepository;
