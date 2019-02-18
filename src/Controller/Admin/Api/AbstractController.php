@@ -5,13 +5,13 @@ namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api;
 use Doctrine\Common\Persistence\ObjectManager;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
 use EWZ\SymfonyAdminBundle\Service\FileUploader;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as BaseAbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-abstract class AbstractController extends Controller
+abstract class AbstractController extends BaseAbstractController
 {
     /** @var ObjectManager */
     protected $objectManager;

@@ -2,14 +2,14 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller\Admin;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin")
  */
-class DefaultController extends Controller
+class DefaultController extends AbstractController
 {
     /**
      * @Route("/access/denied/{rule}", name="admin_access_denied")
