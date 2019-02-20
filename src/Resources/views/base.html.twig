@@ -23,7 +23,8 @@
     {% block layout %}{% endblock %}
 
     {% block javascripts %}
-      <script>var CONFIG = {};</script>
+      <script>const CONFIG = {{ jsConfig|default([])|json_encode|raw }};</script>
+
       <script src="{{ asset('build/js/app.js') }}"></script>
     {% endblock %}
   </body>
