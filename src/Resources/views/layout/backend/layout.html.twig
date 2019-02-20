@@ -1,10 +1,10 @@
 {% extends '@SymfonyAdmin/base.html.twig' %}
 
 {% block javascripts %}
-  <script>const CONFIG = {{ {
+  <script>CONFIG = Object.assign(CONFIG, {{ {
     userId: app.user.id,
     userName: app.user|trim
-  }|json_encode|raw }};</script>
+  }|json_encode|raw }});</script>
 
   {{ parent() }}
 {% endblock %}
