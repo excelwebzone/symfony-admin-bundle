@@ -1,4 +1,4 @@
-{% macro stylesheets() %}
+{% block stylesheets %}
   <style type="text/css">
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -81,92 +81,6 @@
 
     .table-borderless td {
       border: 0;
-    }
-
-    /*-------------------
-        Signature Table
-    --------------------*/
-
-    .table-signature {
-      width: 400px;
-    }
-
-    .table-signature.small {
-      width: 120px;
-    }
-
-    .table-signature.center {
-      margin: 20px 20% 20px;
-      text-align: center;
-    }
-
-    .table-signature.right {
-      margin: 20px 80% 20px;
-    }
-
-    .table-signature td {
-      border: none;
-    }
-
-    .table-signature td.border {
-      border: none !important;
-      border-bottom: 1px solid #ccc !important;
-    }
-
-    .table-signature td.title {
-      padding: 20px;
-    }
-
-    .table-signature td img {
-      position: absolute;
-      top: -15px;
-      left: 0;
-      background-color: transparent;
-    }
-
-    .table-signature td i.bookmark {
-      display: inline-block;
-      vertical-align: middle;
-      position: relative;
-      height: 2em;
-      width: 2em;
-      overflow: hidden;
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;
-      color: #eb4536;
-    }
-
-    .table-signature td i.bookmark:before,
-    .table-signature td i.bookmark:after {
-      content: '';
-      pointer-events: none;
-      display: block;
-      position: absolute;
-      -webkit-box-sizing: content-box;
-      -moz-box-sizing: content-box;
-      box-sizing: content-box;
-    }
-
-    .table-signature td i.bookmark:before {
-      top: .3em;
-      left: .25em;
-      border-style: solid;
-      border-width: .75em;
-      border-bottom-color: transparent;
-      -webkit-transform: scale(1, 1.4);
-      -ms-transform: scale(1, 1.4);
-      transform: scale(1, 1.4);
-    }
-
-    @media (max-width: 767.98px) {
-      .table-signature.center {
-        margin-left: 20px !important;
-      }
-
-      .table-signature.right {
-        margin-left: 70% !important;
-      }
     }
 
     /*-------------------
@@ -263,19 +177,6 @@
       border-radius: 3px;
     }
   </style>
-{% endmacro %}
-
-{% block header %}
-  {% import _self as UI %}
-  {{ UI.stylesheets }}
 {% endblock %}
 
-{% block content %}
-  {% import _self as UI %}
-  {{ UI.stylesheets }}
-{% endblock %}
-
-{% block footer %}
-  {% import _self as UI %}
-  {{ UI.stylesheets }}
-{% endblock %}
+{% block content %}{% endblock %}
