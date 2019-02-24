@@ -3,7 +3,6 @@
 namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use EWZ\SymfonyAdminBundle\DBAL\Types\SectionType;
 use EWZ\SymfonyAdminBundle\Modal\Filter as BaseFilter;
 use Fresh\DoctrineEnumBundle\Validator\Constraints\Enum as EnumAssert;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -34,9 +33,8 @@ class Filter extends BaseFilter
     protected $name;
 
     /**
-     * @ORM\Column(type="SectionType")
+     * @ORM\Column(type="string")
      * @Assert\NotBlank()
-     * @EnumAssert(entity="EWZ\SymfonyAdminBundle\DBAL\Types\SectionType")
      */
     protected $section;
 
