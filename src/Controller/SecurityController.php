@@ -2,8 +2,8 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -11,25 +11,47 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  * Controller used to manage the application security.
  * See https://symfony.com/doc/current/cookbook/security/form_login_setup.html.
  */
-class SecurityController extends AbstractController
+class SecurityController
 {
+    /** @var AuthenticationUtils */
+    private $helper;
+
+    /** @var Session */
+    private $session;
+
+    /** @var \Twig_Environment */
+    private $twig;
+
+    /**
+     * @param AuthenticationUtils $helper
+     * @param Session             $session
+     * @param \Twig_Environment   $twig
+     */
+    public function __construct(AuthenticationUtils $helper, Session $session, \Twig_Environment $twig)
+    {
+        $this->helper = $helper;
+        $this->session = $session;
+        $this->twig = $twig;
+    }
+
     /**
      * @Route("/login", name="security_login")
+     *
+     * @return Response
      */
     public function login(): Response
     {
-        /** @var AuthenticationUtils $helper */
-        $helper = $this->get('security.authentication_utils');
-
         // last authentication error (if any)
-        if ($error = $helper->getLastAuthenticationError()) {
-            $this->addFlash('error', $error->getMessage());
+        if ($error = $this->helper->getLastAuthenticationError()) {
+            $this->session->getFlashBag()->add('error', $error->getMessage());
         }
 
-        return $this->render('@SymfonyAdmin/security/login.html.twig', [
+        $content = $this->twig->render('@SymfonyAdmin/security/login.html.twig', [
             // last username entered by the user (if any)
-            'last_username' => $helper->getLastUsername(),
+            'last_username' => $this->helper->getLastUsername(),
         ]);
+
+        return Response::create($content);
     }
 
     /**

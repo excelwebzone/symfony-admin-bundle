@@ -24,6 +24,17 @@ services:
             - '@doctrine'
 
     #
+    # Controller
+    #
+
+    EWZ\SymfonyAdminBundle\Controller\SecurityController:
+        public: true
+        arguments:
+            - '@security.authentication_utils'
+            - '@session'
+            - '@twig'
+
+    #
     # Twig Extension
     #
 

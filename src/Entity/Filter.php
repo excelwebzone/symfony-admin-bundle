@@ -4,7 +4,6 @@ namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use EWZ\SymfonyAdminBundle\Modal\Filter as BaseFilter;
-use Fresh\DoctrineEnumBundle\Validator\Constraints\Enum as EnumAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
