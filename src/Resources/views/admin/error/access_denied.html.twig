@@ -2,13 +2,11 @@
 
 {% block title 'Unauthorized' %}
 
-{% set icon = 'close' %}
-
 {% block body %}
   <div class="unauthorized">
     <div class="unauthorized-icon">
       <i class="unauthorized-small-icon zmdi zmdi-eye-off"></i>
-      <i class="unauthorized-large-icon zmdi zmdi-{{ icon }}"></i>
+      <i class="unauthorized-large-icon zmdi zmdi-{{ icon|default('close') }}"></i>
     </div>
     <div class="unauthorized-content">
       Looks like you don't have access to this section.
