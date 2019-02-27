@@ -95,7 +95,7 @@ trait BulkExportTrait
         $fileName = sprintf('%s/%s.xlsx', $this->getParameter('pending_url'), Uuid::uuid4());
 
         // create an Excel file
-        $file = new \SplFileObject(sprintf('%s/%s', $kernel->getPublicDir(), $fileName), 'w');
+        $file = new \SplFileObject(sprintf('%s/public/%s', $kernel->getProjectDir(), $fileName), 'w');
         $writer = new ExcelWriter($file);
 
         $writer->prepare();

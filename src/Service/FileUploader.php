@@ -70,7 +70,7 @@ final class FileUploader
         }
 
         // create folder if doesn't exists
-        if (!is_dir($filePath = sprintf('%s/%s', $this->kernel->getPublicDir(), $directory))) {
+        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
             mkdir($filePath);
         }
 
@@ -82,7 +82,7 @@ final class FileUploader
         $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::uuid4(), $file->guessExtension());
 
         // move file to ..
-        rename($file->getPathname(), sprintf('%s/%s', $this->kernel->getPublicDir(), $fileName));
+        rename($file->getPathname(), sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));
 
         // delete old file (if exists)
         $this->delete($oldFileName);
@@ -154,12 +154,12 @@ final class FileUploader
      */
     public function move(string $fromDir, string $toDir, string $fileName): ?string
     {
-        if (!file_exists($orgFilePath = sprintf('%s/%s', $this->kernel->getPublicDir(), $fileName))) {
+        if (!file_exists($orgFilePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName))) {
             return null;
         }
 
         // create folder if doesn't exists
-        if (!is_dir($filePath = sprintf('%s/%s', $this->kernel->getPublicDir(), $toDir))) {
+        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $toDir))) {
             mkdir($filePath);
         }
 
@@ -167,7 +167,7 @@ final class FileUploader
         $fileName = str_replace($fromDir, $toDir, $fileName);
 
         // move file to ..
-        rename($orgFilePath, sprintf('%s/%s', $this->kernel->getPublicDir(), $fileName));
+        rename($orgFilePath, sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));
 
         return $fileName;
     }
@@ -177,7 +177,7 @@ final class FileUploader
      */
     public function delete(string $fileName = null): void
     {
-        $filePath = sprintf('%s/%s', $this->kernel->getPublicDir(), $fileName);
+        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
         if ($fileName && file_exists($filePath)) {
             unlink($filePath);
         }
@@ -190,7 +190,7 @@ final class FileUploader
      */
     public function getMimeType(string $fileName = null): ?string
     {
-        $filePath = sprintf('%s/%s', $this->kernel->getPublicDir(), $fileName);
+        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
         if ($fileName && file_exists($filePath)) {
             return mime_content_type($filePath);
         }
