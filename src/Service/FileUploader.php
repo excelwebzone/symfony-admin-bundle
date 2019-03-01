@@ -71,7 +71,7 @@ final class FileUploader
 
         // create folder if doesn't exists
         if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
-            mkdir($filePath);
+            mkdir($filePath, 0777, true);
         }
 
         if ($prefix) {
@@ -160,7 +160,7 @@ final class FileUploader
 
         // create folder if doesn't exists
         if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $toDir))) {
-            mkdir($filePath);
+            mkdir($filePath, 0777, true);
         }
 
         // generate filename
