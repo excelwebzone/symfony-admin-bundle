@@ -19,7 +19,6 @@ trait DeleteTrait
             $preDelete->bindTo($this)($object);
         }
 
-        $this->doDeleteFiles($object);
         $this->getRepository()->remove($object);
 
         if ($postDelete instanceof \Closure) {
@@ -30,28 +29,5 @@ trait DeleteTrait
             'ok' => true,
             'label' => (string) $object,
         ]);
-    }
-
-    /**
-     * @param mixed $object
-     * @param bool  $andFlush
-     */
-    private function doDeleteFiles($object, $andFlush = false): void
-    {
-        if (method_exists($object, 'getPhoto') && $object->getPhoto()) {
-            $this->fileUploader->delete($object->getPhoto());
-        }
-
-        if (method_exists($object, 'getFile') && $object->getFile()) {
-            $this->fileUploader->delete($object->getFile());
-        }
-
-        /*
-                if (method_exists($object, 'getFiles') && $object->getFiles()) {
-                    foreach ($object->getFiles() as $file) {
-                        $this->fileUploader->delete($file);
-                    }
-                }
-        */
     }
 }

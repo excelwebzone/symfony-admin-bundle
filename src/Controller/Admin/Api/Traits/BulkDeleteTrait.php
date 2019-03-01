@@ -29,9 +29,6 @@ trait BulkDeleteTrait
                 $preDelete->bindTo($this)($object);
             }
 
-            // @see DeleteTrait::doDeleteFiles
-            $this->doDeleteFiles($object);
-
             $this->getRepository()->remove($object, $index + 1 == count($objects));
 
             if ($postDelete instanceof \Closure) {
