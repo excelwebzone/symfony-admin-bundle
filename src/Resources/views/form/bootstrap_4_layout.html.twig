@@ -96,7 +96,7 @@
     </div>
 
     {% if not multiple and not disabled and not attr.readonly|default(false) %}
-      <div class="dropdown-reset {% if text is empty %}hide{% endif %}">
+      <div class="dropdown-reset" {% if text is empty %}style="display: none"{% endif %}>
         <i class="zmdi zmdi-close"></i>
       </div>
     {% endif %}
@@ -265,7 +265,7 @@
     </div>
 
     {% if not multiple and allow_reset|default(false) %}
-      <div class="dropdown-reset {% if form.vars.value is empty %}hide{% endif %}">
+      <div class="dropdown-reset" {% if form.vars.value is empty %}style="display: none"{% endif %}>
         <i class="zmdi zmdi-close"></i>
       </div>
     {% endif %}

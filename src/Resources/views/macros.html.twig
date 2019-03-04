@@ -498,7 +498,7 @@
           <li class="option-list-label">
             <div class="option-list-label-label">Private Filters</div>
           </li>
-          <li class="option-list-label option-list-label-empty js-no-private-filters {% if privateFilters|length %}hide{% endif %}">
+          <li class="option-list-label option-list-label-empty js-no-private-filters" {% if privateFilters|length %}style="display: none"{% endif %}>
             <div class="option-list-label-label">No Private Filters</div>
           </li>
           {% for filter in privateFilters|default([]) %}
@@ -629,7 +629,7 @@
       <div class="filter-label">{{ title|title }} <span></span></div>
       <i class="zmdi zmdi-chevron-down"></i>
     </div>
-    <div class="js-toggle-content hide">
+    <div class="js-toggle-content" style="display: none">
       {{ filterWidget|raw }}
     </div>
   </div>
