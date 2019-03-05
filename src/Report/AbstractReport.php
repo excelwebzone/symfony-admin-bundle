@@ -35,11 +35,6 @@ abstract class AbstractReport
     }
 
     /**
-     * @return AbstractRepository
-     */
-    abstract public function getRepository(): AbstractRepository;
-
-    /**
      * @return array [array $totals, array $items, array $labels]
      */
     public function chart(): array
@@ -161,7 +156,7 @@ abstract class AbstractReport
      */
     public function getChartMinMaxDates(): ?array
     {
-        if ($groupBy = $this->getChartGroupByField()) {
+        if ($this->getRepository() && $groupBy = $this->getChartGroupByField()) {
             return $this->getRepository()->getMinMax($this->getCriteria(), $groupBy);
         }
 
@@ -205,7 +200,7 @@ abstract class AbstractReport
      */
     public function getChartData(): array
     {
-        if ($groupBy = $this->getChartGroupByField()) {
+        if ($this->getRepository() && $groupBy = $this->getChartGroupByField()) {
             return $this->getRepository()->getGroupedData($this->getCriteria(), -1, null, null, $groupBy);
         }
 
@@ -217,7 +212,7 @@ abstract class AbstractReport
      */
     public function getChartGroupByField(): ?string
     {
-        if (in_array('createdAt', $this->getRepository()->getFieldNames())) {
+        if ($this->getRepository() && in_array('createdAt', $this->getRepository()->getFieldNames())) {
             return 'createdAt';
         }
 
@@ -237,12 +232,16 @@ abstract class AbstractReport
      */
     public function search()
     {
-        return $this->getRepository()->search(
-            $this->getCriteria(),
-            $this->getPage(),
-            $this->getLimit(),
-            $this->getSort()
-        );
+        if ($this->getRepository()) {
+            return $this->getRepository()->search(
+                $this->getCriteria(),
+                $this->getPage(),
+                $this->getLimit(),
+                $this->getSort()
+            );
+        }
+
+        return [];
     }
 
     /**
@@ -323,6 +322,14 @@ abstract class AbstractReport
     public function setGroupingType(string $groupingType = null): void
     {
         $this->groupingType = $groupingType;
+    }
+
+    /**
+     * @return AbstractRepository|null
+     */
+    protected function getRepository(): ?AbstractRepository
+    {
+        return null;
     }
 
     /**
