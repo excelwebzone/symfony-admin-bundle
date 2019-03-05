@@ -23,6 +23,9 @@ abstract class AbstractReport
     /** @var string */
     protected $sort;
 
+    /** @var string */
+    protected $groupingType = 'monthly';
+
     /**
      * @param ObjectManager $objectManager
      */
@@ -37,11 +40,9 @@ abstract class AbstractReport
     abstract public function getRepository(): AbstractRepository;
 
     /**
-     * @param string $groupingType
-     *
      * @return array [array $totals, array $items, array $labels]
      */
-    public function chart(string $groupingType = 'monthly'): array
+    public function chart(): array
     {
         // holds the overall total
         $totals = [];
@@ -58,7 +59,6 @@ abstract class AbstractReport
         }
         if (!$this->getChartLabels() && $result = $this->getChartMinMaxDates()) {
             $items = $this->getDatePeriodItems(
-                $groupingType,
                 new \DateTime($result['min']),
                 new \DateTime($result['max'])
             );
@@ -310,13 +310,28 @@ abstract class AbstractReport
     }
 
     /**
-     * @param string             $groupingType
+     * @return string|null
+     */
+    public function getGroupingType(): ?string
+    {
+        return $this->groupingType;
+    }
+
+    /**
+     * @param string|null $groupingType
+     */
+    public function setGroupingType(string $groupingType = null): void
+    {
+        $this->groupingType = $groupingType;
+    }
+
+    /**
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
      *
      * @return array
      */
-    protected function getDatePeriodItems(string $groupingType = 'monthly', \DateTimeInterface $from, \DateTimeInterface $to): array
+    protected function getDatePeriodItems(\DateTimeInterface $from, \DateTimeInterface $to): array
     {
         $from->setTime(0, 0, 0);
         $to->setTime(0, 0, 0);
@@ -325,7 +340,7 @@ abstract class AbstractReport
         $to->modify('next day');
 
         $items = [];
-        switch ($groupingType) {
+        switch ($this->getGroupingType()) {
             case 'daily':
                 $period = new \DatePeriod($from, new \DateInterval('P1D'), $to);
                 foreach ($period as $day) {
