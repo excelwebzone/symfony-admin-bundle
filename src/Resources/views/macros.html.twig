@@ -925,7 +925,7 @@
         {% if links.extra|default(false) %}
           {% for tab, values in links.extra %}
             {% if values.entity_details is not defined or values.entity_details %}
-              <div class="tab-pane tab-entity-{{ tab }} h-100">
+              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %}">
                 <div class="entity-details {% if values.details_boxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
                   <div class="entity-details-loading-box">
                     <div class="entity-details-loading-icon">
@@ -935,7 +935,7 @@
                 </div>
               </div>
             {% else %}
-              <div class="tab-pane tab-entity-{{ tab }} h-100  {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
+              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
             {% endif %}
           {% endfor %}
         {% endif %}
