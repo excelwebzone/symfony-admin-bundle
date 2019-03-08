@@ -17,6 +17,6 @@
       <input type="password" name="_password" class="form-control" placeholder="Enter your password" />
     </div>
 
-    <button type="submit" class="button-submit button-login">Sign in</button>
+    <button type="submit" class="{{ loginButton|default('button-submit button-login') }}">Sign in</button>
   </form>
 {% endblock %}
