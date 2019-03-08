@@ -310,7 +310,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
                 ->setParameter($name, $value)
             ;
         } elseif (is_null($value)) {
-            $queryBuilder->andWhere('%s.%s IS NULL', $alias, $key));
+            $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
         } else {
             // removes all non-alphanumeric characters except whitespaces.
             $value = trim(preg_replace('/[[:space:]]+/', ' ', $value));
