@@ -827,7 +827,7 @@
                     data-id="<%- id %>"
                   >
                     <div class="profile-image-component-image">
-                      <img src="<%- photoFile %>" />
+                      <img src="<%- photo %>" />
                     </div>
 
                     <div class="profile-image-component-icon">
@@ -845,8 +845,8 @@
                     <label title="Upload Profile Image" class="profile-image-component-uploader drag-and-drop dz-default dz-message"></label>
                   </div>
                 {% else %}
-                  <% if (photoFile) { %>
-                    {{ UI.profileImageComponentImage('__PHOTO__')|replace({'/__PHOTO__': '<%- photoFile %>'})|raw }}
+                  <% if (photo) { %>
+                    {{ UI.profileImageComponentImage('__PHOTO__')|replace({'/__PHOTO__': '<%- photo %>'})|raw }}
                   <% } else if (initials) { %>
                     {{ UI.profileImageComponentInitials('__INITIALS__')|replace({'__INITIALS__': '<%- initials %>'})|raw }}
                   <% } else { %>
