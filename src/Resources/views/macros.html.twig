@@ -90,7 +90,9 @@
       {%- endif -%}
       <div class="option-list">
         <ul>
+          {% set check = false %}
           {% if parameters.elements is defined and parameters.elements is not empty %}
+            {% set check = true %}
             {% for item in parameters.elements %}
               {% if parameters.multiSelect is defined %}
                 {{ UI.dropdownItemSelect(item) }}
@@ -104,7 +106,13 @@
             {% endfor %}
           {% endif %}
           {% if parameters.html is defined and parameters.html is not empty %}
+            {% set check = true %}
             {{ parameters.html|raw }}
+          {% endif %}
+          {% if not check %}
+            <li class="option-list-label option-list-label-empty">
+              <div class="option-list-label-label">No Results Found</div>
+            </li>
           {% endif %}
         </ul>
       </div>
