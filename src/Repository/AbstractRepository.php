@@ -446,6 +446,18 @@ abstract class AbstractRepository extends ServiceEntityRepository
                 $to = (new \DateTime('january first day of next year'))->setTime(0, 0, 0);
 
                 return [$from, $to];
+
+            case 'last_7_days':
+            case 'last_30_days':
+            case 'last_60_days':
+            case 'last_90_days':
+            case 'last_180_days':
+                $split = explode('_', $unit);
+
+                $from = (new \DateTime(sprintf('-%d day', $split[1])))->setTime(0, 0, 0);
+                $to = (new \DateTime())->setTime(0, 0, 0);
+
+                return [$from, $to];
         }
 
         return null;
