@@ -64,6 +64,104 @@
   />
 {%- endblock date_widget %}
 
+{% block time_widget -%}
+  <div class="dropdown has-filter {% if disabled %}is-disabled{% endif %} js-select-dropdown">
+    <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
+      <span class="dropdown-text {% if form.vars.value is empty %}dropdown-placeholder{% endif %}">
+        {{ form.vars.value }}
+      </span>
+
+      {% if not attr.readonly|default(false) %}
+        <div class="dropdown-indicator">
+          <i class="zmdi zmdi-caret-down"></i>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="dropdown-menu dropdown-options">
+      <div class="dropdown-filter">
+        <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+      </div>
+      <div class="option-list">
+        <ul>
+          {% set choices = [] %}
+          {% for hour in 0..23 %}
+            {% if hour == 0 %}
+              {% set choices = choices|merge([
+                {
+                  value: '00:00',
+                  label: 'Midnight'
+                },
+                {
+                  value: '00:30',
+                  label: '12:30 AM'
+                }
+              ]) %}
+            {% elseif hour == 12 %}
+              {% set choices = choices|merge([
+                {
+                  value: '12:00',
+                  label: 'Noon'
+                },
+                {
+                  value: '12:30',
+                  label: '12:30 PM'
+                }
+              ]) %}
+            {% elseif hour < 12 %}
+              {% set choices = choices|merge([
+                {
+                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':00',
+                  label: hour ~ ':00 AM'
+                },
+                {
+                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':30',
+                  label: hour ~ ':30 AM'
+                }
+              ]) %}
+            {% else %}
+              {% set choices = choices|merge([
+                {
+                  value: hour ~ ':00',
+                  label: (hour - 12) ~ ':00 PM'
+                },
+                {
+                  value: hour ~ ':30',
+                  label: (hour - 12) ~ ':30 PM'
+                }
+              ]) %}
+            {% endif %}
+          {% endfor %}
+          {% for choice in choices %}
+            <li class="option-list-item {% if choice.value == form.vars.value %}is-selected is-highlighted{% endif %}" data-value="{{ choice.value }}">
+              <span class="option-list-item-text">{{ choice.label }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="d-none">
+      {{ form_widget(form, {type: 'hidden'}) }}
+    </div>
+  </div>
+{%- endblock time_widget %}
+
+{% block datetime_widget -%}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        {{- form_widget(form.date) -}}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        {{- form_widget(form.time) -}}
+      </div>
+    </div>
+  </div>
+{%- endblock datetime_widget %}
+
 {% block autocomplete_widget -%}
   {% set multiple = multiple|default(false) %}
   {% set text = text|default('') %}
