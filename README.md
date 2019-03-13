@@ -16,9 +16,11 @@ You would need to create a service to user and cron-schedule repositories
 ```yaml
 # config/packages/symfony_admin.yaml
 symfony_admin:
+    upload_url: 'uploads'
     services:
         user_repository: 'app.user_repository'
         cron_schedule_repository: 'app.cron_schedule_repository'
+        file_uploader: 'app.file_uploader'
 
 services:
     app.user_repository:
@@ -33,6 +35,15 @@ services:
         arguments:
             - '@doctrine'
             - '@security.token_storage'
+
+    app.file_uploader:
+        class: App\Service\FileUploader
+        arguments:
+            - '@kernel'
+            - '@validator'
+            - '@translator'
+            - '%symfony_admin.mime_types.extensions%'
+            - '%symfony_admin.mime_types.types%'
 ```
 
 ```yaml

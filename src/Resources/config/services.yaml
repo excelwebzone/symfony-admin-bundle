@@ -5,7 +5,7 @@ services:
         arguments:
             - '@security.encoder_factory'
 
-    symfony_admin.service.file_uploader:
+    symfony_admin.file_uploader.default:
         class: EWZ\SymfonyAdminBundle\Service\FileUploader
         arguments:
             - '@kernel'
@@ -15,7 +15,7 @@ services:
             - '%symfony_admin.mime_types.types%'
 
     EWZ\SymfonyAdminBundle\Service\FileUploader:
-        alias: 'symfony_admin.service.file_uploader'
+        alias: 'symfony_admin.file_uploader'
 
     #
     # Controller

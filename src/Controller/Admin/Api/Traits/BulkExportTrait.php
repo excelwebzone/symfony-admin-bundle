@@ -92,10 +92,7 @@ trait BulkExportTrait
         }
 
         // generate filename
-        $fileName = sprintf('%s/%s.xlsx', $this->getParameter('pending_url'), Uuid::uuid4());
-
-        // create an Excel file
-        $file = new \SplFileObject(sprintf('%s/public/%s', $kernel->getProjectDir(), $fileName), 'w');
+        $file = new \SplFileObject($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()), 'w');
         $writer = new ExcelWriter($file);
 
         $writer->prepare();
@@ -171,6 +168,8 @@ trait BulkExportTrait
         }
 
         $writer->finish();
+
+        $fileName = $this->fileUploader->create($fileName, $this->getParameter('symfony_admin.upload_url'));
 
         return $this->json([
             'ok' => true,

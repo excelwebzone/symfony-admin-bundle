@@ -48,6 +48,34 @@ final class FileUploader
     }
 
     /**
+     * @param string $fileName
+     * @param string $directory
+     *
+     * @return string|null
+     */
+    public function create(string $fileName, string $directory): ?string
+    {
+        if (!file_exists($fileName)) {
+            return null;
+        }
+
+        $content = file_get_contents($fileName);
+
+        // create folder if doesn't exists
+        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
+            mkdir($filePath, 0777, true);
+        }
+
+        // generate filename
+        $newFileName = sprintf('%s/%s', $directory, basename($fileName));
+
+        // move file to ..
+        rename($fileName, sprintf('%s/public/%s', $this->kernel->getProjectDir(), $newFileName));
+
+        return $newFileName;
+    }
+
+    /**
      * @param UploadedFile $file
      * @param string       $directory
      * @param string       $oldFileName
