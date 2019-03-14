@@ -19,7 +19,7 @@ trait UpdateFieldsTrait
      */
     private function doUpdateFields(Request $request, $object, $preSetData = null, $postSetData = null, $onCompleted = null): JsonResponse
     {
-        $updatedValue = null;
+        $fields = [];
         $data = json_decode($request->getContent(), true);
         foreach ($data as $key => $value) {
             if (empty($value) || (is_string($value) && 0 === strlen($value))) {
@@ -63,17 +63,30 @@ trait UpdateFieldsTrait
             // get updated value
             $method = sprintf('get%s', StringUtil::classify($key));
             if (method_exists($object, $method)) {
-                $updatedValue = $object->$method($value);
+                $value = $object->$method($value);
+
+                if ($value instanceof \DateTimeInterface) {
+                    $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                } elseif (is_array($value)) {
+                    $values = [];
+                    foreach ($value as $v) {
+                        $values = (string) $v;
+                    }
+
+                    $value = $values;
+                } elseif (is_string($value) || is_object($value)) {
+                    $value = (string) $value;
+                }
+
+                $fields[$key] = $value;
             }
         }
 
         $data = [
             'id' => $object->getId(),
             'label' => (string) $object,
+            'fields' => $fields,
         ];
-        if (is_string($updatedValue)) {
-            $data['updatedValue'] = $updatedValue;
-        }
         if ($onCompleted instanceof \Closure) {
             $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
         }
