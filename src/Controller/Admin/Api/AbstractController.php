@@ -3,8 +3,8 @@
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
-use EWZ\SymfonyAdminBundle\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as BaseAbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormInterface;
@@ -25,7 +25,7 @@ abstract class AbstractController extends BaseAbstractController
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;
 
-    /** @var FileUploader */
+    /** @var FileUploaderInterface */
     protected $fileUploader;
 
     /**
@@ -33,14 +33,14 @@ abstract class AbstractController extends BaseAbstractController
      * @param ValidatorInterface       $validator
      * @param TranslatorInterface      $translator
      * @param EventDispatcherInterface $eventDispatcher
-     * @param FileUploader             $fileUploader
+     * @param FileUploaderInterface    $fileUploader
      */
     public function __construct(
         ObjectManager $objectManager,
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         EventDispatcherInterface $eventDispatcher,
-        FileUploader $fileUploader
+        FileUploaderInterface $fileUploader
     ) {
         $this->objectManager = $objectManager;
         $this->validator = $validator;

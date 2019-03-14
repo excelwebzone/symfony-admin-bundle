@@ -37,7 +37,7 @@ services:
             - '@security.token_storage'
 
     app.file_uploader:
-        class: App\Service\FileUploader
+        class: App\FileUploader\FileUploader
         arguments:
             - '@kernel'
             - '@validator'

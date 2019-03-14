@@ -1,30 +1,17 @@
 <?php
 
-namespace EWZ\SymfonyAdminBundle\Service;
+namespace EWZ\SymfonyAdminBundle\FileUploader;
 
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class FileUploader
+final class FileUploader extends AbstractFileUploader
 {
-    /** @var ValidatorInterface */
-    private $validator;
-
-    /** @var TranslatorInterface */
-    private $translator;
-
     /** @var KernelInterface */
     private $kernel;
-
-    /** @var string */
-    private $mimeTypesExtensions;
-
-    /** @var array */
-    private $mimeTypesTypes;
 
     /**
      * @param KernelInterface     $kernel
@@ -41,17 +28,12 @@ final class FileUploader
         array $mimeTypesTypes
     ) {
         $this->kernel = $kernel;
-        $this->validator = $validator;
-        $this->translator = $translator;
-        $this->mimeTypesExtensions = $mimeTypesExtensions;
-        $this->mimeTypesTypes = $mimeTypesTypes;
+
+        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes);
     }
 
     /**
-     * @param string $fileName
-     * @param string $directory
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function create(string $fileName, string $directory): ?string
     {
@@ -76,14 +58,7 @@ final class FileUploader
     }
 
     /**
-     * @param UploadedFile $file
-     * @param string       $directory
-     * @param string       $oldFileName
-     * @param array        $mimeTypes
-     * @param bool         $isPhoto
-     * @param string|null  $prefix
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function upload(
         UploadedFile $file,
@@ -119,66 +94,7 @@ final class FileUploader
     }
 
     /**
-     * @param UploadedFile $file
-     * @param array        $mimeTypes
-     * @param bool         $isPhoto
-     *
-     * @return string|null
-     */
-    public function validate(UploadedFile $file, array $mimeTypes = [], bool $isPhoto = false): ?string
-    {
-        $mimeTypesString = $mimeTypes['extensions'] ?? $this->mimeTypesExtensions;
-        $mimeTypes = $mimeTypes['types'] ?? $this->mimeTypesTypes;
-
-        // @todo: set global parameter
-        $maxSize = 5;
-
-        if (true === $isPhoto) {
-            $mimeTypesString = 'PNG, GIF, or JPG';
-            $mimeTypes = [
-                'image/png',
-                'image/jpeg',
-                'image/jpg',
-                'image/gif',
-            ];
-
-            $maxSize = 1;
-        }
-
-        $constraints = [
-            new Assert\NotBlank(),
-            new Assert\File([
-                'maxSize' => sprintf('%dM', $maxSize),
-                'mimeTypes' => $mimeTypes,
-                'disallowEmptyMessage' => $this->translator->trans('error.file.file_empty'),
-                'maxSizeMessage' => $this->translator->trans('error.file.too_big', ['%size%' => $maxSize]),
-                'mimeTypesMessage' => $this->translator->trans('error.file.bad_file', ['%mimeTypes%' => $mimeTypesString]),
-                'uploadErrorMessage' => $this->translator->trans('error.file.failed_request'),
-            ]),
-        ];
-
-        $errors = $this->validator->validate($file, $constraints);
-
-        if (count($errors) > 0) {
-            return $errors[0]->getMessage();
-        }
-
-        if ($isPhoto) {
-            list($width, $height) = @getimagesize($file->getPathName());
-            if ($width > 10000 || $height > 10000) {
-                return $this->translator->trans('error.photo.bad_dimensions', ['%dimensions%' => '10,000x10,000']);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $fromDir
-     * @param string $toDir
-     * @param string $fileName
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function move(string $fromDir, string $toDir, string $fileName): ?string
     {
@@ -201,28 +117,37 @@ final class FileUploader
     }
 
     /**
-     * @param string|null $fileName
+     * {@inheritdoc}
      */
-    public function delete(string $fileName = null): void
+    public function delete(string $fileName): void
     {
         $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
-        if ($fileName && file_exists($filePath)) {
+        if (file_exists($filePath)) {
             unlink($filePath);
         }
     }
 
     /**
-     * @param string|null $fileName
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
-    public function getMimeType(string $fileName = null): ?string
+    public function getMimeType(string $fileName): ?string
     {
         $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
-        if ($fileName && file_exists($filePath)) {
-            return mime_content_type($filePath);
-        }
 
-        return null;
+        return file_exists($filePath)
+            ? mime_content_type($filePath)
+            : null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFileSize(string $fileName): ?int
+    {
+        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+
+        return file_exists($filePath)
+            ? filesize($filePath)
+            : null;
     }
 }

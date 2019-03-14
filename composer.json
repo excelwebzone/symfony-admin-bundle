@@ -38,6 +38,7 @@
     "phpoffice/phpexcel": "^1.8"
   },
   "require-dev": {
+    "aws/aws-sdk-php-symfony": "^2.0"
   },
   "extra": {
     "branch-alias": {
