@@ -85,10 +85,16 @@ trait UpdateFieldsTrait
         $data = [
             'id' => $object->getId(),
             'label' => (string) $object,
-            'fields' => $fields,
+            'fields' => [],
         ];
         if ($onCompleted instanceof \Closure) {
             $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
+        }
+        if ($data['fields'] ?? null) {
+            $data['fields'] = array_merge($data['fields'], $fields);
+        }
+        if (empty($data['fields'])) {
+            unset($data['fields']);
         }
 
         return $this->json(array_merge($data, [
