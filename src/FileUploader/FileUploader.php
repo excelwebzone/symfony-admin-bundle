@@ -88,7 +88,9 @@ final class FileUploader extends AbstractFileUploader
         rename($file->getPathname(), sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));
 
         // delete old file (if exists)
-        $this->delete($oldFileName);
+        if ($oldFileName) {
+            $this->delete($oldFileName);
+        }
 
         return $fileName;
     }
