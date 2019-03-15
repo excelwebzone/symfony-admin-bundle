@@ -67,13 +67,6 @@ trait UpdateFieldsTrait
 
                 if ($value instanceof \DateTimeInterface) {
                     $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
-                } elseif (is_array($value)) {
-                    $values = [];
-                    foreach ($value as $v) {
-                        $values = (string) $v;
-                    }
-
-                    $value = $values;
                 } elseif (is_string($value) || is_object($value)) {
                     $value = (string) $value;
                 }
