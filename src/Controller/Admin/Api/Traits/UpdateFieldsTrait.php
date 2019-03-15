@@ -90,9 +90,8 @@ trait UpdateFieldsTrait
         if ($onCompleted instanceof \Closure) {
             $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
         }
-        if ($data['fields'] ?? null) {
-            $data['fields'] = array_merge($data['fields'], $fields);
-        }
+
+        $data['fields'] = array_merge($data['fields'], $fields);
         if (empty($data['fields'])) {
             unset($data['fields']);
         }
