@@ -148,16 +148,20 @@
 {%- endblock time_widget %}
 
 {% block datetime_widget -%}
-  <div class="row">
+  <div class="row datatime">
     <div class="col-md-6">
-      <div class="form-group">
-        {{- form_widget(form.date) -}}
-      </div>
+      {{- form_row(form.date, {
+        attr: {
+          placeholder: 'Add Date'
+        }
+      }) -}}
     </div>
     <div class="col-md-6">
-      <div class="form-group">
-        {{- form_widget(form.time) -}}
-      </div>
+      {{- form_row(form.time, {
+        attr: {
+          placeholder: 'Add Time'
+        }
+      }) -}}
     </div>
   </div>
 {%- endblock datetime_widget %}
