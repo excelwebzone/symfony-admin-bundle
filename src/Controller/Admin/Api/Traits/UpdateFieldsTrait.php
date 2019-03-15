@@ -84,7 +84,7 @@ trait UpdateFieldsTrait
             $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
         }
 
-        $data['fields'] = array_merge($data['fields'], $fields);
+        $data['fields'] = array_merge($fields, $data['fields']);
         if (empty($data['fields'])) {
             unset($data['fields']);
         }
