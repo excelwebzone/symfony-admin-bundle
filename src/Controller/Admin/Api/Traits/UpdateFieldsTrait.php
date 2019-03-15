@@ -66,7 +66,9 @@ trait UpdateFieldsTrait
                 $value = $object->$method($value);
 
                 if ($value instanceof \DateTimeInterface) {
-                    $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                    $value = $value
+                        ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
+                        ->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()))
                 } elseif (is_string($value) || is_object($value)) {
                     $value = (string) $value;
                 }
