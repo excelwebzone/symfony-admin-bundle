@@ -2,7 +2,9 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
+use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
 use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -13,21 +15,21 @@ final class AppExtension extends AbstractExtension
     /** @var \Twig_Environment */
     protected $twig;
 
-    /** @var string */
-    private $publicDir;
+    /** @var FileUploaderInterface */
+    protected $fileUploader;
 
     /** @var GoogleAuthenticatorInterface */
     private $twoFactor;
 
     /**
      * @param \Twig_Environment                 $twig
-     * @param string                            $publicDir
+     * @param FileUploaderInterface             $fileUploader
      * @param GoogleAuthenticatorInterface|null $twoFactor
      */
-    public function __construct(\Twig_Environment $twig, string $publicDir, GoogleAuthenticatorInterface $twoFactor = null)
+    public function __construct(\Twig_Environment $twig, FileUploaderInterface $fileUploader, GoogleAuthenticatorInterface $twoFactor = null)
     {
         $this->twig = $twig;
-        $this->publicDir = $publicDir;
+        $this->fileUploader = $fileUploader;
         $this->twoFactor = $twoFactor;
     }
 
@@ -97,11 +99,7 @@ final class AppExtension extends AbstractExtension
      */
     public function getMimeContentType(string $file = null): ?string
     {
-        if (!$file || !file_exists($file = sprintf('%s%s', $this->publicDir, $file))) {
-            return null;
-        }
-
-        return mime_content_type($file);
+        return $file ? $this->fileUploader->getMimeType($file) : null;
     }
 
     /**
@@ -111,11 +109,11 @@ final class AppExtension extends AbstractExtension
      */
     public function getFilesize(string $file = null): ?string
     {
-        if (!$file || !file_exists($file = sprintf('%s%s', $this->publicDir, $file))) {
+        if (!$file) {
             return null;
         }
 
-        $size = filesize($file);
+        $size = $this->fileUploader->getFileSize($file);
         $base = log($size) / log(1024);
         $suffix = array('', 'KB', 'MB', 'GB', 'TB');
         $f_base = floor($base);
