@@ -142,4 +142,24 @@ final class StringUtil extends Inflector
 
         return $string;
     }
+
+    /**
+     * Calculating Color Contrast.
+     *
+     * @param string $hex Colour as hexadecimal (with or without hash);
+     *
+     * @return string
+     */
+    public static function getContrastColor($hex)
+    {
+        if ('#' != substr($hex, 0, 1)) {
+            $hex = '#'.$hex;
+        }
+
+        list($red, $green, $blue) = sscanf($hex, '#%02x%02x%02x');
+
+        $luma = ($red + $green + $blue) / 3;
+
+        return $luma < 128 ? 'fff' : '000';
+    }
 }

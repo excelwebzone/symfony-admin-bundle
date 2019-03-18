@@ -81,23 +81,13 @@ final class AppExtension extends AbstractExtension
     }
 
     /**
-     * Calculating Color Contrast.
-     *
-     * @param string $hex Colour as hexadecimal (with or without hash);
+     * @param string $hex
      *
      * @return string
      */
     public function getContrastColor($hex)
     {
-        if ('#' != substr($hex, 0, 1)) {
-            $hex = '#'.$hex;
-        }
-
-        list($red, $green, $blue) = sscanf($hex, '#%02x%02x%02x');
-
-        $luma = ($red + $green + $blue) / 3;
-
-        return $luma < 128 ? 'fff' : '000';
+        StringUtil::getContrastColor($hex);
     }
 
     /**
