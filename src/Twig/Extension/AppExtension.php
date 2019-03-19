@@ -89,7 +89,7 @@ final class AppExtension extends AbstractExtension
      */
     public function getContrastColor($hex)
     {
-        StringUtil::getContrastColor($hex);
+        return StringUtil::getContrastColor($hex);
     }
 
     /**
