@@ -156,7 +156,7 @@ final class StringUtil extends Inflector
             $hex = '#'.$hex;
         }
 
-        if (empty($hex)) {
+        if (empty($hex) || '#' === $hex) {
             return '000';
         }
 
