@@ -448,7 +448,9 @@ abstract class AbstractRepository extends ServiceEntityRepository
                 return [$from, $to];
 
             case 'last_7_days':
+            case 'last_14_days':
             case 'last_30_days':
+            case 'last_45_days':
             case 'last_60_days':
             case 'last_90_days':
             case 'last_180_days':
