@@ -1,56 +1,73 @@
 {% extends '@SymfonyAdmin/layout/backend/layout.html.twig' %}
 
 {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+{% import '@SymfonyAdmin/layout/backend/macros.html.twig' as LUI %}
 
-{% block title 'Reports' %}
+{% block title 'Report: ' ~ report %}
 
-{% set header_title = 'Reports' %}
+{% set header_title = 'Report: ' ~ report %}
 {% set header_class = 'header-reports' %}
 
 {% set preloadFilters = app.request.get('filters') %}
 
 {% block body %}
   <div class="reports-page">
-    <div class="reports-nav">
-      {% if is_granted('VIEW_REPORTS') %}
-        {% for group, items in reports|default({}) %}
-          <div class="report-nav {% if report.id in items|keys %}is-expanded{% endif %} js-toggle-container">
-            <div class="report-nav-header {% if report.id in items|keys %}open{% endif %} js-toggle-button">
-              <div class="font-weight-bold">{{ group|title }}</div>
-              <i class="zmdi zmdi-chevron-down"></i>
+    <div class="list-page-container has-navigation">
+      {{ LUI.navigation(navItems) }}
+
+      <div class="list-page-header">
+        {# use to override default filter #}
+        {% set defaultFilter = {
+          createdAt: {
+            unit: 'this_month'
+          }
+        } %}
+
+        {# main filter #}
+        {% if preloadFilters %}
+          {% set defaultFilter = {
+            id: 'preload',
+            title: 'Preload Search',
+            filter: preloadFilters,
+            isLocked: true
+          } %}
+        {% else %}
+          {% set defaultFilter = {
+            id: 'public',
+            title: 'All Records',
+            filter: defaultFilter,
+            isLocked: true
+          } %}
+        {% endif %}
+        {% set publicFilters = [
+          {
+            id: 'public',
+            title: 'All Records',
+            filter: defaultFilter,
+            isLocked: true,
+            isDefault: true
+          }
+        ] %}
+        {{ UI.filterDropdown(defaultFilter, publicFilters, filters, 'admin_api_filter_update', 'admin_api_filter_delete') }}
+
+        {# tools/actions #}
+        <div class="list-buttons-container">
+          {% if block('report_chart') is not empty %}
+            <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Chart">
+              <i class="toggle-button zmdi zmdi-chart js-toggle-button" data-toggle-open-class="active" data-toggle="collapse" data-target=".chart-container"></i>
             </div>
-            <div class="js-toggle-content" {% if report.id not in items|keys %}style="display: none"{% endif %}>
-              {% for item in items %}
-                <a href="{{ path('admin_reports_show', {id: item.id}) }}" class="report-nav-item {% if item.id == report.id %}active{% endif %}">
-                  <div class="report-nav-primary">{{ item|title }}</div>
-                </a>
-              {% endfor %}
-            </div>
+          {% endif %}
+
+          <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Filters">
+            <i class="toggle-button zmdi zmdi-filter-list" data-toggle="collapse" data-target=".drawer-frame"></i>
+            <span class="counter js-filter-counter"></span>
           </div>
-        {% endfor %}
-      {% endif %}
-    </div>
+        </div>
+      </div>
 
-    <div class="reports-main">
-      <div class="card">
-        <div class="card-body">
-          <div class="card-title report-summary">
-            <div class="report-summary-desc">
-              {{ report }}
-
-              <div class="report-summary-desc-filters">
-                {% if block('report_chart') is not empty %}
-                  <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Chart">
-                    <i class="toggle-button zmdi zmdi-chart js-toggle-button" data-toggle-open-class="active" data-toggle="collapse" data-target=".card-content"></i>
-                  </div>
-                {% endif %}
-
-                <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Filters">
-                  <i class="toggle-button zmdi zmdi-filter-list" data-toggle="collapse" data-target=".drawer-frame"></i>
-                  <span class="counter js-filter-counter"></span>
-                </div>
-              </div>
-            </div>
+      {% block report_chart %}
+        <div class="chart-container collapse">
+          <div class="report-summary">
             <div class="report-summary-number-list">
               {% block report_summary %}{% endblock %}
             </div>
@@ -58,48 +75,9 @@
             {% block report_filter %}
               <div class="report-summary-control-rows">
                 <div class="report-summary-control-row">
-                  <div class="report-summary-filter">
-                    <div class="report-summary-filter-label">Saved Filters</div>
-                    <div class="report-summary-filter-content">
-                      {# use to override default filter #}
-                      {% set defaultFilter = {
-                        createdAt: {
-                          unit: 'this_month'
-                        }
-                      } %}
-
-                      {# main filter #}
-                      {% if preloadFilters %}
-                        {% set defaultFilter = {
-                          id: 'preload',
-                          title: 'Preload Search',
-                          filter: preloadFilters,
-                          isLocked: true
-                        } %}
-                      {% else %}
-                        {% set defaultFilter = {
-                          id: 'public',
-                          title: 'All Records',
-                          filter: defaultFilter,
-                          isLocked: true
-                        } %}
-                      {% endif %}
-                      {% set publicFilters = [
-                        {
-                          id: 'public',
-                          title: 'All Records',
-                          filter: defaultFilter,
-                          isLocked: true,
-                          isDefault: true
-                        }
-                      ] %}
-                      {{ UI.filterDropdown(defaultFilter, publicFilters, filters, 'admin_api_filter_update', 'admin_api_filter_delete') }}
-                    </div>
-                  </div>
-
                   {% block fillter_summary %}
                     <div class="report-summary-filter">
-                      <div class="report-summary-filter-label"></div>
+                      <div class="report-summary-filter-label">Group By</div>
                       <div class="report-summary-filter-content">
                         <div class="radio-button-group">
                           <div class="form-group is-inline">
@@ -154,39 +132,32 @@
             {% endblock %}
           </div>
 
-          {% block report_chart %}
-            <div class="card-content chart-container m-4 collapse">
-              <div class="chart-container-chart"
-                data-report="{{ report.token|replace({'-': '_'}) }}"
-                data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
-              ></div>
+          <div class="chart-container-chart"
+            data-report="{{ report.token|replace({'-': '_'}) }}"
+            data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
+          ></div>
 
-              <div class="chart-loading-overlay">
-                <div class="d-flex">
-                  <div class="chart-loading-overlay-spinner">
-                    <div class="circle-spinner"></div>
-                  </div>
-                </div>
-                <div class="chart-loading-overlay-subtext d-flex mt-4">
-                  Sorry, this seems to be taking a little longer than usual.
-                </div>
+          <div class="chart-loading-overlay">
+            <div class="d-flex">
+              <div class="chart-loading-overlay-spinner">
+                <div class="circle-spinner"></div>
               </div>
             </div>
-          {% endblock %}
+            <div class="chart-loading-overlay-subtext d-flex mt-4">
+              Sorry, this seems to be taking a little longer than usual.
+            </div>
+          </div>
         </div>
-      </div>
+      {% endblock %}
 
-      <div class="report-table-component"
-        data-list-page-table="true"
-        data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
-      >
+      <div class="list-page-table report-table-component" data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}">
         {% block report_table %}{% endblock %}
       </div>
-
-      {{ UI.listPageEmptyContent(null, true, true) }}
-      {{ UI.listPageLoadingPopup() }}
-
-      {% block report_drawer %}{% endblock %}
     </div>
+
+    {{ UI.listPageEmptyContent() }}
+    {{ UI.listPageLoadingPopup() }}
+
+    {% block report_drawer %}{% endblock %}
   </div>
 {% endblock %}
