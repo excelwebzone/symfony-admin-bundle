@@ -43,6 +43,7 @@ services:
             - { name: form.type }
         arguments:
             - '@doctrine'
+            - '@symfony_admin.report_repository'
 
     #
     # Twig Extension
@@ -116,3 +117,16 @@ services:
 
     EWZ\SymfonyAdminBundle\Repository\UserRepository:
         alias: 'symfony_admin.user_repository'
+
+    #
+    # Report Repository
+    #
+
+    symfony_admin.report_repository.default:
+        class: EWZ\SymfonyAdminBundle\Repository\ReportRepository
+        arguments:
+            - '@doctrine'
+            - '@security.token_storage'
+
+    EWZ\SymfonyAdminBundle\Repository\ReportRepository:
+        alias: 'symfony_admin.report_repository'

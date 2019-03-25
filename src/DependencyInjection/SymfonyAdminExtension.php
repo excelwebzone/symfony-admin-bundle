@@ -23,6 +23,7 @@ final class SymfonyAdminExtension extends Extension
 
         $container->setAlias('symfony_admin.cron_schedule_repository', new Alias($config['services']['cron_schedule_repository'], true));
         $container->setAlias('symfony_admin.user_repository', new Alias($config['services']['user_repository'], true));
+        $container->setAlias('symfony_admin.report_repository', new Alias($config['services']['report_repository'], true));
         $container->setAlias('symfony_admin.file_uploader', new Alias($config['services']['file_uploader'], true));
 
         $container->setParameter('symfony_admin.mime_types.extensions', $config['mime_types']['extensions']);

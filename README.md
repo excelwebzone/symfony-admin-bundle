@@ -20,6 +20,7 @@ symfony_admin:
     services:
         user_repository: 'app.user_repository'
         cron_schedule_repository: 'app.cron_schedule_repository'
+        report_repository: 'app.report_repository'
         file_uploader: 'app.file_uploader'
 
 services:
@@ -32,6 +33,12 @@ services:
 
     app.cron_schedule_repository:
         class: App\Repository\CronScheduleRepository
+        arguments:
+            - '@doctrine'
+            - '@security.token_storage'
+
+    app.report_repository:
+        class: App\Repository\ReportRepository
         arguments:
             - '@doctrine'
             - '@security.token_storage'

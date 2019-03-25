@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('cron_schedule_repository')->defaultValue('symfony_admin.cron_schedule_repository.default')->end()
                         ->scalarNode('user_repository')->defaultValue('symfony_admin.user_repository.default')->end()
+                        ->scalarNode('report_repository')->defaultValue('symfony_admin.report_repository.default')->end()
                         ->scalarNode('file_uploader')->defaultValue('symfony_admin.file_uploader.default')->end()
                     ->end()
                 ->end()
