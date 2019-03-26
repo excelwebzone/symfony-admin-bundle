@@ -13,22 +13,29 @@
     </div>
 
     {% block global_search %}
-      <div class="header-center">
-        <div class="header-search">
-          <div class="typeahead typeahead-global-search is-empty"
-            data-endpoint="#"
-            data-redirect="#"
-          >
-            <div class="typeahead-header">
-              <input type="text" class="global-search-typeahead-text-field" placeholder="Search.." autocomplete="off" />
-              <div class="typeahead-global-search-icon">
-                <i class="zmdi zmdi-search"></i>
+      {% set search_endpoint = search_endpoint|default(false) %}
+      {% set search_redirect = search_redirect|default(false) %}
+      {% set search_empty = search_empty|default(false) %}
+
+      {% if search_endpoint is not empty %}
+        <div class="header-center">
+          <div class="header-search">
+            <div class="typeahead typeahead-global-search is-empty"
+              data-endpoint="{{ search_endpoint|default('#') }}"
+              data-redirect="{{ search_redirect|default('#') }}"
+              data-empty="{{ search_empty }}"
+            >
+              <div class="typeahead-header">
+                <input type="text" class="global-search-typeahead-text-field" placeholder="Search.." autocomplete="off" />
+                <div class="typeahead-global-search-icon">
+                  <i class="zmdi zmdi-search"></i>
+                </div>
               </div>
+              <div class="typeahead-options"></div>
             </div>
-            <div class="typeahead-options"></div>
           </div>
         </div>
-      </div>
+      {% endif %}
     {% endblock %}
 
     <div class="header-right">
