@@ -13,17 +13,17 @@
     </div>
 
     {% block global_search %}
-      {% set search_endpoint = search_endpoint|default(false) %}
-      {% set search_redirect = search_redirect|default(false) %}
-      {% set search_empty = search_empty|default(false) %}
-
-      {% if search_endpoint is not empty %}
+      {% if search_endpoint|default(false) is not empty %}
         <div class="header-center">
           <div class="header-search">
             <div class="typeahead typeahead-global-search is-empty"
-              data-endpoint="{{ search_endpoint|default('#') }}"
-              data-redirect="{{ search_redirect|default('#') }}"
-              data-empty="{{ search_empty }}"
+              data-endpoint="{{ search_endpoint }}"
+              {% if search_redirect|default(false) %}
+                data-redirect="{{ search_redirect }}"
+              {% endif %}
+              {% if search_empty|default(false) %}
+                data-empty="{{ search_empty }}"
+              {% endif %}
             >
               <div class="typeahead-header">
                 <input type="text" class="global-search-typeahead-text-field" placeholder="Search.." autocomplete="off" />
