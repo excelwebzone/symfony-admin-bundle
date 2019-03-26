@@ -52,7 +52,11 @@ abstract class AbstractReport
                 'data' => [],
             ];
         }
-        if (!$this->getChartLabels() && $result = $this->getChartMinMaxDates()) {
+
+        // get labels
+        $labels = $this->getChartLabels();
+
+        if (empty($labels) && $result = $this->getChartMinMaxDates()) {
             $items = $this->getDatePeriodItems(
                 new \DateTime($result['min']),
                 new \DateTime($result['max'])
@@ -70,7 +74,7 @@ abstract class AbstractReport
                 break;
             }
 
-            if (!$this->getChartLabels()) {
+            if (empty($labels)) {
                 foreach ($items as $label => $item) {
                     // skip if out of date range
                     if (new \DateTime($row[$this->getChartGroupByField()]) < new \DateTime($item['start'])
@@ -98,7 +102,7 @@ abstract class AbstractReport
             }
         }
 
-        if ($labels = $this->getChartLabels()) {
+        if (!empty($labels)) {
             // remove empty labels
             foreach (array_keys($labels) as $label) {
                 $total = 0;
