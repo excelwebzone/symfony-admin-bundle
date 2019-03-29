@@ -17,11 +17,13 @@
 
       <div class="list-page-header">
         {# use to override default filter #}
-        {% set defaultFilter = {
-          createdAt: {
-            unit: 'this_month'
-          }
-        } %}
+        {% if defaultFilter is not defined %}
+          {% set defaultFilter = {
+            createdAt: {
+              unit: 'this_month'
+            }
+          } %}
+        {% endif %}
 
         {# main filter #}
         {% if preloadFilters %}
