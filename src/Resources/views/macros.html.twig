@@ -435,39 +435,47 @@
   </div>
 {% endmacro %}
 
-{% macro itemCell(index, value, key = 'text', link = null, align = 'left', class = null, params = {}) %}
+{% macro itemCell(index, value, key = 'text', link = null, align = 'left', class = null, parameters = {}) %}
   <div class="ember-table-cell table-cell-{{ key }} {{ class }} text-{{ align }} js-ember-table-column-width" data-index="{{ index }}">
-    {% if link %}
-      <a href="{{ link }}">{{ value|default('—') }}</a>
-    {% elseif value %}
-      {% if 'badge' == key and params.color|default(false) %}
-        <div class="badge p-2" style="color: #fff; background-color: #{{ params.color }}">{{ value }}</div>
-      {% elseif 'date' == key %}
-        <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat, app.user.timezone) }}</time>
-      {% elseif 'datetime' == key %}
-        <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat ~ ' H:i:s', app.user.timezone) }}</time>
-      {% elseif 'email' == key %}
-        <a href="mailto:{{ value }}">{{ value }}</a>
-      {% elseif 'phone' == key %}
-        <a href="tel:{{ value }}">{{ value }}</a>
-      {% elseif 'name' == key %}
-        <div>{{ value }}</div>
-      {% elseif 'integer' == key %}
-        <div>{{ value|number_format }}</div>
-      {% elseif 'number' == key %}
-        <div>{{ value|number_format(2) }}</div>
-      {% elseif 'money' == key %}
-        <div>${{ value|number_format(2) }}</div>
-      {% elseif 'percent' == key %}
-        <div>{{ value|number_format(2) }}%</div>
-      {% elseif 'boolean' == key %}
-        {% if value %}Yes{% else %}—{% endif %}
-      {% else %}
-        {{ value|raw }}
+    <span
+      {% if parameters.data is defined %}
+        {% for dataItemName, dataItemValue in parameters.data %}
+          data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+        {% endfor %}
       {% endif %}
-    {% else %}
-      —
-    {% endif %}
+    >
+      {% if link %}
+        <a href="{{ link }}">{{ value|default('—') }}</a>
+      {% elseif value %}
+        {% if 'badge' == key and parameters.color|default(false) %}
+          <div class="badge p-2" style="color: #fff; background-color: #{{ parameters.color }}">{{ value }}</div>
+        {% elseif 'date' == key %}
+          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat, app.user.timezone) }}</time>
+        {% elseif 'datetime' == key %}
+          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat ~ ' H:i:s', app.user.timezone) }}</time>
+        {% elseif 'email' == key %}
+          <a href="mailto:{{ value }}">{{ value }}</a>
+        {% elseif 'phone' == key %}
+          <a href="tel:{{ value }}">{{ value }}</a>
+        {% elseif 'name' == key %}
+          <div>{{ value }}</div>
+        {% elseif 'integer' == key %}
+          <div>{{ value|number_format }}</div>
+        {% elseif 'number' == key %}
+          <div>{{ value|number_format(2) }}</div>
+        {% elseif 'money' == key %}
+          <div>${{ value|number_format(2) }}</div>
+        {% elseif 'percent' == key %}
+          <div>{{ value|number_format(2) }}%</div>
+        {% elseif 'boolean' == key %}
+          {% if value %}Yes{% else %}—{% endif %}
+        {% else %}
+          {{ value|raw }}
+        {% endif %}
+      {% else %}
+        —
+      {% endif %}
+    </span>
   </div>
 {% endmacro %}
 
