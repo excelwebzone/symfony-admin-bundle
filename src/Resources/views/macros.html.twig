@@ -483,7 +483,7 @@
       {% else %}
         —
       {% endif %}
-    {% if link %}
+    {% if link and key not in ['email', 'phone'] %}
       </a>
     {% else %}
       </div>
