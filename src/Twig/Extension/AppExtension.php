@@ -130,7 +130,7 @@ final class AppExtension extends AbstractExtension
      */
     public function displayRating(int $rating, int $max = 5, string $class = null)
     {
-        return $this->twig->load('form/rating.html.twig')->render([
+        return $this->twig->load('@SymfonyAdmin/form/rating.html.twig')->render([
             'rating' => $rating,
             'max' => $max,
             'class' => $class,
