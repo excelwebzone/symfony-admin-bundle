@@ -465,8 +465,6 @@
           <a href="mailto:{{ value }}">{{ value }}</a>
         {% elseif 'phone' == key %}
           <a href="tel:{{ value }}">{{ value }}</a>
-        {% elseif 'name' == key %}
-          {{ value }}</div>
         {% elseif 'integer' == key %}
           {{ value|number_format }}
         {% elseif 'number' == key %}
