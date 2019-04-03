@@ -216,7 +216,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('q');
 
-        $this->applyGrouping($queryBuilder, $groupBy);
+        $this->applyGrouping($queryBuilder, $criteria, $groupBy);
         $this->applyCriteria($queryBuilder, $criteria);
 
         if ($sort) {
@@ -244,9 +244,10 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
     /**
      * @param QueryBuilder $queryBuilder
+     * @param array        $criteria
      * @param string       $groupBy
      */
-    protected function applyGrouping(QueryBuilder $queryBuilder, string $groupBy): void
+    protected function applyGrouping(QueryBuilder $queryBuilder, array $criteria, string $groupBy): void
     {
         // do nothing
     }
