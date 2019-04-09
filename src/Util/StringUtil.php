@@ -50,7 +50,7 @@ final class StringUtil extends Inflector
      *
      * @return string
      */
-    public function generatePassword(int $length = 10, array $options = null): string
+    public static function generatePassword(int $length = 10, array $options = null): string
     {
         if (empty($options)) {
             $options = [
