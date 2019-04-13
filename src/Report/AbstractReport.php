@@ -135,7 +135,7 @@ abstract class AbstractReport
         } else {
             // prepare data
             $tmp = [];
-            foreach (array_values($this->getChartTotals()) as $value) {
+            foreach (array_values($this->getChartColumns()) as $value) {
                 $tmp[$value] = [
                     'name' => $value,
                     'data' => [],
@@ -143,7 +143,7 @@ abstract class AbstractReport
             }
 
             foreach ($items as $item) {
-                foreach ($this->getChartTotals() as $key => $value) {
+                foreach ($this->getChartColumns() as $key => $value) {
                     $tmp[$value]['data'][] = $item['data'][$key] ?? 0;
                 }
             }
