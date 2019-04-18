@@ -319,7 +319,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             if ('id' === $key) {
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s = :%s', $alias, $key, $name))
-                    ->setParameter($name, sprintf('%%%s%%', $value))
+                    ->setParameter($name, $value)
                 ;
             } else {
                 $queryBuilder
