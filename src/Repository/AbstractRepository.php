@@ -316,10 +316,17 @@ abstract class AbstractRepository extends ServiceEntityRepository
             // removes all non-alphanumeric characters except whitespaces.
             $value = trim(preg_replace('/[[:space:]]+/', ' ', $value));
 
-            $queryBuilder
-                ->andWhere(sprintf('%s.%s LIKE :%s', $alias, $key, $name))
-                ->setParameter($name, sprintf('%%%s%%', $value))
-            ;
+            if ('id' === $key) {
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s = :%s', $alias, $key, $name))
+                    ->setParameter($name, sprintf('%%%s%%', $value))
+                ;
+            } else {
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s LIKE :%s', $alias, $key, $name))
+                    ->setParameter($name, sprintf('%%%s%%', $value))
+                ;
+            }
         }
     }
 
