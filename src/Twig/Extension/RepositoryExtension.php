@@ -124,6 +124,6 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function getGroupedData(string $class, array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy): array
     {
-        return $this->getRepository($class)->search($criteria, $page, $limit, $sort, $groupBy);
+        return $this->getRepository($class)->getGroupedData($criteria, $page, $limit, $sort, $groupBy);
     }
 }
