@@ -44,7 +44,9 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function getRepository(string $class): ?AbstractRepository
     {
-        return $this->registry->getManagerForClass($class);
+        return $this->registry
+            ->getManagerForClass($class)
+            ->getRepository($class);
     }
 
     /**
@@ -80,7 +82,7 @@ final class RepositoryExtension extends AbstractExtension
      *
      * @return mixed|null
      */
-    public function searchAll(string $class, array $criteria, string $sort = null)
+    public function searchAll(string $class, array $criteria = [], string $sort = null)
     {
         return $this->getRepository($class)->search($criteria, -1, null, $sort);
     }
@@ -92,9 +94,9 @@ final class RepositoryExtension extends AbstractExtension
      *
      * @return mixed|null
      */
-    public function searchOne(string $class, array $criteria, string $sort = null)
+    public function searchOne(string $class, array $criteria = [], string $sort = null)
     {
-        $result = $this->getRepository($class)->search($criteria, 1, 1, $sort);
+        $result = $this->getRepository($class)->search($criteria, 1, 1, $sort)->getCurrentPageResults();
 
         return $result[0] ?? null;
     }
