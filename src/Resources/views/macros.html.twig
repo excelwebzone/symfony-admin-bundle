@@ -730,7 +730,7 @@
   </div>
 {% endmacro %}
 
-{% macro bulkEditDrawerTemplate(section, form, fields, editUrl, singular, plural, drawerId = null) %}
+{% macro bulkEditDrawerTemplate(section, form, fields, editUrl, singular, plural, drawerId = null, title = 'Edit Details') %}
   <script type="text/template" id="bulk{{ drawerId|capitalize|replace({' ': ''}) }}EditDrawerTemplate">
     <div class="drawer-frame drawer-frame-list collapse">
       <div class="bulk-edit-drawer-header {{ section }}">
@@ -741,7 +741,7 @@
         </div>
 
         <div class="bulk-edit-drawer-title">
-          Edit Details<br/><span><%- ids.length %></span> <span data-singular="{{ singular }}" data-plural="{{ plural }}"><% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %></span> Selected
+          {{ title }}<br/><span><%- ids.length %></span> <span data-singular="{{ singular }}" data-plural="{{ plural }}"><% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %></span> Selected
         </div>
       </div>
 
