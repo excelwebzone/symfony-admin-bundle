@@ -29,7 +29,7 @@ trait SearchTrait
             'html' => $html,
             'page' => $page,
             'count' => $items ? count($items->getCurrentPageResults()) : 0,
-            'total' => $items ? $items->count() : 0,
+            'total' => $items ? $items->getNbResults() : 0,
         ];
 
         if ($onCompleted instanceof \Closure) {
@@ -65,7 +65,7 @@ trait SearchTrait
             'ok' => true,
             'options' => $options,
             'count' => $objects ? count($objects->getCurrentPageResults()) : 0,
-            'total' => $objects ? $objects->count() : 0,
+            'total' => $objects ? $objects->getNbResults() : 0,
         ]);
     }
 }
