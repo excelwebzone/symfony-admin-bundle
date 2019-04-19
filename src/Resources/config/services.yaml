@@ -58,6 +58,13 @@ services:
             - '@symfony_admin.file_uploader'
             - '@?scheb_two_factor.security.google_authenticator'
 
+    symfony_admin.twig.extension.repository_extension:
+        class: EWZ\SymfonyAdminBundle\Twig\Extension\RepositoryExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            - '@doctrine'
+
     symfony_admin.twig.extension.string_extension:
         class: EWZ\SymfonyAdminBundle\Twig\Extension\StringExtension
         tags:
