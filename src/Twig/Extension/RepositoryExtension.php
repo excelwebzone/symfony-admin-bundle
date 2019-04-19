@@ -30,6 +30,7 @@ final class RepositoryExtension extends AbstractExtension
             new TwigFunction('get_repository', [$this, 'getRepository']),
             new TwigFunction('search_count', [$this, 'countSearch']),
             new TwigFunction('search_data', [$this, 'search']),
+            new TwigFunction('search_all', [$this, 'searchAll']),
             new TwigFunction('search_one', [$this, 'searchOne']),
             new TwigFunction('search_by_id', [$this, 'searchById']),
             new TwigFunction('search_grouped_data', [$this, 'getGroupedData']),
@@ -70,6 +71,18 @@ final class RepositoryExtension extends AbstractExtension
     public function search(string $class, array $criteria, int $page = 1, int $limit = null, string $sort = null, bool $doCount = false)
     {
         return $this->getRepository($class)->search($criteria, $page, $limit, $sort, $doCount);
+    }
+
+    /**
+     * @param string      $class
+     * @param array       $criteria
+     * @param string|null $sort
+     *
+     * @return mixed|null
+     */
+    public function searchAll(string $class, array $criteria, string $sort = null)
+    {
+        return $this->getRepository($class)->search($criteria, -1, null, $sort);
     }
 
     /**
