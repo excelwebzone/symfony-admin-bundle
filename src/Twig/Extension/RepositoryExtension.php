@@ -2,23 +2,23 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
 use Pagerfanta\Pagerfanta;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 final class RepositoryExtension extends AbstractExtension
 {
-    /** @var ObjectManager */
-    private $objectManager;
+    /** @var RegistryInterface */
+    private $registry;
 
     /**
-     * @param ObjectManager $objectManager
+     * @param RegistryInterface $registry
      */
-    public function __construct(ObjectManager $objectManager)
+    public function __construct(RegistryInterface $registry)
     {
-        $this->objectManager = $objectManager;
+        $this->registry = $registry;
     }
 
     /**
@@ -28,11 +28,11 @@ final class RepositoryExtension extends AbstractExtension
     {
         return [
             new TwigFunction('get_repository', [$this, 'getRepository']),
-            new TwigFunction('get_search_count', [$this, 'countSearch']),
-            new TwigFunction('get_search', [$this, 'search']),
-            new TwigFunction('get_search_one', [$this, 'searchOne']),
-            new TwigFunction('get_search_by_id', [$this, 'searchById']),
-            new TwigFunction('get_grouped_data', [$this, 'getGroupedData']),
+            new TwigFunction('search_count', [$this, 'countSearch']),
+            new TwigFunction('search_data', [$this, 'search']),
+            new TwigFunction('search_one', [$this, 'searchOne']),
+            new TwigFunction('search_by_id', [$this, 'searchById']),
+            new TwigFunction('search_grouped_data', [$this, 'getGroupedData']),
         ];
     }
 
@@ -43,7 +43,7 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function getRepository(string $class): ?AbstractRepository
     {
-        return $this->objectManager->getRepository($class);
+        return $this->registry->getManagerForClass($class);
     }
 
     /**
