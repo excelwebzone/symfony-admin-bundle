@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits;
 
+use Doctrine\Common\Collections\Collection;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,6 +70,12 @@ trait UpdateFieldsTrait
                     $value = $value
                         ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
                         ->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                } elseif ($value instanceof Collection) {
+                    $values = [];
+                    foreach ($value as $v) {
+                        $values[] = (string) $v;
+                    }
+                    $value = $values;
                 } elseif (is_string($value) || is_object($value)) {
                     $value = (string) $value;
                 }
