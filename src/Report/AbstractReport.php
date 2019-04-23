@@ -370,7 +370,6 @@ abstract class AbstractReport
                 break;
 
             case 'weekly':
-                // get next money
                 if (1 < $to->format('N')) {
                     $to->modify('next monday next day');
                 }
