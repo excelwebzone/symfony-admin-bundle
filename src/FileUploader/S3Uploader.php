@@ -27,6 +27,7 @@ final class S3Uploader extends AbstractFileUploader
      * @param TranslatorInterface $translator
      * @param string              $mimeTypesExtensions
      * @param array               $mimeTypesTypes
+     * @param int                 $maxFilesize
      */
     public function __construct(
         S3Client $s3Client,
@@ -35,13 +36,14 @@ final class S3Uploader extends AbstractFileUploader
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         string $mimeTypesExtensions,
-        array $mimeTypesTypes
+        array $mimeTypesTypes,
+        int $maxFilesize
     ) {
         $this->s3Client = $s3Client;
         $this->s3Bucket = $s3Bucket;
         $this->baseUrl = $baseUrl;
 
-        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes);
+        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize);
     }
 
     /**

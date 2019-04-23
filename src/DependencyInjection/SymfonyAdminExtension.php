@@ -21,14 +21,16 @@ final class SymfonyAdminExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('symfony_admin.upload_url', $config['upload_url']);
+
         $container->setAlias('symfony_admin.cron_schedule_repository', new Alias($config['services']['cron_schedule_repository'], true));
         $container->setAlias('symfony_admin.user_repository', new Alias($config['services']['user_repository'], true));
         $container->setAlias('symfony_admin.report_repository', new Alias($config['services']['report_repository'], true));
         $container->setAlias('symfony_admin.file_uploader', new Alias($config['services']['file_uploader'], true));
 
+        $container->setParameter('symfony_admin.max_filesize', $config['max_filesize']);
+
         $container->setParameter('symfony_admin.mime_types.extensions', $config['mime_types']['extensions']);
         $container->setParameter('symfony_admin.mime_types.types', $config['mime_types']['types']);
-
-        $container->setParameter('symfony_admin.upload_url', $config['upload_url']);
     }
 }

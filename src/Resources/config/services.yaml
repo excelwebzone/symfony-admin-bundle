@@ -13,6 +13,7 @@ services:
             - '@translator'
             - '%symfony_admin.mime_types.extensions%'
             - '%symfony_admin.mime_types.types%'
+            - '%symfony_admin.max_filesize%'
 
     EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface:
         alias: 'symfony_admin.file_uploader'

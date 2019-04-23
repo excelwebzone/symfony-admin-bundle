@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('file_uploader')->defaultValue('symfony_admin.file_uploader.default')->end()
                     ->end()
                 ->end()
+                ->integerNode('max_filesize')->defaultValue(5)->end()
                 ->arrayNode('mime_types')
                     ->info('mime-types configuration')
                     ->addDefaultsIfNotSet()

@@ -21,22 +21,28 @@ abstract class AbstractFileUploader implements FileUploaderInterface
     /** @var array */
     protected $mimeTypesTypes;
 
+    /** @var int */
+    protected $maxFilesize;
+
     /**
      * @param ValidatorInterface  $validator
      * @param TranslatorInterface $translator
      * @param string              $mimeTypesExtensions
      * @param array               $mimeTypesTypes
+     * @param int                 $maxFilesize
      */
     public function __construct(
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         string $mimeTypesExtensions,
-        array $mimeTypesTypes
+        array $mimeTypesTypes,
+        int $maxFilesize
     ) {
         $this->validator = $validator;
         $this->translator = $translator;
         $this->mimeTypesExtensions = $mimeTypesExtensions;
         $this->mimeTypesTypes = $mimeTypesTypes;
+        $this->maxFilesize = $maxFilesize;
     }
 
     /**
@@ -51,9 +57,6 @@ abstract class AbstractFileUploader implements FileUploaderInterface
         $mimeTypesString = $mimeTypes['extensions'] ?? $this->mimeTypesExtensions;
         $mimeTypes = $mimeTypes['types'] ?? $this->mimeTypesTypes;
 
-        // @todo: set global parameter
-        $maxSize = 5;
-
         if (true === $isPhoto) {
             $mimeTypesString = 'PNG, GIF, or JPG';
             $mimeTypes = [
@@ -62,17 +65,15 @@ abstract class AbstractFileUploader implements FileUploaderInterface
                 'image/jpg',
                 'image/gif',
             ];
-
-            $maxSize = 1;
         }
 
         $constraints = [
             new Assert\NotBlank(),
             new Assert\File([
-                'maxSize' => sprintf('%dM', $maxSize),
+                'maxSize' => sprintf('%dM', $this->maxFilesize),
                 'mimeTypes' => $mimeTypes,
                 'disallowEmptyMessage' => $this->translator->trans('error.file.file_empty'),
-                'maxSizeMessage' => $this->translator->trans('error.file.too_big', ['%size%' => $maxSize]),
+                'maxSizeMessage' => $this->translator->trans('error.file.too_big', ['%size%' => $this->maxFilesize]),
                 'mimeTypesMessage' => $this->translator->trans('error.file.bad_file', ['%mimeTypes%' => $mimeTypesString]),
                 'uploadErrorMessage' => $this->translator->trans('error.file.failed_request'),
             ]),
