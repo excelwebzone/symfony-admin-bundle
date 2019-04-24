@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use EWZ\SymfonyAdminBundle\Modal\Filter as BaseFilter;
+use EWZ\SymfonyAdminBundle\Model\Filter as BaseFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

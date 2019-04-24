@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Command;
 
-use EWZ\SymfonyAdminBundle\Modal\CronSchedule;
+use EWZ\SymfonyAdminBundle\Model\CronSchedule;
 use EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

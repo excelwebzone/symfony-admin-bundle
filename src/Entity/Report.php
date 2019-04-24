@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use EWZ\SymfonyAdminBundle\Modal\Report as BaseReport;
+use EWZ\SymfonyAdminBundle\Model\Report as BaseReport;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

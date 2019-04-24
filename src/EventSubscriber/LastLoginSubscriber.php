@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\EventSubscriber;
 
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;

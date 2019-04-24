@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 /**

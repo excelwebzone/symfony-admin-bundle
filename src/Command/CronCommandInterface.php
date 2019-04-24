@@ -8,7 +8,7 @@ interface CronCommandInterface
      * Define default cron schedule definition for a command.
      * Example: "5 * * * *".
      *
-     * @see \EWZ\SymfonyAdminBundle\Modal\CronSchedule::setDefinition()
+     * @see \EWZ\SymfonyAdminBundle\Model\CronSchedule::setDefinition()
      *
      * @return string
      */

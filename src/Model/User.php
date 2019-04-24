@@ -1,6 +1,6 @@
 <?php
 
-namespace EWZ\SymfonyAdminBundle\Modal;
+namespace EWZ\SymfonyAdminBundle\Model;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;

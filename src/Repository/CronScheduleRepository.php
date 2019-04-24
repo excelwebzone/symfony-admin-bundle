@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Repository;
 
-use EWZ\SymfonyAdminBundle\Modal\CronSchedule;
+use EWZ\SymfonyAdminBundle\Model\CronSchedule;
 
 abstract class CronScheduleRepository extends AbstractRepository
 {

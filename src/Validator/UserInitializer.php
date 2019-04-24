@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Validator;
 
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use Symfony\Component\Validator\ObjectInitializerInterface;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Repository;
 
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;

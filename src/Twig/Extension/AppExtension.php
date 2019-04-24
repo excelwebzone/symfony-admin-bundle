@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
 use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
 use Twig\Extension\AbstractExtension;

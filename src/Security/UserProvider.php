@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Security;
 
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\UserRepository;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;

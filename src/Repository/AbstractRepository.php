@@ -6,7 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
-use EWZ\SymfonyAdminBundle\Modal\User;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\Traits\PagerfantaTrait;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace EWZ\SymfonyAdminBundle\Modal;
+namespace EWZ\SymfonyAdminBundle\Model;
 
 class Report
 {

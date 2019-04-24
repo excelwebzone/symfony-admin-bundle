@@ -4,7 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Command;
 
 use Cron\CronExpression;
 use Doctrine\Common\Collections\ArrayCollection;
-use EWZ\SymfonyAdminBundle\Modal\CronSchedule;
+use EWZ\SymfonyAdminBundle\Model\CronSchedule;
 use EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository;
 use EWZ\SymfonyAdminBundle\Util\CommandRunner;
 use Symfony\Component\Console\Command\Command;
@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * If you want to make your console command auto-scheduled need to do following:
  *
- * - add new record to modal `EWZ\SymfonyAdminBundle\Modal\CronSchedule`
+ * - add new record to modal `EWZ\SymfonyAdminBundle\Model\CronSchedule`
  */
 class CronCommand extends Command
 {

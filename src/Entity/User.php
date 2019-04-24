@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use EWZ\SymfonyAdminBundle\Modal\User as BaseUser;
+use EWZ\SymfonyAdminBundle\Model\User as BaseUser;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
