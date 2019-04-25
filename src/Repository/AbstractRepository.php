@@ -212,7 +212,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param string|null $sort
      * @param string      $groupBy
      *
-     * @return Pagerfanta|\Traversable
+     * @return Pagerfanta|\Traversable|bool
      */
     public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy)
     {
@@ -263,11 +263,15 @@ abstract class AbstractRepository extends ServiceEntityRepository
             ->getResult()
         ;
 
-        $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result));
-        $paginator->setMaxPerPage($limit);
-        $paginator->setCurrentPage($page);
+        try {
+            $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result));
+            $paginator->setMaxPerPage($limit);
+            $paginator->setCurrentPage($page);
 
-        return $paginator;
+            return $paginator;
+        } catch (OutOfRangeCurrentPageException $e) {
+            return false;
+        }
     }
 
     /**
