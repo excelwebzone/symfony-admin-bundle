@@ -1,5 +1,4 @@
 error:
-    no_data_found: No data found!
     file:
         file_empty: This file is empty.
         too_big: Please upload a file smaller than %size% MB.
@@ -14,6 +13,7 @@ alert:
     bulk_delete: '%total% records were deleted.'
     bulk_delete_empty: No records were deleted.
     export_completed: Export completed.
+    no_results_found: No results found!
 
 link:
     download_file: Download File

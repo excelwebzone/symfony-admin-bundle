@@ -70,12 +70,11 @@ abstract class AbstractReportController extends AbstractController
         /** @var array $items */
         $items = $report->export();
 
-        if (0 === count($items)) {
+        // empty or header only
+        if (1 >= count($items)) {
             return $this->json([
-                'ok' => false,
-                'error' => [
-                    'message' => $this->translator->trans('error.no_data_found'),
-                ],
+                'ok' => true,
+                'message' => $this->translator->trans('alert.no_results_found'),
             ]);
         }
 
