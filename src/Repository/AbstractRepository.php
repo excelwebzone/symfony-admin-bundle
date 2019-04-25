@@ -145,14 +145,6 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $this->applyCriteria($queryBuilder, $criteria);
         $sort = $this->applySort($queryBuilder, $sort);
 
-        if ($doCount) {
-            return (int) $queryBuilder
-                ->select('COUNT(1)')
-                ->getQuery()
-                ->getSingleScalarResult()
-            ;
-        }
-
         if ($sort) {
             $alias = null;
             if (2 === substr_count($sort, '-')) {
@@ -162,6 +154,14 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
 
             $queryBuilder = $queryBuilder->orderBy(sprintf('%s.%s', $alias ?: $queryBuilder->getRootAlias(), StringUtil::camelize($sortBy)), $sortDir);
+        }
+
+        if ($doCount) {
+            return (int) $queryBuilder
+                ->select('COUNT(1)')
+                ->getQuery()
+                ->getSingleScalarResult()
+            ;
         }
 
         // get all
