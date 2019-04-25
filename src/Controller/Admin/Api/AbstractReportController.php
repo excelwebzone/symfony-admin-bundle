@@ -64,6 +64,7 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var AbstractReport $report */
         $report = $this->getReportObject($report);
+        $report->setUser($this->getUser());
         $report->setCriteria($criteria);
         $report->setSort($sort);
 

@@ -3,13 +3,18 @@
 namespace EWZ\SymfonyAdminBundle\Report;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
+use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Pagerfanta;
 
 abstract class AbstractReport
 {
     /** @var ObjectManager */
     protected $objectManager;
+
+    /** @var User */
+    protected $user;
 
     /** @var array */
     protected $criteria;
@@ -246,15 +251,20 @@ abstract class AbstractReport
     }
 
     /**
-     * $format = text, money, or percent.
+     * @param string     $label
+     * @param string     $format
+     * @param array|null $options
+     *
+     * $format = text, money, percent, or enum
      *
      * @return array
      */
-    public function getExportColumn($label, $format = 'text'): array
+    public function getExportColumn(string $label, string $format = 'text', array $options = null): array
     {
         return [
             'label' => $label,
             'format' => $format,
+            'options' => $options,
         ];
     }
 
@@ -280,19 +290,85 @@ abstract class AbstractReport
 
         // add rows
         foreach ($this->search() as $item) {
+            $orgItem = $item;
             $row = [];
             foreach ($this->getExportColumns() as $column => $options) {
-                $value = $item[$column] ?? null;
+                $item = $orgItem;
 
-                if ('text' !== $options['format']) {
+                // handle sub-columns
+                if (false !== strpos($column, '.')) {
+                    list($parentColumn, $column) = explode('.', $column, 2);
+
+                    if (is_array($item)) {
+                        $item = $item[$parentColumn] ?? null;
+                    } else {
+                        $method = sprintf('get%s', StringUtil::classify($parentColumn));
+                        if (!method_exists($item, $method)) {
+                            continue;
+                        }
+
+                        $item = $item->$method();
+                    }
+
+                    // skip empty parent
+                    if (!is_object($item)) {
+                        continue;
+                    }
+                }
+
+                if (is_array($item)) {
+                    $value = $item[$column] ?? null;
+                } else {
+                    $method = sprintf('get%s', StringUtil::classify($column));
+                    if (!method_exists($item, $method)) {
+                        $method = sprintf('is%s', StringUtil::classify($column));
+                    }
+
+                    $value = $item->$method();
+                }
+
+                if (!in_array($options['format'], ['text', 'enum'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
                 }
 
+                // hide value / reset to null
+                if ($options['options']['hide'] ?? false) {
+                    $value = null;
+                }
+
                 switch ($options['format']) {
-                    case 'money':
-                    case 'percent':
-                        $value = number_format($value, 2);
+                    case 'enum':
+                        $enumClass = $options['options']['class'];
+                        if ($value && $enumClass::isValueExist($value)) {
+                            $value = $enumClass::getReadableValue($value);
+                        }
+
                         break;
+
+                    case 'datetime':
+                        if ($value instanceof \DateTimeInterface) {
+                            $value = $value
+                                ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
+                                ->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                        }
+
+                        break;
+                }
+
+                if ($value instanceof \DateTimeInterface) {
+                    $value = $value
+                        ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
+                        ->format($this->getUser()->getDateFormat());
+                } elseif (is_array($value) || $value instanceof Collection) {
+                    $values = [];
+                    foreach ($value as $v) {
+                        $values[] = (string) $v;
+                    }
+                    $value = implode(', ', $values);
+                } elseif (is_numeric($value)) {
+                    $value = number_format($value, 2);
+                } elseif (is_string($value) || is_object($value)) {
+                    $value = (string) $value;
                 }
 
                 $row[] = $value;
@@ -319,6 +395,22 @@ abstract class AbstractReport
         }
 
         return [];
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     */
+    public function setUser(User $user = null): void
+    {
+        $this->user = $user;
     }
 
     /**
