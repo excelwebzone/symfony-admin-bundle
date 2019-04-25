@@ -5,10 +5,12 @@ namespace EWZ\SymfonyAdminBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\Traits\PagerfantaTrait;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
+use Pagerfanta\Adapter\FixedAdapter;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -144,7 +146,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $sort = $this->applySort($queryBuilder, $sort);
 
         if ($doCount) {
-            return $queryBuilder
+            return (int) $queryBuilder
                 ->select('COUNT(1)')
                 ->getQuery()
                 ->getSingleScalarResult()
@@ -210,9 +212,9 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param string|null $sort
      * @param string      $groupBy
      *
-     * @return array
+     * @return Pagerfanta|\Traversable
      */
-    public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy): array
+    public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy)
     {
         $queryBuilder = $this->createQueryBuilder('q');
 
@@ -225,21 +227,47 @@ abstract class AbstractRepository extends ServiceEntityRepository
             $queryBuilder = $queryBuilder->orderBy($sortBy, $sortDir);
         }
 
+        // get all
+        if (-1 === $page) {
+            return $queryBuilder
+                ->getQuery()
+                ->getResult()
+            ;
+        }
+
+        // get total rows
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('total', 'total', 'integer');
+        // create query
+        $nbResults = $this->getEntityManager()
+            ->createNativeQuery(
+                sprintf('SELECT COUNT(1) AS total FROM (%s) tmp', $queryBuilder->getQuery()->getSQL()),
+                $rsm
+            )
+        ;
+        // assign parameters
+        foreach ($queryBuilder->getParameters() as $key => $value) {
+            $nbResults->setParameter($key + 1, $value->getValue());
+        }
+        // get count
+        $nbResults = (int) $nbResults->getSingleScalarResult();
+
         if (is_null($limit)) {
             $limit = self::DEFAULT_LIMIT;
         }
 
-        if (-1 !== $page) {
-            $queryBuilder
-                ->setFirstResult(($page - 1) * $limit)
-                ->setMaxResults($limit)
-            ;
-        }
-
-        return $queryBuilder
+        $result = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult()
         ;
+
+        $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result));
+        $paginator->setMaxPerPage($limit);
+        $paginator->setCurrentPage($page);
+
+        return $paginator;
     }
 
     /**

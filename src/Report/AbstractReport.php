@@ -53,9 +53,7 @@ abstract class AbstractReport
             ];
         }
 
-        // get labels
         $labels = $this->getChartLabels();
-
         if (empty($labels) && $result = $this->getChartMinMaxDates()) {
             $items = $this->getDatePeriodItems(
                 new \DateTime($result['min']),
@@ -84,7 +82,7 @@ abstract class AbstractReport
                     }
 
                     foreach (array_keys($this->getChartColumns()) as $key) {
-                        $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row));
+                        $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
                     }
                 }
             } else {
@@ -93,12 +91,12 @@ abstract class AbstractReport
                         $items[$key]['data'][$row[$this->getChartGroupByField()]] = 0;
                     }
 
-                    $items[$key]['data'][$row[$this->getChartGroupByField()]] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row));
+                    $items[$key]['data'][$row[$this->getChartGroupByField()]] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
                 }
             }
 
             foreach (array_keys($this->getChartTotals()) as $key) {
-                $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row));
+                $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
             }
         }
 
@@ -229,6 +227,81 @@ abstract class AbstractReport
     public function getChartConvertCallback(): string
     {
         return 'intval';
+    }
+
+    /**
+     * @return array
+     */
+    public function getExportComplexColumns(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExportColumns(): array
+    {
+        return [];
+    }
+
+    /**
+     * $format = text, money, or percent.
+     *
+     * @return array
+     */
+    public function getExportColumn($label, $format = 'text'): array
+    {
+        return [
+            'label' => $label,
+            'format' => $format,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function export(): array
+    {
+        if (!$this->getRepository() || 0 === count($this->getExportColumns())) {
+            return [];
+        }
+
+        $data = [];
+
+        // add header
+        $data[0] = [];
+        foreach (array_values($this->getExportColumns()) as $options) {
+            $data[0][] = $options['label'];
+        }
+
+        // force all records
+        $this->setPage(-1);
+
+        // add rows
+        foreach ($this->search() as $item) {
+            $row = [];
+            foreach ($this->getExportColumns() as $column => $options) {
+                $value = $item[$column] ?? null;
+
+                if ('text' !== $options['format']) {
+                    $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
+                }
+
+                switch ($options['format']) {
+                    case 'money':
+                    case 'percent':
+                        $value = number_format($value, 2);
+                        break;
+                }
+
+                $row[] = $value;
+            }
+
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     /**
@@ -594,14 +667,14 @@ abstract class AbstractReport
     /**
      * @param string $column
      * @param array  $data
+     * @param array  $complexColumns
      *
      * @return float
      */
-    private function calcComplexColumn($column, $data): float
+    private function calcComplexColumn($column, $data, $complexColumns): float
     {
         $value = $data[$column] ?? 0;
 
-        $complexColumns = $this->getChartComplexColumns();
         if (array_key_exists($column, $complexColumns)) {
             $formula = $complexColumns[$column];
 
@@ -612,6 +685,6 @@ abstract class AbstractReport
             $value = 0 + create_function('', sprintf('return (%s);', $formula))();
         }
 
-        return $value;
+        return floatval($value);
     }
 }

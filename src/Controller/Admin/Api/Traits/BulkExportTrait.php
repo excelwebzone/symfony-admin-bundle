@@ -57,10 +57,10 @@ trait BulkExportTrait
         }
 
         // load all rows (use pagination)
-        $result = [];
+        $items = [];
 
         foreach ($objects as $item) {
-            $result[] = $item;
+            $items[] = $item;
 
             foreach ($enumColumns as $column => &$options) {
                 if (!$options['is_array']) {
@@ -91,6 +91,19 @@ trait BulkExportTrait
             }
         }
 
+        return $this->generateExport($kernel, $assetsManager, $columns, $items);
+    }
+
+    /**
+     * @param KernelInterface $kernel
+     * @param Packages        $assetsManager
+     * @param array           $columns
+     * @param array           $items
+     *
+     * @return JsonResponse
+     */
+    private function generateExport(KernelInterface $kernel, Packages $assetsManager, array $columns, array $items): JsonResponse
+    {
         // generate filename
         $file = new \SplFileObject($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()), 'w');
         $writer = new ExcelWriter($file);
@@ -115,15 +128,19 @@ trait BulkExportTrait
         // add headers
         $writer->writeItem(array_values($row));
 
-        foreach ($result as $item) {
+        foreach ($items as $item) {
             $row = [];
             foreach (array_keys($columns) as $column) {
-                $method = sprintf('get%s', StringUtil::classify($column));
-                if (!method_exists($item, $method)) {
-                    $method = sprintf('is%s', StringUtil::classify($column));
-                }
+                if (is_array($item)) {
+                    $data = $item[$column];
+                } else {
+                    $method = sprintf('get%s', StringUtil::classify($column));
+                    if (!method_exists($item, $method)) {
+                        $method = sprintf('is%s', StringUtil::classify($column));
+                    }
 
-                $data = $item->$method();
+                    $data = $item->$method();
+                }
 
                 if ($data instanceof \DateTimeInterface) {
                     $data = $data->format($this->getUser()->getDateFormat());

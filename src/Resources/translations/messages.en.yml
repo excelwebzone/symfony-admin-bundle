@@ -1,4 +1,5 @@
 error:
+    no_data_found: No data found!
     file:
         file_empty: This file is empty.
         too_big: Please upload a file smaller than %size% MB.
