@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Report;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectManager;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
@@ -297,42 +298,41 @@ abstract class AbstractReport
 
                 // handle sub-columns
                 if (false !== strpos($column, '.')) {
-                    list($parentColumn, $column) = explode('.', $column, 2);
+                    $split = explode('.', $column);
 
-                    if (is_array($item)) {
-                        $item = $item[$parentColumn] ?? null;
-                    } else {
-                        $method = sprintf('get%s', StringUtil::classify($parentColumn));
-                        if (!method_exists($item, $method)) {
-                            continue;
+                    // @hack: handle multi column with same field
+                    // usually used to show value in different column
+                    // based on "hide" rules
+                    if (is_numeric($split[0])) {
+                        array_shift($split);
+                    }
+
+                    for ($i = 0; $i < count($split) - 1; ++$i) {
+                        $parentColumn = $split[$i];
+                        $item = $this->getColumnValue($parentColumn, $item);
+
+                        // skip empty parent
+                        if (!is_object($item)
+                            || ($item instanceof Collection
+                                && 0 === $item->count()
+                            )
+                        ) {
+                            continue 2;
                         }
-
-                        $item = $item->$method();
                     }
 
-                    // skip empty parent
-                    if (!is_object($item)) {
-                        continue;
-                    }
+                    $column = end($split);
                 }
 
-                if (is_array($item)) {
-                    $value = $item[$column] ?? null;
-                } else {
-                    $method = sprintf('get%s', StringUtil::classify($column));
-                    if (!method_exists($item, $method)) {
-                        $method = sprintf('is%s', StringUtil::classify($column));
-                    }
-
-                    $value = $item->$method();
-                }
+                $value = $this->getColumnValue($column, $item);
 
                 if (!in_array($options['format'], ['text', 'enum'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
                 }
 
                 // hide value / reset to null
-                if ($options['options']['hide'] ?? false) {
+                $hide = $options['options']['hide'] ?? false;
+                if (true === $hide || ($hide instanceof \Closure && $hide($item))) {
                     $value = null;
                 }
 
@@ -759,13 +759,40 @@ abstract class AbstractReport
     /**
      * @param string $column
      * @param array  $data
+     *
+     * @return mixed
+     */
+    private function getColumnValue($column, $data)
+    {
+        $value = null;
+
+        if (is_array($data)) {
+            $value = $data[$column] ?? null;
+        } else {
+            $method = lcfirst(StringUtil::classify($column));
+            if (!method_exists($data, $method)) {
+                $method = sprintf('get%s', StringUtil::classify($column));
+            }
+            if (!method_exists($data, $method)) {
+                $method = sprintf('is%s', StringUtil::classify($column));
+            }
+
+            $value = $data->$method();
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $column
+     * @param array  $data
      * @param array  $complexColumns
      *
      * @return float
      */
     private function calcComplexColumn($column, $data, $complexColumns): float
     {
-        $value = $data[$column] ?? 0;
+        $value = $this->getColumnValue($column, $data);
 
         if (array_key_exists($column, $complexColumns)) {
             $formula = $complexColumns[$column];
