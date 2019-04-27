@@ -102,8 +102,8 @@ final class S3Uploader extends AbstractFileUploader
             'SourceFile' => $file->getPathname(),
             'Bucket' => $this->s3Bucket,
             'Key' => $fileName,
-            'ContentType' => $file->getClientMimeType(),
-            'ContentLength' => $file->getClientSize(),
+            'ContentType' => $file->getMimeType(),
+            'ContentLength' => $file->getSize(),
         ]);
 
         // delete old file (if exists)
