@@ -510,8 +510,14 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     protected function getUser(): ?User
     {
-        $user = $this->tokenStorage->getToken()->getUser();
+        if ($token = $this->tokenStorage->getToken()) {
+            $user = $token->getUser();
 
-        return $user instanceof User ? $user : null;
+            if ($user instanceof User) {
+                return $user;
+            }
+        }
+
+        return null;
     }
 }
