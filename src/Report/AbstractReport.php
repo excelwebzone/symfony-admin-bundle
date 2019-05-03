@@ -238,40 +238,6 @@ abstract class AbstractReport
     /**
      * @return array
      */
-    public function getExportComplexColumns(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    public function getExportColumns(): array
-    {
-        return [];
-    }
-
-    /**
-     * @param string     $label
-     * @param string     $format
-     * @param array|null $options
-     *
-     * $format = text, money, percent, or enum
-     *
-     * @return array
-     */
-    public function getExportColumn(string $label, string $format = 'text', array $options = null): array
-    {
-        return [
-            'label' => $label,
-            'format' => $format,
-            'options' => $options,
-        ];
-    }
-
-    /**
-     * @return array
-     */
     public function export(): array
     {
         if (!$this->getRepository() || 0 === count($this->getExportColumns())) {
@@ -378,6 +344,40 @@ abstract class AbstractReport
         }
 
         return $data;
+    }
+
+    /**
+     * @param string     $label
+     * @param string     $format
+     * @param array|null $options
+     *
+     * $format = text, money, percent, or enum
+     *
+     * @return array
+     */
+    public function createExportColumn(string $label, string $format = 'text', array $options = null): array
+    {
+        return [
+            'label' => $label,
+            'format' => $format,
+            'options' => $options,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExportComplexColumns(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExportColumns(): array
+    {
+        return [];
     }
 
     /**
