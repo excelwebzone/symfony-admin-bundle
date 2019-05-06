@@ -6,6 +6,7 @@ use EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits\BulkExportTrait;
 use EWZ\SymfonyAdminBundle\Model\Report;
 use EWZ\SymfonyAdminBundle\Report\AbstractReport;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
+use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -118,6 +119,18 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var Pagerfanta|array $items */
         $items = $report->search();
+
+        // convert to Pagerfanta
+        if (is_array($items)) {
+            $adapter = new ArrayAdapter($items);
+            $pagerfanta = new Pagerfanta($adapter);
+
+            if (count($items)) {
+                $pagerfanta->setMaxPerPage(count($items));
+            }
+
+            $items = $pagerfanta;
+        }
 
         /** @var array $totals */
         $totals = $showTotals

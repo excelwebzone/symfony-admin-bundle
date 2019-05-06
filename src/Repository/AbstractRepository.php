@@ -138,7 +138,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param string|null $sort
      * @param bool        $doCount
      *
-     * @return Pagerfanta|int|bool
+     * @return Pagerfanta|\Traversable|int|bool
      */
     public function search(array $criteria, int $page = 1, int $limit = null, string $sort = null, bool $doCount = false)
     {
@@ -168,20 +168,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         // get all
         if (-1 === $page) {
-            $nbResults = (int) $queryBuilder
-                ->select('COUNT(1)')
-                ->getQuery()
-                ->getSingleScalarResult()
-            ;
-
-            /** @var array|\Traversable $result */
-            $result = $queryBuilder->getQuery()->getResult();
-
-            try {
-                return new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder->getQuery()));
-            } catch (OutOfRangeCurrentPageException $e) {
-                return false;
-            }
+            return $queryBuilder->getQuery()->getResult();
         }
 
         if (is_null($limit)) {
@@ -290,26 +277,33 @@ abstract class AbstractRepository extends ServiceEntityRepository
             $queryBuilder = $queryBuilder->orderBy($sortBy, $sortDir);
         }
 
-        // get total rows
+        // set result mapping
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('total', 'total', 'integer');
-        // create query
-        $nbResults = $this->getEntityManager()
+
+        // create native query
+        $nativeQuery = $this->getEntityManager()
             ->createNativeQuery(
                 sprintf('SELECT COUNT(1) AS total FROM (%s) tmp', $queryBuilder->getQuery()->getSQL()),
                 $rsm
             )
         ;
+
         // assign parameters
         foreach ($queryBuilder->getParameters() as $key => $value) {
-            $nbResults->setParameter($key + 1, $value->getValue());
+            $nativeQuery->setParameter($key + 1, $value->getValue());
         }
-        // get count
-        $nbResults = (int) $nbResults->getSingleScalarResult();
+
+        // get number of results
+        $nbResults = (int) $nativeQuery->getSingleScalarResult();
 
         if (is_null($limit)) {
             $limit = self::DEFAULT_LIMIT;
         }
+
+        // save query before adding limit
+        /** @var Query $query */
+        $query = $queryBuilder->getQuery();
 
         if (-1 !== $page) {
             $queryBuilder
@@ -322,7 +316,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $result = $queryBuilder->getQuery()->getResult();
 
         try {
-            $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder->getQuery()));
+            $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result, $query));
 
             if (-1 !== $page) {
                 $paginator->setMaxPerPage($limit);
