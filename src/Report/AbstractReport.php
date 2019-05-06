@@ -73,7 +73,13 @@ abstract class AbstractReport
             }
         }
 
-        foreach ($this->getChartData() as $row) {
+        /** @var Pagerfanta|array $result */
+        $result = $this->getChartData();
+        if ($result instanceof Pagerfanta) {
+            $result = $result->getCurrentPageResults();
+        }
+
+        foreach ($result as $row) {
             if (!$this->getChartGroupByField()) {
                 break;
             }
@@ -204,14 +210,12 @@ abstract class AbstractReport
     }
 
     /**
-     * @return array
+     * @return Pagerfanta|array
      */
-    public function getChartData(): array
+    public function getChartData()
     {
         if ($this->getRepository() && $groupBy = $this->getChartGroupByField()) {
-            return $this->getRepository()
-                ->getGroupedData($this->getCriteria(), -1, null, null, $groupBy)
-                ->getCurrentPageResults();
+            return $this->getRepository()->getGroupedData($this->getCriteria(), -1, null, null, $groupBy);
         }
 
         return [];
