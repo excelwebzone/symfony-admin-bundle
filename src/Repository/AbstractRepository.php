@@ -178,7 +178,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             $result = $queryBuilder->getQuery()->getResult();
 
             try {
-                return new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder));
+                return new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder->getQuery()));
             } catch (OutOfRangeCurrentPageException $e) {
                 return false;
             }
