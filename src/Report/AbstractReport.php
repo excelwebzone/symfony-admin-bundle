@@ -443,18 +443,18 @@ abstract class AbstractReport
         }
 
         if ($items instanceof Pagerfanta) {
-            if ($this->getRepository()) {
-                $adapter = $items->getAdapter();
-                if (method_exists($adapter, 'getQuery')) {
-                    $columns = $this->getTotalColumns();
-                    foreach ($columns as &$column) {
-                        $column = $column['column'];
-                    }
-
-                    $items = $this->getRepository()->getSearchTotals($columns, $adapter->getQuery());
-                } else {
-                    $items = $items->getCurrentPageResults();
+            $adapter = $items->getAdapter();
+            if (method_exists($adapter, 'getQuery')) {
+                $columns = $this->getTotalColumns();
+                foreach ($columns as &$column) {
+                    $column = $column['column'];
                 }
+
+                if ($this->getRepository()) {
+                    $items = $this->getRepository()->getSearchTotals($columns, $adapter->getQuery());
+                }
+            } else {
+                $items = $items->getCurrentPageResults();
             }
         }
 
