@@ -158,7 +158,12 @@
         </div>
       {% endblock %}
 
-      <div class="list-page-table report-table-component" data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}">
+      <div class="list-page-table report-table-component"
+        data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
+        {% if reportTotals is defined and reportTotals == true %}
+          data-totals="true"
+        {% endif %}
+      >
         {% block report_table %}{% endblock %}
       </div>
     </div>

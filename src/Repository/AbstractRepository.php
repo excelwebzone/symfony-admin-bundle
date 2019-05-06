@@ -5,12 +5,14 @@ namespace EWZ\SymfonyAdminBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\ParserResult;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use EWZ\SymfonyAdminBundle\Model\User;
+use EWZ\SymfonyAdminBundle\Pagerfanta\Adapter\FixedAdapter;
 use EWZ\SymfonyAdminBundle\Repository\Traits\PagerfantaTrait;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Pagerfanta\Adapter\FixedAdapter;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -136,7 +138,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param string|null $sort
      * @param bool        $doCount
      *
-     * @return Pagerfanta|\Traversable|int|bool
+     * @return Pagerfanta|int|bool
      */
     public function search(array $criteria, int $page = 1, int $limit = null, string $sort = null, bool $doCount = false)
     {
@@ -166,10 +168,20 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         // get all
         if (-1 === $page) {
-            return $queryBuilder
+            $nbResults = (int) $queryBuilder
+                ->select('COUNT(1)')
                 ->getQuery()
-                ->getResult()
+                ->getSingleScalarResult()
             ;
+
+            /** @var array|\Traversable $result */
+            $result = $queryBuilder->getQuery()->getResult();
+
+            try {
+                return new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder));
+            } catch (OutOfRangeCurrentPageException $e) {
+                return false;
+            }
         }
 
         if (is_null($limit)) {
@@ -177,10 +189,61 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         try {
-            return $this->createPaginator($queryBuilder->getQuery(), $page, $limit);
+            return $this->createPaginator($queryBuilder, $page, $limit);
         } catch (OutOfRangeCurrentPageException $e) {
             return false;
         }
+    }
+
+    /**
+     * @param array $columns
+     * @param Query $query
+     *
+     * @return array
+     */
+    public function getSearchTotals(array $columns, Query $query): array
+    {
+        // mock parse function on $query to retrive SQL column names
+        $reflectionClass = new \ReflectionClass(Query::class);
+        $reflectionMethod = $reflectionClass->getMethod('_parse');
+        $reflectionMethod->setAccessible(true);
+
+        /** @var ParserResult $parser */
+        $parser = $reflectionMethod->invoke($query);
+
+        /** @var array $scalarMappings */
+        $scalarMappings = $parser->getResultSetMapping()->scalarMappings;
+
+        // get total rows
+        $rsm = new ResultSetMapping();
+
+        foreach ($columns as $key => $value) {
+            if (!$columnName = array_search($value, $scalarMappings)) {
+                foreach ($scalarMappings as $alias => $column) {
+                    $value = preg_replace(sprintf('/%s/', $column), $alias, $value);
+                }
+                $columnName = $value;
+            }
+
+            $rsm->addScalarResult($key, $key, 'float');
+
+            $columns[$key] = sprintf('SUM(%s) as %s', $columnName, $key);
+        }
+
+        // create query
+        $nativeQuery = $this->getEntityManager()
+            ->createNativeQuery(
+                sprintf('SELECT %s FROM (%s) tmp', implode(', ', $columns), $query->getSQL()),
+                $rsm
+            )
+        ;
+
+        // assign parameters
+        foreach ($query->getParameters() as $key => $value) {
+            $nativeQuery->setParameter($key + 1, $value->getValue());
+        }
+
+        return $nativeQuery->getResult();
     }
 
     /**
@@ -212,7 +275,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param string|null $sort
      * @param string      $groupBy
      *
-     * @return Pagerfanta|\Traversable|bool
+     * @return Pagerfanta|bool
      */
     public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy)
     {
@@ -225,14 +288,6 @@ abstract class AbstractRepository extends ServiceEntityRepository
             list($sortBy, $sortDir) = explode('-', $sort, 2);
 
             $queryBuilder = $queryBuilder->orderBy($sortBy, $sortDir);
-        }
-
-        // get all
-        if (-1 === $page) {
-            return $queryBuilder
-                ->getQuery()
-                ->getResult()
-            ;
         }
 
         // get total rows
@@ -256,17 +311,23 @@ abstract class AbstractRepository extends ServiceEntityRepository
             $limit = self::DEFAULT_LIMIT;
         }
 
-        $result = $queryBuilder
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult()
-        ;
+        if (-1 !== $page) {
+            $queryBuilder
+                ->setFirstResult(($page - 1) * $limit)
+                ->setMaxResults($limit)
+            ;
+        }
+
+        /** @var array|\Traversable $result */
+        $result = $queryBuilder->getQuery()->getResult();
 
         try {
-            $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result));
-            $paginator->setMaxPerPage($limit);
-            $paginator->setCurrentPage($page);
+            $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result, $queryBuilder->getQuery()));
+
+            if (-1 !== $page) {
+                $paginator->setMaxPerPage($limit);
+                $paginator->setCurrentPage($page);
+            }
 
             return $paginator;
         } catch (OutOfRangeCurrentPageException $e) {

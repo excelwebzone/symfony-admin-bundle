@@ -6,7 +6,6 @@ use EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits\BulkExportTrait;
 use EWZ\SymfonyAdminBundle\Model\Report;
 use EWZ\SymfonyAdminBundle\Report\AbstractReport;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -101,6 +100,7 @@ abstract class AbstractReportController extends AbstractController
         $limit = (int) $request->query->get('limit', 20);
         $sort = $request->query->get('sort');
         $groupingType = $request->query->get('groupingType', 'monthly');
+        $showTotals = 1 == $request->query->get('showTotals') && 1 === $page;
 
         // convert request filters into query
         $criteria = json_decode($request->query->get('filters', '[]'), true);
@@ -119,17 +119,10 @@ abstract class AbstractReportController extends AbstractController
         /** @var Pagerfanta|array $items */
         $items = $report->search();
 
-        // convert to Pagerfanta
-        if (is_array($items)) {
-            $adapter = new ArrayAdapter($items);
-            $pagerfanta = new Pagerfanta($adapter);
-
-            if (count($items)) {
-                $pagerfanta->setMaxPerPage(count($items));
-            }
-
-            $items = $pagerfanta;
-        }
+        /** @var array $totals */
+        $totals = $showTotals
+            ? $report->searchTotals($items)
+            : [];
 
         $html = $this->renderView($template, [
             'criteria' => $criteria,
@@ -141,6 +134,7 @@ abstract class AbstractReportController extends AbstractController
             'page' => $page,
             'count' => $items ? count($items->getCurrentPageResults()) : 0,
             'total' => $items ? $items->getNbResults() : 0,
+            'totals' => $totals,
         ];
 
         return $this->json(array_merge($data, [

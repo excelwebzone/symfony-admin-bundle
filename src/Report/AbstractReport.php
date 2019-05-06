@@ -209,7 +209,9 @@ abstract class AbstractReport
     public function getChartData(): array
     {
         if ($this->getRepository() && $groupBy = $this->getChartGroupByField()) {
-            return $this->getRepository()->getGroupedData($this->getCriteria(), -1, null, null, $groupBy);
+            return $this->getRepository()
+                ->getGroupedData($this->getCriteria(), -1, null, null, $groupBy)
+                ->getCurrentPageResults();
         }
 
         return [];
@@ -303,6 +305,14 @@ abstract class AbstractReport
                 }
 
                 switch ($options['format']) {
+                    case 'money':
+                        $value = sprintf('$%s', number_format($value, 2));
+                        break;
+
+                    case 'percent':
+                        $value = sprintf('%s%%', number_format($value, 2));
+                        break;
+
                     case 'enum':
                         $enumClass = $options['options']['class'];
                         if ($value && $enumClass::isValueExist($value)) {
@@ -395,6 +405,90 @@ abstract class AbstractReport
         }
 
         return [];
+    }
+
+    /**
+     * @param string $column
+     * @param string $format
+     *
+     * $format = number, money, or percent
+     *
+     * @return array
+     */
+    public function createTotalColumn(string $column, string $format = 'number'): array
+    {
+        return [
+            'column' => $column,
+            'format' => $format,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getTotalColumns(): array
+    {
+        return [];
+    }
+
+    /**
+     * @params Pagerfanta|array $items
+     *
+     * @return array
+     */
+    public function searchTotals($items): array
+    {
+        if (0 === count($this->getTotalColumns())) {
+            return [];
+        }
+
+        if ($items instanceof Pagerfanta) {
+            if ($this->getRepository()) {
+                $adapter = $items->getAdapter();
+                if (method_exists($adapter, 'getQuery')) {
+                    $columns = $this->getTotalColumns();
+                    foreach ($columns as &$column) {
+                        $column = $column['column'];
+                    }
+
+                    $items = $this->getRepository()->getSearchTotals($columns, $adapter->getQuery());
+                } else {
+                    $items = $items->getCurrentPageResults();
+                }
+            }
+        }
+
+        $columns = [];
+
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                foreach ($item as $key => $value) {
+                    if (!array_key_exists($key, $columns)) {
+                        $columns[$key] = 0;
+                    }
+
+                    $columns[$key] += $value;
+                }
+            }
+        }
+
+        foreach ($this->getTotalColumns() as $key => $value) {
+            if (array_key_exists($key, $columns)) {
+                $columns[$key] = number_format($columns[$key], 2);
+
+                switch ($value['format']) {
+                    case 'money':
+                        $columns[$key] = sprintf('$%s', $columns[$key]);
+                        break;
+
+                    case 'percent':
+                        $columns[$key] = sprintf('%s%%', $columns[$key]);
+                        break;
+                }
+            }
+        }
+
+        return $columns;
     }
 
     /**
