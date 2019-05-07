@@ -467,6 +467,10 @@ abstract class AbstractReport
         if (is_array($items)) {
             foreach ($items as $item) {
                 foreach ($item as $key => $value) {
+                    if (!array_key_exists($key, $this->getTotalColumns())) {
+                        continue;
+                    }
+
                     if (!array_key_exists($key, $columns)) {
                         $columns[$key] = 0;
                     }
