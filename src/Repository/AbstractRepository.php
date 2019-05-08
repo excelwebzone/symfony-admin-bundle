@@ -200,21 +200,33 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         /** @var array $scalarMappings */
         $scalarMappings = $parser->getResultSetMapping()->scalarMappings;
+        if (empty($scalarMappings)) {
+            $scalarMappings = $parser->getResultSetMapping()->fieldMappings;
+        }
 
         // get total rows
         $rsm = new ResultSetMapping();
 
         foreach ($columns as $key => $value) {
-            if (!$columnName = array_search($value, $scalarMappings)) {
-                foreach ($scalarMappings as $alias => $column) {
-                    $value = preg_replace(sprintf('/%s/', $column), $alias, $value);
+            $column = $value['column'];
+            $useSum = $value['useSum'];
+
+            // get column name
+            if (!$columnName = array_search($column, $scalarMappings)) {
+                // replace field in column formula
+                foreach ($scalarMappings as $alias => $field) {
+                    $column = preg_replace(sprintf('/%s/', $field), $alias, $column);
                 }
-                $columnName = $value;
+                $columnName = $column;
+            }
+
+            if ($useSum) {
+                $columns[$key] = sprintf('SUM(%s) as %s', $columnName, $key);
+            } else {
+                $columns[$key] = sprintf('%s as %s', $columnName, $key);
             }
 
             $rsm->addScalarResult($key, $key, 'float');
-
-            $columns[$key] = sprintf('SUM(%s) as %s', $columnName, $key);
         }
 
         // create query

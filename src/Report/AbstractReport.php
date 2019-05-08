@@ -414,16 +414,18 @@ abstract class AbstractReport
     /**
      * @param string $column
      * @param string $format
+     * @param bool   $useSum
      *
      * $format = number, money, or percent
      *
      * @return array
      */
-    public function createTotalColumn(string $column, string $format = 'number'): array
+    public function createTotalColumn(string $column, string $format = 'number', bool $useSum = true): array
     {
         return [
             'column' => $column,
             'format' => $format,
+            'useSum' => $useSum,
         ];
     }
 
@@ -449,13 +451,8 @@ abstract class AbstractReport
         if ($items instanceof Pagerfanta) {
             $adapter = $items->getAdapter();
             if (method_exists($adapter, 'getQuery')) {
-                $columns = $this->getTotalColumns();
-                foreach ($columns as &$column) {
-                    $column = $column['column'];
-                }
-
                 if ($this->getRepository()) {
-                    $items = $this->getRepository()->getSearchTotals($columns, $adapter->getQuery());
+                    $items = $this->getRepository()->getSearchTotals($this->getTotalColumns(), $adapter->getQuery());
                 }
             } else {
                 $items = $items->getCurrentPageResults();
