@@ -70,7 +70,7 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="boolean")
      */
-    protected $enabled;
+    protected $enabled = true;
 
     /**
      * @ORM\Column(type="string", nullable=true)
