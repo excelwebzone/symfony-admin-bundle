@@ -162,10 +162,10 @@ abstract class AbstractReportController extends AbstractController
      */
     private function getReportObject(Report $report): AbstractReport
     {
-        list($group, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
+        list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
 
         $class = sprintf('App\\Report\\%s\\%sReport',
-            StringUtil::classify($group),
+            StringUtil::classify($category),
             StringUtil::classify($name)
         );
 
@@ -179,10 +179,10 @@ abstract class AbstractReportController extends AbstractController
      */
     private function getReportTemplate(Report $report): string
     {
-        list($group, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
+        list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
 
         return sprintf('admin/partial/report/%s/%s.html.twig',
-            strtolower(StringUtil::tableize($group)),
+            strtolower(StringUtil::tableize($category)),
             strtolower(StringUtil::tableize($name))
         );
     }

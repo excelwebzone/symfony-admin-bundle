@@ -34,7 +34,7 @@ class Report extends BaseReport
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
      */
-    protected $group;
+    protected $category;
 
     /**
      * @ORM\Column(type="boolean")

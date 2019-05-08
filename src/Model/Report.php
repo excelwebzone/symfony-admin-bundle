@@ -14,7 +14,7 @@ class Report
     protected $name;
 
     /** @var string */
-    protected $group;
+    protected $category;
 
     /** @var bool */
     protected $enabled = true;
@@ -70,17 +70,17 @@ class Report
     /**
      * @return string|null
      */
-    public function getGroup(): ?string
+    public function getCategory(): ?string
     {
-        return $this->group;
+        return $this->category;
     }
 
     /**
-     * @param string|null $group
+     * @param string|null $category
      */
-    public function setGroup(string $group = null): void
+    public function setCategory(string $category = null): void
     {
-        $this->group = $group;
+        $this->category = $category;
     }
 
     /**
