@@ -438,6 +438,14 @@ abstract class AbstractReport
     }
 
     /**
+     * @return Pagerfanta|array|null
+     */
+    public function getTotalData()
+    {
+        return null;
+    }
+
+    /**
      * @params Pagerfanta|array $items
      *
      * @return array

@@ -199,10 +199,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $parser = $reflectionMethod->invoke($query);
 
         /** @var array $scalarMappings */
-        $scalarMappings = $parser->getResultSetMapping()->scalarMappings;
-        if (empty($scalarMappings)) {
-            $scalarMappings = $parser->getResultSetMapping()->fieldMappings;
-        }
+        $scalarMappings = $parser->getResultSetMapping()->scalarMappings +
+                            $parser->getResultSetMapping()->fieldMappings;
 
         // get total rows
         $rsm = new ResultSetMapping();

@@ -134,7 +134,7 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var array $totals */
         $totals = $showTotals
-            ? $report->searchTotals($items)
+            ? $report->searchTotals($report->getTotalData() ?: $items)
             : [];
 
         $html = $this->renderView($template, [
