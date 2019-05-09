@@ -213,7 +213,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             if (!$columnName = array_search($column, $scalarMappings)) {
                 // replace field in column formula
                 foreach ($scalarMappings as $alias => $field) {
-                    $column = preg_replace(sprintf('/%s/', $field), $alias, $column);
+                    $column = preg_replace(sprintf('/\'[^\']*\'(*SKIP)(*FAIL)|\b%s\b/i', $field), $alias, $column);
                 }
                 $columnName = $column;
             }
