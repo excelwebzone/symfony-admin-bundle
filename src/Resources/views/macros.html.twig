@@ -830,7 +830,7 @@
           </div>
 
           {% if links.block_actions|default(false) %}
-            <div class="entity-profile-frame-header-right-actions js-block-request" data-endpoint="{{ links.block_actions|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+            <div class="entity-profile-frame-header-right-actions js-block-request" data-endpoint="{{ links.block_actions|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"></div>
           {% endif %}
         </div>
         <div class="entity-profile-frame-title-box-container">
@@ -940,7 +940,7 @@
       <div class="entity-profile-frame-content-box tab-content">
         {% if links.block_form|default(false) %}
           <div class="tab-pane tab-entity-profile h-100 {% if defaultActive == 'block_form' %}active{% endif %}">
-            <div class="entity-details {% if entityDetailsBoxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ links.block_form|replace({'__ID__': '<%- id %>'})|raw }}">
+            <div class="entity-details {% if entityDetailsBoxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ links.block_form|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}">
               <div class="entity-details-loading-box">
                 <div class="entity-details-loading-icon">
                   <div class="circle-spinner"></div>
@@ -950,16 +950,16 @@
           </div>
         {% endif %}
         {% if links.block_activity|default(false) %}
-          <div class="tab-pane tab-entity-activity h-100 {% if defaultActive == 'block_activity' %}active{% endif %} js-block-request js-activity-block" data-endpoint="{{ links.block_activity|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+          <div class="tab-pane tab-entity-activity h-100 {% if defaultActive == 'block_activity' %}active{% endif %} js-block-request js-activity-block" data-endpoint="{{ links.block_activity|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"></div>
         {% endif %}
         {% if links.block_related|default(false) %}
-          <div class="tab-pane tab-entity-related h-100 {% if defaultActive == 'block_related' %}active{% endif %} js-block-request" data-endpoint="{{ links.block_related|replace({'__ID__': '<%- id %>'})|raw }}"></div>
+          <div class="tab-pane tab-entity-related h-100 {% if defaultActive == 'block_related' %}active{% endif %} js-block-request" data-endpoint="{{ links.block_related|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"></div>
         {% endif %}
         {% if links.extra|default(false) %}
           {% for tab, values in links.extra %}
             {% if values.entity_details is not defined or values.entity_details %}
               <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %}">
-                <div class="entity-details {% if values.details_boxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
+                <div class="entity-details {% if values.details_boxes|default(false) %}entity-details-boxes{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}">
                   <div class="entity-details-loading-box">
                     <div class="entity-details-loading-icon">
                       <div class="circle-spinner"></div>
@@ -968,7 +968,7 @@
                 </div>
               </div>
             {% else %}
-              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>'})|raw }}">
+              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}">
             {% endif %}
           {% endfor %}
         {% endif %}
