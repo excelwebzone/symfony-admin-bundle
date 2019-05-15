@@ -436,7 +436,7 @@
 {% endmacro %}
 
 {% macro itemCell(index, value, key = 'text', link = null, align = 'left', class = null, parameters = {}) %}
-  <div class="ember-table-cell table-cell-{{ key }} {{ class }} text-{{ align }} js-ember-table-column-width" data-index="{{ index }}">
+  <div class="ember-table-cell table-cell-{{ key|replace({'_': '-'}) }} {{ class }} text-{{ align }} js-ember-table-column-width" data-index="{{ index }}">
     {% if link and key not in ['email', 'phone'] %}
       <a href="{{ link }}"
         {% if parameters.data is defined %}
@@ -475,10 +475,16 @@
           {{ value|number_format }}
         {% elseif 'number' == key %}
           {{ value|number_format(2) }}
+        {% elseif 'number_rounded' == key %}
+          {{ value|round|number_format }}
         {% elseif 'money' == key %}
           ${{ value|number_format(2) }}
+        {% elseif 'money_rounded' == key %}
+          ${{ value|round|number_format }}
         {% elseif 'percent' == key %}
           {{ value|number_format(2) }}%
+        {% elseif 'percent_rounded' == key %}
+          {{ value|round|number_format }}%
         {% elseif 'boolean' == key %}
           {% if value %}Yes{% else %}—{% endif %}
         {% else %}
