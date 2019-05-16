@@ -304,7 +304,7 @@ abstract class AbstractReport
 
                 // hide value / reset to null
                 $hide = $options['options']['hide'] ?? false;
-                if (true === $hide || ($hide instanceof \Closure && $hide($item))) {
+                if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
                     $value = null;
                 }
 
