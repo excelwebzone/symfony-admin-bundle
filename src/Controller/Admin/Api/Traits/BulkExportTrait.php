@@ -91,7 +91,7 @@ trait BulkExportTrait
             }
         }
 
-        return $this->generateExport($kernel, $assetsManager, $columns, $items);
+        return $this->generateExport($kernel, $assetsManager, $columns, $items, $enumColumns);
     }
 
     /**
@@ -99,11 +99,17 @@ trait BulkExportTrait
      * @param Packages        $assetsManager
      * @param array           $columns
      * @param array           $items
+     * @param array           $enumColumns
      *
      * @return JsonResponse
      */
-    private function generateExport(KernelInterface $kernel, Packages $assetsManager, array $columns, array $items): JsonResponse
-    {
+    private function generateExport(
+        KernelInterface $kernel,
+        Packages $assetsManager,
+        array $columns,
+        array $items,
+        array $enumColumns = []
+    ): JsonResponse {
         // generate filename
         $file = new \SplFileObject($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()), 'w');
         $writer = new ExcelWriter($file);
