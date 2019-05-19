@@ -17,7 +17,7 @@ trait PagerfantaTrait
      */
     protected function createPaginator(QueryBuilder $queryBuilder, int $page, int $limit): Pagerfanta
     {
-        $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder));
+        $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder, false));
         $paginator->setMaxPerPage($limit);
         $paginator->setCurrentPage($page);
 
