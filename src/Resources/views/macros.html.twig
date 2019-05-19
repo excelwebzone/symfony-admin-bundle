@@ -371,7 +371,7 @@
     data-field="{{ field }}"
   >
     <div class="table-header-cell-content">
-      <span>{{ name }} {% if sortable %}<i class="zmdi zmdi-sort-amount-desc"></i>{% endif %}</span>
+      <span>{{ name|raw }} {% if sortable %}<i class="zmdi zmdi-sort-amount-desc"></i>{% endif %}</span>
     </div>
   </div>
 {% endmacro %}
