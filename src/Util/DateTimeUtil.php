@@ -135,12 +135,13 @@ final class DateTimeUtil
     }
 
     /**
+     * @param string             $unit
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
      *
      * @return array
      */
-    public static function getDatePeriodItems(\DateTimeInterface $from, \DateTimeInterface $to): array
+    public static function getDatePeriodItems(string $unit, \DateTimeInterface $from, \DateTimeInterface $to): array
     {
         $from->setTime(0, 0, 0);
         $to->setTime(0, 0, 0);
@@ -149,7 +150,7 @@ final class DateTimeUtil
         $to->modify('next day');
 
         $items = [];
-        switch ($this->getGroupingType()) {
+        switch ($unit) {
             case 'daily':
                 $period = new \DatePeriod($from, new \DateInterval('P1D'), $to);
                 foreach ($period as $day) {

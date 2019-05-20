@@ -63,6 +63,7 @@ abstract class AbstractReport
         $labels = $this->getChartLabels();
         if (empty($labels) && $result = $this->getChartMinMaxDates()) {
             $items = DateTimeUtil::getDatePeriodItems(
+                $this->getGroupingType(),
                 new \DateTime($result['min']),
                 new \DateTime($result['max'])
             );
