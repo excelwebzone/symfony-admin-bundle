@@ -489,24 +489,25 @@ abstract class AbstractReport
 
         foreach ($this->getTotalColumns() as $key => $value) {
             if (array_key_exists($key, $columns)) {
-                $columns[$key] = number_format($columns[$key], 2);
-
                 switch ($value['format']) {
-                    case 'money':
-                        $columns[$key] = sprintf('$%s', $columns[$key]);
-                        break;
-
-                    case 'percent':
-                        $columns[$key] = sprintf('%s%%', $columns[$key]);
-                        break;
-
                     case 'time':
-                        $columns[$key] = floatval($columns[$key]);
-
                         $hours = floor($columns[$key] / 3600);
                         $minutes = floor(($columns[$key] / 60) % 60);
 
                         $columns[$key] = sprintf('%02d:%02d', $hours, $minutes);
+                        break;
+
+                    case 'money':
+                        $columns[$key] = sprintf('$%s', number_format($columns[$key], 2));
+                        break;
+
+                    case 'percent':
+                        $columns[$key] = sprintf('%s%%', number_format($columns[$key], 2));
+                        break;
+
+                    case 'number':
+                    default:
+                        $columns[$key] = number_format($columns[$key], 2);
                         break;
                 }
             }
