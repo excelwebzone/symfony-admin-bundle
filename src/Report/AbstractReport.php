@@ -311,6 +311,10 @@ abstract class AbstractReport
                 }
 
                 switch ($options['format']) {
+                    case 'number':
+                        $value = number_format($value, 2);
+                        break;
+
                     case 'money':
                         $value = sprintf('$%s', number_format($value, 2));
                         break;
@@ -367,7 +371,7 @@ abstract class AbstractReport
      * @param string     $format
      * @param array|null $options
      *
-     * $format = text, money, percent, or enum
+     * $format = text, number, money, percent, or enum
      *
      * @return array
      */
