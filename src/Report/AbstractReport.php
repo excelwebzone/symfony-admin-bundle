@@ -418,7 +418,7 @@ abstract class AbstractReport
      * @param string $format
      * @param bool   $useSum
      *
-     * $format = number, money, or percent
+     * $format = number, money, percent, or time
      *
      * @return array
      */
@@ -498,6 +498,15 @@ abstract class AbstractReport
 
                     case 'percent':
                         $columns[$key] = sprintf('%s%%', $columns[$key]);
+                        break;
+
+                    case 'time':
+                        $columns[$key] = floatval($columns[$key]);
+
+                        $hours = floor($columns[$key] / 3600);
+                        $minutes = floor(($columns[$key] / 60) % 60);
+
+                        $columns[$key] = sprintf('%02d:%02d', $hours, $minutes);
                         break;
                 }
             }
