@@ -300,7 +300,7 @@ abstract class AbstractReport
 
                 $value = $this->getColumnValue($column, $item);
 
-                if (!in_array($options['format'], ['text', 'enum'])) {
+                if (!in_array($options['format'], ['text', 'enum', 'datetime'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
                 }
 
@@ -371,7 +371,7 @@ abstract class AbstractReport
      * @param string     $format
      * @param array|null $options
      *
-     * $format = text, number, money, percent, or enum
+     * $format = text, datetime, number, money, percent, or enum
      *
      * @return array
      */
