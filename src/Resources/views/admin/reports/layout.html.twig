@@ -54,6 +54,8 @@
 
         {# tools/actions #}
         <div class="list-buttons-container">
+          {% block report_actions %}{% endblock %}
+
           {% if reportExportPath is defined %}
             <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Export Data">
               <i class="toggle-button zmdi zmdi-download js-print-report" data-endpoint="{{ reportExportPath }}"></i>
