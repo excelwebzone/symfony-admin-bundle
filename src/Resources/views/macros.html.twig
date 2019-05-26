@@ -391,11 +391,21 @@
   </div>
 {% endmacro %}
 
-{% macro followCell(index, id, isChecked, followUrl) %}
+{% macro followCell(index, id, isChecked, followUrl, parameters = {}) %}
   <div class="ember-table-cell table-cell-follow text-center js-ember-table-column-width" data-index="{{ index }}">
     <span class="checkbox">
       <label class="checkbox-label">
-        <input type="checkbox" value="{{ id }}" class="checkbox-input js-follow-item" {% if isChecked %}checked="checked"{% endif %} data-endpoint="{{ followUrl }}" />
+        <input type="checkbox" value="{{ id }}"
+          class="checkbox-input js-follow-item {% if parameters.class is defined %}{{ parameters.class }}{% endif %}"
+          {% if isChecked %}checked="checked"{% endif %}
+
+          data-endpoint="{{ followUrl }}"
+          {% if parameters.data is defined %}
+            {% for dataItemName, dataItemValue in parameters.data %}
+              data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+            {% endfor %}
+          {% endif %}
+        />
         <span class="checkbox-display">
           <i class="zmdi zmdi-star checked"></i>
           <i class="zmdi zmdi-star-outline unchecked"></i>
@@ -406,11 +416,21 @@
   </div>
 {% endmacro %}
 
-{% macro taskCheckboxCell(index, id, isChecked, completeUrl) %}
+{% macro taskCheckboxCell(index, id, isChecked, completeUrl, parameters = {}) %}
   <div class="ember-table-cell table-cell-task text-right js-ember-table-column-width" data-index="{{index }}">
     <span class="task-check-box-small task-check-box checkbox">
       <label class="task-check-box-container {% if isChecked %}is-completed{% endif %}">
-        <input type="checkbox" value="{{ id }}" class="checkbox-input js-complete-item" {% if isChecked %}checked="checked"{% endif %} data-endpoint="{{ completeUrl }}" />
+        <input type="checkbox" value="{{ id }}"
+          class="checkbox-input js-complete-item {% if parameters.class is defined %}{{ parameters.class }}{% endif %}"
+          {% if isChecked %}checked="checked"{% endif %}
+
+          data-endpoint="{{ completeUrl }}"
+          {% if parameters.data is defined %}
+            {% for dataItemName, dataItemValue in parameters.data %}
+              data-{{ dataItemName }}="{{ dataItemValue|e('html_attr')|raw }}"
+            {% endfor %}
+          {% endif %}
+        />
         <span class="task-check-box-checkbox">
           <i class="zmdi zmdi-square-o unchecked"></i>
           <i class="zmdi zmdi-check-square checked"></i>
