@@ -421,17 +421,19 @@ abstract class AbstractReport
      * @param string $column
      * @param string $format
      * @param bool   $useSum
+     * @param bool   $useFormula
      *
      * $format = number, money, percent, or time
      *
      * @return array
      */
-    public function createTotalColumn(string $column, string $format = 'number', bool $useSum = true): array
+    public function createTotalColumn(string $column, string $format = 'number', bool $useSum = true, bool $useFormula = false): array
     {
         return [
             'column' => $column,
             'format' => $format,
             'useSum' => $useSum,
+            'useFormula' => $useFormula,
         ];
     }
 
@@ -474,7 +476,6 @@ abstract class AbstractReport
         }
 
         $columns = [];
-
         if (is_array($items)) {
             foreach ($items as $item) {
                 foreach ($item as $key => $value) {
@@ -489,6 +490,16 @@ abstract class AbstractReport
                     $columns[$key] += $value;
                 }
             }
+        }
+
+        $complexColumns = [];
+        foreach ($this->getTotalColumns() as $key => $value) {
+            if ($value['useFormula']) {
+                $complexColumns[$key] = $value['column'];
+            }
+        }
+        foreach ($complexColumns as $key => $value) {
+            $columns[$key] = $this->calcComplexColumn($key, $columns, $complexColumns);
         }
 
         foreach ($this->getTotalColumns() as $key => $value) {
