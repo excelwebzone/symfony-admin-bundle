@@ -932,9 +932,22 @@
           </div>
         </div>
         <div class="entity-profile-frame-tab-box nav nav-tabs">
+          {% set numberOfTabs = 0 %}
+          {% if links.block_form|default(false) %}
+            {% set numberOfTabs = numberOfTabs + 1 %}
+          {% endif %}
+          {% if links.block_activity|default(false) %}
+            {% set numberOfTabs = numberOfTabs + 1 %}
+          {% endif %}
+          {% if links.block_related|default(false) %}
+            {% set numberOfTabs = numberOfTabs + 1 %}
+          {% endif %}
+
           {% set defaultActive = false %}
           {% if links.extra|default(false) %}
             {% for tab, values in links.extra %}
+              {% set numberOfTabs = numberOfTabs + 1 %}
+
               {% if links.active_tab|default(false) == 'extra.' ~ tab %}
                 {% set defaultActive = links.active_tab %}
               {% endif %}
@@ -948,17 +961,17 @@
           {% endif %}
 
           {% if links.block_form|default(false) %}
-            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_form' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-profile">Details</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_form' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-profile">Details</div>
           {% endif %}
           {% if links.block_activity|default(false) %}
-            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_activity' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-activity">Activity</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_activity' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-activity">Activity</div>
           {% endif %}
           {% if links.block_related|default(false) %}
-            <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_related' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-related">Related</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_related' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-related">Related</div>
           {% endif %}
           {% if links.extra|default(false) %}
             {% for tab, values in links.extra %}
-              <div class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'extra.' ~ tab %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-{{ tab }}">{{ values.title }}</div>
+              <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'extra.' ~ tab %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-{{ tab }}">{{ values.title }}</div>
             {% endfor %}
           {% endif %}
         </div>
