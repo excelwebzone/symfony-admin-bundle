@@ -6,7 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
 use EWZ\SymfonyAdminBundle\Doctrine\DBAL\Types\DateTimeType;
 use EWZ\SymfonyAdminBundle\Model\User;
-use EWZ\SymfonyAdminBundle\Util\DateTimeUtil;
+use EWZ\SymfonyAdminBundle\Util\DateTimeKernel;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -118,15 +118,15 @@ class TimezoneSubscriber implements EventSubscriberInterface
      */
     private function updateKernelTimeZones(): void
     {
-        DateTimeUtil::setTimeZoneDatabase(new \DateTimeZone($this->timeZoneDatabase ?: date_default_timezone_get()));
-        DateTimeUtil::setTimeZoneClient(new \DateTimeZone($this->timeZoneClient ?: date_default_timezone_get()));
+        DateTimeKernel::setTimeZoneDatabase(new \DateTimeZone($this->timeZoneDatabase ?: date_default_timezone_get()));
+        DateTimeKernel::setTimeZoneClient(new \DateTimeZone($this->timeZoneClient ?: date_default_timezone_get()));
 
         /** @var TokenInterface $token */
         if ($token = $this->tokenStorage->getToken()) {
             $user = $token->getUser();
 
             if ($user instanceof User) {
-                DateTimeUtil::setTimeZoneClient(new \DateTimeZone($user->getTimezone()));
+                DateTimeKernel::setTimeZoneClient(new \DateTimeZone($user->getTimezone()));
             }
         }
     }
@@ -160,7 +160,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
             $datetime = new \DateTimeImmutable(sprintf('@%d', $request->server->get('REQUEST_TIME')));
         }
 
-        DateTimeUtil::setDateTimeServer($datetime);
+        DateTimeKernel::setDateTimeServer($datetime);
 
         return true;
     }
@@ -174,7 +174,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        DateTimeUtil::setDateTimeServer(
+        DateTimeKernel::setDateTimeServer(
             new \DateTimeImmutable(sprintf('@%d', $this->kernel->getStartTime()))
         );
 
@@ -186,7 +186,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
      */
     private function updateKernelDateTimeByCurrentServerTime(): bool
     {
-        DateTimeUtil::setDateTimeServer(
+        DateTimeKernel::setDateTimeServer(
             new \DateTimeImmutable('now', new \DateTimeZone('+00:00'))
         );
 

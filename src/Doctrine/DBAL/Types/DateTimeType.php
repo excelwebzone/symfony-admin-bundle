@@ -5,7 +5,7 @@ namespace EWZ\SymfonyAdminBundle\Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeType as BaseDateTimeType;
-use EWZ\SymfonyAdminBundle\Util\DateTimeUtil;
+use EWZ\SymfonyAdminBundle\Util\DateTimeKernel;
 
 class DateTimeType extends BaseDateTimeType
 {
@@ -15,7 +15,7 @@ class DateTimeType extends BaseDateTimeType
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if ($value instanceof \DateTime) {
-            if ($timezone = DateTimeUtil::getTimeZoneDatabase()) {
+            if ($timezone = DateTimeKernel::getTimeZoneDatabase()) {
                 $value->setTimezone($timezone);
             }
         }
@@ -35,9 +35,9 @@ class DateTimeType extends BaseDateTimeType
         if ($converted = \DateTime::createFromFormat(
             $platform->getDateTimeFormatString(),
             $value,
-            DateTimeUtil::getTimeZoneDatabase()
+            DateTimeKernel::getTimeZoneDatabase()
         )) {
-            $converted->setTimezone(DateTimeUtil::getTimeZoneClient() ?: DateTimeUtil::getTimeZoneServer());
+            $converted->setTimezone(DateTimeKernel::getTimeZoneClient() ?: DateTimeKernel::getTimeZoneServer());
         }
 
         if (!$converted) {
