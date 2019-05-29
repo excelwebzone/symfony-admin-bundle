@@ -484,9 +484,9 @@
         {% if 'badge' == key and parameters.color|default(false) %}
           <span class="badge p-2" style="color: #fff; background-color: #{{ parameters.color }}">{{ value }}</span>
         {% elseif 'date' == key %}
-          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat, app.user.timezone) }}</time>
+          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.dateFormat) }}</time>
         {% elseif 'datetime' == key %}
-          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z', app.user.timezone) }}" title="{{ value|date('M d, Y \\a\\t h:i A', app.user.timezone) }}">{{ value|date(app.user.dateFormat ~ ' H:i:s', app.user.timezone) }}</time>
+          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.dateFormat ~ ' H:i:s') }}</time>
         {% elseif 'email' == key %}
           <a href="mailto:{{ value }}">{{ value }}</a>
         {% elseif 'phone' == key %}
