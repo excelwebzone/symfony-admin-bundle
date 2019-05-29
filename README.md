@@ -22,6 +22,9 @@ symfony_admin:
         cron_schedule_repository: 'app.cron_schedule_repository'
         report_repository: 'app.report_repository'
         file_uploader: 'app.file_uploader'
+    #timezone:
+    #    database: '%env(APP_TIMEZONE_DATABASE)%'
+    #    client: '%env(APP_TIMEZONE_CLIENT)%'
 
 services:
     app.user_repository:
