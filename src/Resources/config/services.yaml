@@ -13,6 +13,7 @@ services:
             - '@kernel'
             - '@request_stack'
             - '@security.token_storage'
+            - '@twig'
             - '%symfony_admin.timezone.database%'
             - '%symfony_admin.timezone.client%'
 

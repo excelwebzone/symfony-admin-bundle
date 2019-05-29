@@ -16,6 +16,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Twig\Environment;
+use Twig\Extension\CoreExtension;
 
 /**
  * Timezone management and additional \DateTime methods.
@@ -31,6 +33,9 @@ class TimezoneSubscriber implements EventSubscriberInterface
     /** @var TokenStorageInterface */
     private $tokenStorage;
 
+    /** @var Environment */
+    private $twig;
+
     /** @var string */
     private $timeZoneDatabase = null;
 
@@ -41,6 +46,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
      * @param KernelInterface       $kernel
      * @param RequestStack          $requestStack
      * @param TokenStorageInterface $tokenStorage
+     * @param Environment           $twig
      * @param string|null           $timeZoneDatabase
      * @param string|null           $timeZoneClient
      */
@@ -48,12 +54,14 @@ class TimezoneSubscriber implements EventSubscriberInterface
         KernelInterface $kernel,
         RequestStack $requestStack,
         TokenStorageInterface $tokenStorage,
+        Environment $twig,
         string $timeZoneDatabase = null,
         string $timeZoneClient = null
     ) {
         $this->kernel = $kernel;
         $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
+        $this->twig = $twig;
         $this->timeZoneDatabase = $timeZoneDatabase;
         $this->timeZoneClient = $timeZoneClient;
 
@@ -129,6 +137,10 @@ class TimezoneSubscriber implements EventSubscriberInterface
                 DateTimeKernel::setTimeZoneClient(new \DateTimeZone($user->getTimezone()));
             }
         }
+
+        // set Twig default timezone
+        $this->twig->getExtension(CoreExtension::class)
+            ->setTimezone(DateTimeKernel::getTimeZoneClient());
     }
 
     /**
