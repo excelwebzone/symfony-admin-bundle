@@ -5,6 +5,15 @@ services:
         arguments:
             - '@security.encoder_factory'
 
+    EWZ\SymfonyAdminBundle\EventSubscriber\TimezoneSubscriber:
+        tags:
+            - { name: kernel.event_listener, event: console.command }
+            - { name: kernel.event_listener, event: kernel.request }
+        arguments:
+            - '@kernel'
+            - '@request_stack'
+            - '@security.token_storage'
+
     symfony_admin.file_uploader.default:
         class: EWZ\SymfonyAdminBundle\FileUploader\FileUploader
         arguments:

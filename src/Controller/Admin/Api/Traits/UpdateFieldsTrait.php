@@ -67,9 +67,7 @@ trait UpdateFieldsTrait
                 $value = $object->$method($value);
 
                 if ($value instanceof \DateTimeInterface) {
-                    $value = $value
-                        ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
-                        ->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                    $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
                 } elseif ($value instanceof Collection) {
                     $values = [];
                     foreach ($value as $v) {

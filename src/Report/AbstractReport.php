@@ -333,18 +333,14 @@ abstract class AbstractReport
 
                     case 'datetime':
                         if ($value instanceof \DateTimeInterface) {
-                            $value = $value
-                                ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
-                                ->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                            $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
                         }
 
                         break;
                 }
 
                 if ($value instanceof \DateTimeInterface) {
-                    $value = $value
-                        ->setTimezone(new \DateTimeZone($this->getUser()->getTimezone()))
-                        ->format($this->getUser()->getDateFormat());
+                    $value = $value->format($this->getUser()->getDateFormat());
                 } elseif (is_array($value) || $value instanceof Collection) {
                     $values = [];
                     foreach ($value as $v) {
