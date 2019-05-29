@@ -59,7 +59,7 @@
     {{ block('attributes') }}
     {%- if disabled %} disabled="disabled"{% endif -%}
     {%- if required %} required="required"{% endif -%}
-    {%- if value is not empty %}value="{{ value|date(app.user.dateFormat) }}"{% endif -%}
+    {%- if value is not empty %}value="{{ value|date(app.user.dateFormat, app.user.timezone) }}"{% endif -%}
     data-format="{% if app.user.dateFormat == 'm/d/Y' %}MM/DD/YYYY{% else %}DD/MM/YYYY{% endif %}"
   />
 {%- endblock date_widget %}
