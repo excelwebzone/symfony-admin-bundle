@@ -28,6 +28,9 @@ final class SymfonyAdminExtension extends Extension
         $container->setAlias('symfony_admin.report_repository', new Alias($config['services']['report_repository'], true));
         $container->setAlias('symfony_admin.file_uploader', new Alias($config['services']['file_uploader'], true));
 
+        $container->setParameter('symfony_admin.timezone.database', $config['timezone']['database']);
+        $container->setParameter('symfony_admin.timezone.client', $config['timezone']['client']);
+
         $container->setParameter('symfony_admin.max_filesize', $config['max_filesize']);
 
         $container->setParameter('symfony_admin.mime_types.extensions', $config['mime_types']['extensions']);

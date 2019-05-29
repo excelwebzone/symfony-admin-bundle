@@ -13,6 +13,8 @@ services:
             - '@kernel'
             - '@request_stack'
             - '@security.token_storage'
+            - '%symfony_admin.timezone.database%'
+            - '%symfony_admin.timezone.client%'
 
     symfony_admin.file_uploader.default:
         class: EWZ\SymfonyAdminBundle\FileUploader\FileUploader

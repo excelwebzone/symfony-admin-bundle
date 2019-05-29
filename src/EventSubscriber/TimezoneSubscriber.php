@@ -23,24 +23,39 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class TimezoneSubscriber implements EventSubscriberInterface
 {
     /** @var KernelInterface */
-    protected $kernel;
+    private $kernel;
 
     /** @var RequestStack */
-    protected $requestStack;
+    private $requestStack;
 
     /** @var TokenStorageInterface */
-    protected $tokenStorage;
+    private $tokenStorage;
+
+    /** @var string */
+    private $timeZoneDatabase = null;
+
+    /** @var string */
+    private $timeZoneClient = null;
 
     /**
      * @param KernelInterface       $kernel
      * @param RequestStack          $requestStack
      * @param TokenStorageInterface $tokenStorage
+     * @param string|null           $timeZoneDatabase
+     * @param string|null           $timeZoneClient
      */
-    public function __construct(KernelInterface $kernel, RequestStack $requestStack, TokenStorageInterface $tokenStorage)
-    {
+    public function __construct(
+        KernelInterface $kernel,
+        RequestStack $requestStack,
+        TokenStorageInterface $tokenStorage,
+        string $timeZoneDatabase = null,
+        string $timeZoneClient = null
+    ) {
         $this->kernel = $kernel;
         $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
+        $this->timeZoneDatabase = $timeZoneDatabase;
+        $this->timeZoneClient = $timeZoneClient;
 
         $this->initializeTypeOverrides();
     }
@@ -103,8 +118,8 @@ class TimezoneSubscriber implements EventSubscriberInterface
      */
     private function updateKernelTimeZones(): void
     {
-        DateTimeUtil::setTimeZoneDatabase(new \DateTimeZone(date_default_timezone_get()));
-        DateTimeUtil::setTimeZoneClient(new \DateTimeZone(date_default_timezone_get()));
+        DateTimeUtil::setTimeZoneDatabase(new \DateTimeZone($this->timeZoneDatabase ?: date_default_timezone_get()));
+        DateTimeUtil::setTimeZoneClient(new \DateTimeZone($this->timeZoneClient ?: date_default_timezone_get()));
 
         /** @var TokenInterface $token */
         if ($token = $this->tokenStorage->getToken()) {
