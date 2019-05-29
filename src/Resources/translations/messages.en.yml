@@ -25,5 +25,8 @@ form:
         city: City
         state: State
         zip: Zip
+    datetime:
+        date: Date
+        time: Time
     filter:
         name: Enter Filter Name

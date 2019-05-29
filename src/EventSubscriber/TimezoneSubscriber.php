@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
  * Timezone management and additional \DateTime methods.

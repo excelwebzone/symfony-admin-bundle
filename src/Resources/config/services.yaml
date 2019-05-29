@@ -42,6 +42,12 @@ services:
     # Form
     #
 
+    EWZ\SymfonyAdminBundle\Form\Type\DateTimePickerType:
+        tags:
+            - { name: form.type }
+        arguments:
+            - '@security.token_storage'
+
     EWZ\SymfonyAdminBundle\Form\Type\AutocompleteType:
         tags:
             - { name: form.type }
