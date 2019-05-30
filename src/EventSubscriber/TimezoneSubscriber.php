@@ -138,6 +138,9 @@ class TimezoneSubscriber implements EventSubscriberInterface
             }
         }
 
+        // set PHP server timezone
+        date_default_timezone_set(DateTimeKernel::getTimeZoneClient()->getName());
+
         // set Twig default timezone
         $this->twig->getExtension(CoreExtension::class)
             ->setTimezone(DateTimeKernel::getTimeZoneClient());
