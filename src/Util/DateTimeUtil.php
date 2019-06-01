@@ -116,19 +116,24 @@ final class DateTimeUtil
 
                 return [$from, $to];
 
-            case 'last_7_days':
-            case 'last_14_days':
-            case 'last_30_days':
-            case 'last_45_days':
-            case 'last_60_days':
-            case 'last_90_days':
-            case 'last_180_days':
-                $split = explode('_', $unit);
+            default:
+                if ('last_' === substr($unit, 0, 5)) {
+                    $split = explode('_', $unit);
 
-                $from = (new \DateTime(sprintf('-%d day', $split[1])))->setTime(0, 0, 0);
-                $to = (new \DateTime())->setTime(0, 0, 0);
+                    $from = (new \DateTime(sprintf('-%d day', $split[1])))->setTime(0, 0, 0);
+                    $to = (new \DateTime())->setTime(0, 0, 0);
 
-                return [$from, $to];
+                    return [$from, $to];
+                }
+
+                if ('next_' === substr($unit, 0, 5)) {
+                    $split = explode('_', $unit);
+
+                    $from = (new \DateTime())->setTime(0, 0, 0);
+                    $to = (new \DateTime(sprintf('+%d day', $split[1])))->setTime(0, 0, 0);
+
+                    return [$from, $to];
+                }
         }
 
         return null;
