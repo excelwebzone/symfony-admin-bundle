@@ -15,8 +15,8 @@
         <div class="profile-icon">
           <a href="{{ path('admin_settings_users_profile_edit', {id: app.user.id}) }}">
             <div class="left image">
-              {% if app.user.photoFile is defined %}
-                <img src="{{ asset(app.user.photoFile|default('images/avatar.png')) }}" />
+              {% if app.user.photo is defined %}
+                <img src="{{ asset(app.user.photo|default('images/avatar.png')) }}" />
               {% else %}
                 <img src="{{ asset('images/avatar.png') }}" />
               {% endif %}
