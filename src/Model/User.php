@@ -26,6 +26,9 @@ class User implements UserInterface, TwoFactorInterface
     /** @var string */
     protected $dateFormat;
 
+    /** @var string */
+    protected $timeFormat;
+
     /** @var bool */
     protected $allowSystemAdmin = false;
 
@@ -84,6 +87,7 @@ class User implements UserInterface, TwoFactorInterface
     {
         $this->timezone = date_default_timezone_get();
         $this->dateFormat = 'm/d/Y';
+        $this->timeFormat = 'h:i A';
     }
 
     /**
@@ -148,6 +152,22 @@ class User implements UserInterface, TwoFactorInterface
     public function setDateFormat(string $dateFormat = null): void
     {
         $this->dateFormat = $dateFormat;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTimeFormat(): ?string
+    {
+        return $this->timeFormat;
+    }
+
+    /**
+     * @param string|null $timeFormat
+     */
+    public function setTimeFormat(string $timeFormat = null): void
+    {
+        $this->timeFormat = $timeFormat;
     }
 
     /**

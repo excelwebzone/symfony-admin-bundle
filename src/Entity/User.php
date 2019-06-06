@@ -34,6 +34,11 @@ class User extends BaseUser
     protected $dateFormat;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $timeFormat;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $allowSystemAdmin = false;
