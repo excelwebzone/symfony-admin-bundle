@@ -487,6 +487,8 @@
           <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.dateFormat) }}</time>
         {% elseif 'datetime' == key %}
           <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.dateFormat ~ ' ' ~ app.user.timeFormat) }}</time>
+        {% elseif 'time' == key %}
+          <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.timeFormat) }}</time>
         {% elseif 'email' == key %}
           <a href="mailto:{{ value }}">{{ value }}</a>
         {% elseif 'phone' == key %}
