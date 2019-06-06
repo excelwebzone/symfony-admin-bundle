@@ -40,22 +40,25 @@
 
     <div class="header-right">
       <div class="header-action-bar">
-        {% block dropdown_add_new %}{% endblock %}
-        {% block drawers %}{% endblock %}
+        {% block buttons %}{% endblock %}
+
+        {% if actions is not defined %}
+          {% set actions = [] %}
+        {% endif %}
 
         {{ UI.dropdownButton({
           label: false,
           right: true,
           aCss: 'header-icon dropdown-header-icon popup-container',
           iCss: 'button button-toggle zmdi zmdi-more-vert',
-          elements: [
+          elements: actions|merge([
             {
               path: path('security_logout'),
               label: 'Log Out',
               iCss: 'zmdi zmdi-square-right',
               opCss: 'option-list-item-divider'
             }
-          ]
+          ])
         }) }}
       </div>
     </div>
