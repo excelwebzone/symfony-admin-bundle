@@ -129,15 +129,19 @@ abstract class AbstractReport
             }
 
             // prepare data
-            $items = array_values($items);
+            $tmp = [];
             foreach ($items as $key => $item) {
+                $tmp[$key] = [
+                    'name' => $item['name'],
+                    'data' => [],
+                ];
+
                 foreach (array_keys($labels) as $label) {
-                    if (!isset($item['data'][$label])) {
-                        $items[$key]['data'][$label] = 0;
-                    }
+                    $tmp[$key]['data'][] = $item['data'][$label] ?? 0;
                 }
-                $items[$key]['data'] = array_values($items[$key]['data']);
             }
+
+            $items = array_values($tmp);
 
             // set labels
             $labels = array_values(array_map(function ($value) {
