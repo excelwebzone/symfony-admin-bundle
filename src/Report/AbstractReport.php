@@ -136,7 +136,6 @@ abstract class AbstractReport
                         $items[$key]['data'][$label] = 0;
                     }
                 }
-                ksort($items[$key]['data']);
                 $items[$key]['data'] = array_values($items[$key]['data']);
             }
 
