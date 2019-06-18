@@ -58,13 +58,13 @@
 
           {% if reportExportPath is defined %}
             <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Export Data">
-              <i class="toggle-button zmdi zmdi-download js-print-report" data-endpoint="{{ reportExportPath }}"></i>
+              <i class="toggle-button zmdi zmdi-download js-print-list" data-endpoint="{{ reportExportPath }}"></i>
             </div>
           {% endif %}
 
           {% if block('report_chart') is not empty %}
             <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Chart">
-              <i class="toggle-button zmdi zmdi-chart js-toggle-button" data-toggle-open-class="active" data-toggle="collapse" data-target=".chart-container"></i>
+              <i class="toggle-button zmdi zmdi-chart js-toggle-button" data-toggle-open-class="active" data-toggle="collapse" data-target=".list-page-chart"></i>
             </div>
           {% endif %}
 
@@ -76,19 +76,19 @@
       </div>
 
       {% block report_chart %}
-        <div class="chart-container collapse">
-          <div class="report-summary">
-            <div class="report-summary-number-list">
+        <div class="list-page-chart collapse">
+          <div class="list-chart-summary">
+            <div class="list-chart-summary-number-list">
               {% block report_summary %}{% endblock %}
             </div>
 
             {% block report_filter %}
-              <div class="report-summary-control-rows">
-                <div class="report-summary-control-row">
+              <div class="list-chart-summary-control-rows">
+                <div class="list-chart-summary-control-row">
                   {% block fillter_summary %}
-                    <div class="report-summary-filter">
-                      <div class="report-summary-filter-label">Group By</div>
-                      <div class="report-summary-filter-content">
+                    <div class="list-chart-summary-filter">
+                      <div class="list-chart-summary-filter-label">Group By</div>
+                      <div class="list-chart-summary-filter-content">
                         <div class="radio-button-group">
                           <div class="form-group is-inline">
                             <span class="radio-button-group-item">
@@ -143,7 +143,7 @@
           </div>
 
           <div class="chart-container-chart"
-            data-report="{{ report.token|replace({'-': '_'}) }}"
+            data-token="{{ report.token|replace({'-': '_'}) }}"
             data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
           ></div>
 
