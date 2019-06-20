@@ -145,6 +145,9 @@
           <div class="chart-container-chart"
             data-token="{{ report.token|replace({'-': '_'}) }}"
             data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
+            {% if reportReloadList is defined and reportReloadList == true %}
+              data-reload-list="true"
+            {% endif %}
           ></div>
 
           <div class="chart-loading-overlay">
