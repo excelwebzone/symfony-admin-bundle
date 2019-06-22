@@ -201,7 +201,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function countSearch(array $criteria): int
     {
-        return $this->search($criteria, null, null, null, true);
+        return $this->search($criteria, -1, null, null, true);
     }
 
     /**
