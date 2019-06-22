@@ -140,11 +140,12 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function getRandomJoinName(): string
     {
-        do {
-            $token = StringUtil::generateToken(8);
-        } while (!preg_match('/[a-zA-Z]/', substr($token, 0, 1)));
+        $token = StringUtil::generatePassword(3, [
+            StringUtil::PASSWORD_UPPER_CASE,
+            StringUtil::PASSWORD_LOWER_CASE,
+        ]);
 
-        return $token;
+        return sprintf('%s%s', $token, uniqid());
     }
 
     /**
