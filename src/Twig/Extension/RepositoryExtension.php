@@ -34,6 +34,7 @@ final class RepositoryExtension extends AbstractExtension
             new TwigFunction('search_one', [$this, 'searchOne']),
             new TwigFunction('search_by_id', [$this, 'searchById']),
             new TwigFunction('search_grouped_data', [$this, 'getGroupedData']),
+            new TwigFunction('search_all_grouped_data', [$this, 'getAllGroupedData']),
         ];
     }
 
@@ -84,7 +85,7 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function searchAll(string $class, array $criteria = [], string $sort = null)
     {
-        return $this->getRepository($class)->search($criteria, -1, null, $sort);
+        return $this->getRepository($class)->searchAll($criteria, $sort);
     }
 
     /**
@@ -125,5 +126,18 @@ final class RepositoryExtension extends AbstractExtension
     public function getGroupedData(string $class, array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy): array
     {
         return $this->getRepository($class)->getGroupedData($criteria, $page, $limit, $sort, $groupBy);
+    }
+
+    /**
+     * @param string      $class
+     * @param array       $criteria
+     * @param string|null $sort
+     * @param string      $groupBy
+     *
+     * @return array
+     */
+    public function getAllGroupedData(string $class, array $criteria, string $sort = null, string $groupBy): array
+    {
+        return $this->getRepository($class)->getAllGroupedData($criteria, $sort, $groupBy);
     }
 }

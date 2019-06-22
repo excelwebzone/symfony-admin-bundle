@@ -35,11 +35,13 @@ final class StringUtil extends Inflector
     }
 
     /**
+     * @param int $length
+     *
      * @return string
      */
-    public static function generateToken(): string
+    public static function generateToken(int $length = 32): string
     {
-        return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+        return rtrim(strtr(base64_encode(random_bytes($length)), '+/', '-_'), '=');
     }
 
     /**

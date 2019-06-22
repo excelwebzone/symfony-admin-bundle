@@ -6,12 +6,14 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\Query\ParserResult;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Pagerfanta\Adapter\FixedAdapter;
 use EWZ\SymfonyAdminBundle\Repository\Traits\PagerfantaTrait;
+use EWZ\SymfonyAdminBundle\Util\DateTimeUtil;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
@@ -75,8 +77,26 @@ abstract class AbstractRepository extends ServiceEntityRepository
         /** @var array $fieldNames */
         $fieldNames = $classMetadata->getFieldNames();
 
+        if ($includeAssociationNames) {
+            $fieldNames = array_merge($fieldNames, $this->getAssociationNames());
+        }
+
+        return $fieldNames;
+    }
+
+    /**
+     * @param bool $includeCollection
+     *
+     * @return array
+     */
+    public function getAssociationNames(bool $includeCollection = false): array
+    {
+        /** @var ClassMetadata $classMetadata */
+        $classMetadata = $this->getClassMetadata($this->getClass());
+
+        $fieldNames = [];
         foreach ($classMetadata->getAssociationNames() as $assocName) {
-            if ($classMetadata->isCollectionValuedAssociation($assocName)) {
+            if (!$includeCollection && $classMetadata->isCollectionValuedAssociation($assocName)) {
                 continue;
             }
 
@@ -84,6 +104,54 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         return $fieldNames;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJoinNames(): array
+    {
+        /** @var ClassMetadata $classMetadata */
+        $classMetadata = $this->getClassMetadata($this->getClass());
+
+        static $joinNames = [];
+
+        if (empty($joinNames) && count($classMetadata->getAssociationMappings())) {
+            $joinNames = [];
+
+            foreach ($classMetadata->getAssociationMappings() as $assocMapping) {
+                $joinNames[$assocMapping['fieldName']] = [$this->getRandomJoinName()];
+
+                $subClassMetadata = $this
+                    ->getEntityManager()
+                    ->getClassMetadata($assocMapping['targetEntity']);
+
+                foreach ($subClassMetadata->getAssociationNames() as $assocName) {
+                    $joinNames[$assocMapping['fieldName']][$assocName] = $this->getRandomJoinName();
+                }
+            }
+        }
+
+        return $joinNames;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRandomJoinName(): string
+    {
+        return StringUtil::generateToken(8);
+    }
+
+    /**
+     * @param string     $name
+     * @param string|int $key
+     *
+     * @return string|null
+     */
+    public function getJoinName(string $name, $key = 0): ?string
+    {
+        return $this->getJoinNames()[$name][$key] ?? null;
     }
 
     /**
@@ -128,7 +196,18 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function countSearch(array $criteria): int
     {
-        return $this->search($criteria, 1, null, null, true);
+        return $this->search($criteria, null, null, null, true);
+    }
+
+    /**
+     * @param array       $criteria
+     * @param string|null $sort
+     *
+     * @return Pagerfanta|\Traversable|bool
+     */
+    public function searchAll(array $criteria, string $sort = null)
+    {
+        return $this->search($criteria, -1, null, $sort);
     }
 
     /**
@@ -267,6 +346,18 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
     /**
      * @param array       $criteria
+     * @param string|null $sort
+     * @param string      $groupBy
+     *
+     * @return Pagerfanta|bool
+     */
+    public function getAllGroupedData(array $criteria, string $sort = null, string $groupBy)
+    {
+        return $this->getGroupedData($criteria, -1, null, $sort, $groupBy);
+    }
+
+    /**
+     * @param array       $criteria
      * @param int         $page
      * @param int|null    $limit
      * @param string|null $sort
@@ -352,13 +443,12 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * @param QueryBuilder $queryBuilder
      * @param array        $criteria
+     * @param array        $fieldNames
      */
-    protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria): void
+    protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria, array $fieldNames = []): void
     {
         foreach ($criteria as $key => $value) {
-            $name = $key;
-
-            $this->applyValue($queryBuilder, $name, $key, $value);
+            $this->applyValue($queryBuilder, $key, $fieldNames[$key] ?? $key, $value);
         }
     }
 
@@ -381,7 +471,29 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
+        foreach ($this->getAssociationNames(true) as $assocName) {
+            if (strlen($key) > strlen($assocName)
+                && $assocName === substr($key, 0, strlen($assocName))
+            ) {
+                $key = lcfirst(substr($key, strlen($assocName)));
+                $alias = $this->getJoinName($assocName);
+
+                if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                    $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
+                }
+            }
+        }
+
         if (is_array($value)) {
+            if (isset($value['unit'])) {
+                if ($dateRange = DateTimeUtil::getDateRange($value['unit'])) {
+                    $value = [
+                        'from' => $dateRange[0],
+                        'to' => $dateRange[1],
+                    ];
+                }
+            }
+
             if (isset($value['from']) || isset($value['to'])) {
                 if (isset($value['from'])) {
                     $queryBuilder
@@ -396,19 +508,38 @@ abstract class AbstractRepository extends ServiceEntityRepository
                         ->setParameter(sprintf('%s_to', $name), $value['to'])
                     ;
                 }
+            } elseif (isset($value['MemberOf'])) {
+                unset($value['MemberOf']);
+
+                /** @var Expr\OrX $orX */
+                $orX = $queryBuilder->expr()->orX();
+
+                foreach ($value as $k => $v) {
+                    $orX->add($queryBuilder->expr()->isMemberOf(sprintf(':%s%d', $key, $k), sprintf('%s.%s', $alias, $key)));
+                    $queryBuilder->setParameter(sprintf('%s%d', $key, $k), $v);
+                }
+
+                $queryBuilder->andWhere($orX);
+            } elseif (isset($value['notIn'])) {
+                unset($value['notIn']);
+
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s NOT IN (:%s)', $alias, $key, $name))
+                    ->setParameter($name, $value)
+                ;
             } else {
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
                     ->setParameter($name, $value)
                 ;
             }
-        } elseif (is_object($value) || is_bool($value)) {
+        } elseif (is_null($value)) {
+            $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
+        } elseif (!is_string($value)) {
             $queryBuilder
                 ->andWhere(sprintf('%s.%s = :%s', $alias, $key, $name))
                 ->setParameter($name, $value)
             ;
-        } elseif (is_null($value)) {
-            $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
         } else {
             // removes all non-alphanumeric characters except whitespaces.
             $value = trim(preg_replace('/[[:space:]]+/', ' ', $value));
@@ -430,12 +561,43 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * @param QueryBuilder $queryBuilder
      * @param string|null  $sort
+     * @param array        $fieldNames
      *
      * @return string|null
      */
-    protected function applySort(QueryBuilder $queryBuilder, string $sort = null): ?string
+    protected function applySort(QueryBuilder $queryBuilder, string $sort = null, array $fieldNames = []): ?string
     {
-        // do nothing
+        if (!$sort) {
+            return null;
+        }
+
+        list($sortBy, $sortDir) = explode('-', $sort, 2);
+
+        $aliases = [];
+        foreach ($this->getAssociationNames() as $assocName) {
+            $aliases[$assocName] = $alias = $this->getJoinName($assocName);
+
+            if (strlen($sortBy) > strlen($assocName)
+                && $assocName === substr($sortBy, 0, strlen($assocName))
+            ) {
+                if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                    $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
+                }
+
+                $sortBy = lcfirst(substr($sortBy, strlen($assocName)));
+                $aliases[$sortBy] = $this->getJoinName($assocName, $sortBy);
+            }
+        }
+
+        if (isset($aliases[$sortBy])) {
+            $alias = $aliases[$sortBy];
+
+            if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                $queryBuilder->leftJoin(sprintf('%s.%s', $parentAlias ?? 'q', $sortBy), $alias);
+            }
+
+            $sort = sprintf('%s-%s-%s', $fieldNames[$sortBy] ?? 'name', $sortDir, $alias);
+        }
 
         return $sort;
     }

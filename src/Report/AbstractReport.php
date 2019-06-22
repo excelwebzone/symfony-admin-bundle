@@ -220,7 +220,7 @@ abstract class AbstractReport
     public function getChartData()
     {
         if ($this->getRepository() && $groupBy = $this->getChartGroupByField()) {
-            return $this->getRepository()->getGroupedData($this->getCriteria(), -1, null, null, $groupBy);
+            return $this->getRepository()->getAllGroupedData($this->getCriteria(), null, $groupBy);
         }
 
         return [];
