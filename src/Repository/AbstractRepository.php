@@ -286,7 +286,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $scalarMappings = $parser->getResultSetMapping()->scalarMappings +
                             $parser->getResultSetMapping()->fieldMappings;
 
-        // get total rows
+        // set result mapping
         $rsm = new ResultSetMapping();
 
         foreach ($columns as $key => $value) {
@@ -377,11 +377,9 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $this->applyGrouping($queryBuilder, $criteria, $groupBy);
         $this->applyCriteria($queryBuilder, $criteria);
 
-        if ($sort) {
-            list($sortBy, $sortDir) = explode('-', $sort, 2);
-
-            $queryBuilder = $queryBuilder->orderBy($sortBy, $sortDir);
-        }
+        // save query before adding limit
+        /** @var Query $query */
+        $query = $queryBuilder->getQuery();
 
         // set result mapping
         $rsm = new ResultSetMapping();
@@ -403,23 +401,58 @@ abstract class AbstractRepository extends ServiceEntityRepository
         // get number of results
         $nbResults = (int) $nativeQuery->getSingleScalarResult();
 
+        // mock parse function on $query to retrive SQL column names
+        $reflectionClass = new \ReflectionClass(Query::class);
+        $reflectionMethod = $reflectionClass->getMethod('_parse');
+        $reflectionMethod->setAccessible(true);
+
+        /** @var ParserResult $parser */
+        $parser = $reflectionMethod->invoke($query);
+
+        /** @var array $scalarMappings */
+        $scalarMappings = $parser->getResultSetMapping()->scalarMappings;
+
+        // set result mapping
+        $rsm = new ResultSetMapping();
+        foreach ($scalarMappings as $alias => $field) {
+            $rsm->addScalarResult($alias, $field);
+        }
+
+        $orderBy = null;
+        if ($sort) {
+            list($sortBy, $sortDir) = array_reverse(array_map('strrev', explode('-', strrev($sort), 2)));
+
+            $orderBy = sprintf('ORDER BY %s %s', $sortBy, $sortDir);
+
+            // replace field in column formula
+            foreach ($scalarMappings as $alias => $field) {
+                $orderBy = preg_replace(sprintf('/\'[^\']*\'(*SKIP)(*FAIL)|\b%s\b/i', $field), $alias, $orderBy);
+            }
+        }
+
+        $limitOffset = null;
         if (is_null($limit)) {
             $limit = self::DEFAULT_LIMIT;
         }
-
-        // save query before adding limit
-        /** @var Query $query */
-        $query = $queryBuilder->getQuery();
-
         if (-1 !== $page) {
-            $queryBuilder
-                ->setFirstResult(($page - 1) * $limit)
-                ->setMaxResults($limit)
-            ;
+            $limitOffset = sprintf('LIMIT %d, %d', ($page - 1) * $limit, $limit);
         }
 
-        /** @var array|\Traversable $result */
-        $result = $queryBuilder->getQuery()->getResult();
+        // create query
+        $nativeQuery = $this->getEntityManager()
+            ->createNativeQuery(
+                sprintf('SELECT * FROM (%s) tmp %s %s', $query->getSQL(), $orderBy, $limitOffset),
+                $rsm
+            )
+        ;
+
+        // assign parameters
+        foreach ($query->getParameters() as $key => $value) {
+            $nativeQuery->setParameter($key + 1, $value->getValue());
+        }
+
+        /** @var array $result */
+        $result = $nativeQuery->getResult();
 
         try {
             $paginator = new Pagerfanta(new FixedAdapter($nbResults, $result, $query));
