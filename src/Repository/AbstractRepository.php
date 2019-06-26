@@ -199,7 +199,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function find($id, $lockMode = null, $lockVersion = null)
     {
-        return $this->searchOne(['id' => $id]);
+        // use array to prevent "like" search
+        return $this->searchOne(['id' => [$id]]);
     }
 
     /**
@@ -207,6 +208,13 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function findOneBy(array $criteria, ?array $orderBy = null)
     {
+        // fixed string rules
+        foreach ($criteria as $key => $value) {
+            if (is_string($value)) {
+                $criteria[$key] = [$value];
+            }
+        }
+
         return $this->searchOne($criteria, $orderBy ? implode('-', $orderBy) : null);
     }
 
@@ -215,6 +223,13 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
     {
+        // fixed string rules
+        foreach ($criteria as $key => $value) {
+            if (is_string($value)) {
+                $criteria[$key] = [$value];
+            }
+        }
+
         $result = $this->search($criteria, $limit ? ($offset / $limit) + 1 : 1, $limit, $orderBy ? implode('-', $orderBy) : null);
 
         return $result ? $result->getIterator()->getArrayCopy() : null;
@@ -235,6 +250,13 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function count(array $criteria)
     {
+        // fixed string rules
+        foreach ($criteria as $key => $value) {
+            if (is_string($value)) {
+                $criteria[$key] = [$value];
+            }
+        }
+
         return $this->countSearch($criteria);
     }
 
