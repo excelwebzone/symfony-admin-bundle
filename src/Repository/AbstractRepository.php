@@ -240,9 +240,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function findAll()
     {
-        $result = $this->searchAll();
-
-        return $result ? $result->getIterator()->getArrayCopy() : null;
+        return $this->searchAll();
     }
 
     /**
@@ -289,7 +287,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
      *
      * @return Pagerfanta|\Traversable|bool
      */
-    public function searchAll(array $criteria, string $sort = null)
+    public function searchAll(array $criteria = [], string $sort = null)
     {
         return $this->search($criteria, -1, null, $sort);
     }
