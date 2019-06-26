@@ -67,13 +67,12 @@ final class RepositoryExtension extends AbstractExtension
      * @param int         $page
      * @param int|null    $limit
      * @param string|null $sort
-     * @param bool        $doCount
      *
      * @return Pagerfanta|\Traversable|int|bool
      */
-    public function search(string $class, array $criteria, int $page = 1, int $limit = null, string $sort = null, bool $doCount = false)
+    public function search(string $class, array $criteria, int $page = 1, int $limit = null, string $sort = null)
     {
-        return $this->getRepository($class)->search($criteria, $page, $limit, $sort, $doCount);
+        return $this->getRepository($class)->search($criteria, $page, $limit, $sort);
     }
 
     /**
@@ -81,7 +80,7 @@ final class RepositoryExtension extends AbstractExtension
      * @param array       $criteria
      * @param string|null $sort
      *
-     * @return mixed|null
+     * @return Pagerfanta|\Traversable|bool
      */
     public function searchAll(string $class, array $criteria = [], string $sort = null)
     {
@@ -97,9 +96,7 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function searchOne(string $class, array $criteria = [], string $sort = null)
     {
-        $result = $this->getRepository($class)->search($criteria, 1, 1, $sort)->getCurrentPageResults();
-
-        return $result[0] ?? null;
+        return $this->getRepository($class)->searchOne($criteria, $sort);
     }
 
     /**
@@ -110,7 +107,7 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function searchById(string $class, $id)
     {
-        return $this->getRepository($class)->find($id);
+        return $this->getRepository($class)->searchOne(['id' => $id]);
     }
 
     /**

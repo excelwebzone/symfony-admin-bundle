@@ -195,6 +195,50 @@ abstract class AbstractRepository extends ServiceEntityRepository
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function find($id, $lockMode = null, $lockVersion = null)
+    {
+        return $this->searchOne(['id' => $id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneBy(array $criteria, ?array $orderBy = null)
+    {
+        return $this->searchOne($criteria, $orderBy ? implode('-', $orderBy) : null);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+    {
+        $result = $this->search($criteria, $limit ? ($offset / $limit) + 1 : 1, $limit, $orderBy ? implode('-', $orderBy) : null);
+
+        return $result ? $result->getIterator()->getArrayCopy() : null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findAll()
+    {
+        $result = $this->searchAll();
+
+        return $result ? $result->getIterator()->getArrayCopy() : null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count(array $criteria)
+    {
+        return $this->countSearch($criteria);
+    }
+
+    /**
      * @param array $criteria
      *
      * @return int
@@ -202,6 +246,19 @@ abstract class AbstractRepository extends ServiceEntityRepository
     public function countSearch(array $criteria): int
     {
         return $this->search($criteria, -1, null, null, true);
+    }
+
+    /**
+     * @param array       $criteria
+     * @param string|null $sort
+     *
+     * @return mixed|null
+     */
+    public function searchOne(array $criteria, string $sort = null)
+    {
+        $result = $this->search($criteria, 1, 1, $sort)->getCurrentPageResults();
+
+        return $result[0] ?? null;
     }
 
     /**
@@ -229,6 +286,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('q');
 
         $this->applyCriteria($queryBuilder, $criteria);
+
+        if (method_exists($this, 'applyPermissions')) {
+            $this->applyPermissions($queryBuilder, $criteria);
+        }
+
         $sort = $this->applySort($queryBuilder, $sort);
 
         if ($sort) {
@@ -342,6 +404,10 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         $this->applyCriteria($queryBuilder, $criteria);
 
+        if (method_exists($this, 'applyPermissions')) {
+            $this->applyPermissions($queryBuilder, $criteria);
+        }
+
         try {
             return $queryBuilder->getQuery()->getSingleResult();
         } catch (NoResultException $e) {
@@ -376,6 +442,10 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         $this->applyGrouping($queryBuilder, $criteria, $groupBy);
         $this->applyCriteria($queryBuilder, $criteria);
+
+        if (method_exists($this, 'applyPermissions')) {
+            $this->applyPermissions($queryBuilder, $criteria);
+        }
 
         // save query before adding limit
         /** @var Query $query */
