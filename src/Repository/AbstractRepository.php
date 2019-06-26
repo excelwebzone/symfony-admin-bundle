@@ -230,7 +230,19 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
-        $result = $this->search($criteria, $limit ? ($offset / $limit) + 1 : 1, $limit, $orderBy ? implode('-', $orderBy) : null);
+        if (is_null($limit)) {
+            $limit = self::DEFAULT_LIMIT;
+        }
+
+        $page = !is_null($offset)
+            ? intval(($offset / $limit) + 1)
+            : -1;
+
+        $result = $this->search($criteria, $page, $limit, $orderBy ? implode('-', $orderBy) : null);
+
+        if (is_array($result)) {
+            return $result;
+        }
 
         return $result ? $result->getIterator()->getArrayCopy() : null;
     }
