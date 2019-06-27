@@ -31,6 +31,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     use PagerfantaTrait;
 
     const DEFAULT_LIMIT = 20;
+    const SPLIT_DELIMITER = '|';
 
     /** @var string */
     protected $className = null;
@@ -215,7 +216,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
-        return $this->searchOne($criteria, $orderBy ? implode('-', $orderBy) : null);
+        return $this->searchOne($criteria, $orderBy);
     }
 
     /**
@@ -238,7 +239,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             ? intval(($offset / $limit) + 1)
             : -1;
 
-        $result = $this->search($criteria, $page, $limit, $orderBy ? implode('-', $orderBy) : null);
+        $result = $this->search($criteria, $page, $limit, $orderBy);
 
         if (is_array($result)) {
             return $result;
@@ -305,15 +306,15 @@ abstract class AbstractRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array       $criteria
-     * @param int         $page
-     * @param int|null    $limit
-     * @param string|null $sort
-     * @param bool        $doCount
+     * @param array             $criteria
+     * @param int               $page
+     * @param int|null          $limit
+     * @param string|array|null $sort
+     * @param bool              $doCount
      *
      * @return Pagerfanta|\Traversable|int|bool
      */
-    public function search(array $criteria, int $page = 1, int $limit = null, string $sort = null, bool $doCount = false)
+    public function search(array $criteria, int $page = 1, int $limit = null, $sort = null, bool $doCount = false)
     {
         $queryBuilder = $this->createQueryBuilder('q');
 
@@ -323,17 +324,28 @@ abstract class AbstractRepository extends ServiceEntityRepository
             $this->applyPermissions($queryBuilder, $criteria);
         }
 
+        // handle multi sorting
+        if (is_array($sort) && count($sort)) {
+            foreach ($sort as $key => $value) {
+                $sort[$key] = sprintf('%s-%s', $key, $value);
+            }
+
+            $sort = implode(self::SPLIT_DELIMITER, array_values($sort));
+        }
+
         $sort = $this->applySort($queryBuilder, $sort);
 
         if ($sort) {
-            $alias = null;
-            if (2 === substr_count($sort, '-')) {
-                list($sortBy, $sortDir, $alias) = explode('-', $sort, 3);
-            } else {
-                list($sortBy, $sortDir) = explode('-', $sort, 2);
-            }
+            foreach (explode(self::SPLIT_DELIMITER, $sort) as $s) {
+                $alias = null;
+                if (2 === substr_count($s, '-')) {
+                    list($sortBy, $sortDir, $alias) = explode('-', $s, 3);
+                } else {
+                    list($sortBy, $sortDir) = explode('-', $s, 2);
+                }
 
-            $queryBuilder = $queryBuilder->orderBy(sprintf('%s.%s', $alias ?: $queryBuilder->getRootAlias(), StringUtil::camelize($sortBy)), $sortDir);
+                $queryBuilder = $queryBuilder->addOrderBy(sprintf('%s.%s', $alias ?: $queryBuilder->getRootAlias(), StringUtil::camelize($sortBy)), $sortDir);
+            }
         }
 
         if ($doCount) {
@@ -604,7 +616,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         if ($split) {
             if (is_string($value)) {
-                $value = explode('|', $value);
+                $value = explode(self::SPLIT_DELIMITER, $value);
             }
             if (!is_array($value)) {
                 $value = [$value];
@@ -711,35 +723,42 @@ abstract class AbstractRepository extends ServiceEntityRepository
             return null;
         }
 
-        list($sortBy, $sortDir) = explode('-', $sort, 2);
+        $sort = explode(self::SPLIT_DELIMITER, $sort);
 
-        $aliases = [];
-        foreach ($this->getAssociationNames() as $assocName) {
-            $aliases[$assocName] = $alias = $this->getJoinName($assocName);
+        foreach ($sort as $key => $value) {
+            list($sortBy, $sortDir) = explode('-', $value, 2);
 
-            if (strlen($sortBy) > strlen($assocName)
-                && $assocName === substr($sortBy, 0, strlen($assocName))
-            ) {
+            $aliases = [];
+            foreach ($this->getAssociationNames() as $assocName) {
+                $aliases[$assocName] = $alias = $this->getJoinName($assocName);
+
+                if (strlen($sortBy) > strlen($assocName)
+                    && $assocName === substr($sortBy, 0, strlen($assocName))
+                ) {
+                    $parentAlias = $alias;
+                    if (!in_array($parentAlias, $queryBuilder->getAllAliases())) {
+                        $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $parentAlias);
+                    }
+
+                    $sortBy = lcfirst(substr($sortBy, strlen($assocName)));
+                    $aliases[$sortBy] = $this->getJoinName($assocName, $sortBy);
+                }
+            }
+
+            if (isset($aliases[$sortBy])) {
+                $alias = $aliases[$sortBy];
+
                 if (!in_array($alias, $queryBuilder->getAllAliases())) {
-                    $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
+                    $queryBuilder->leftJoin(sprintf('%s.%s', $parentAlias ?? 'q', $sortBy), $alias);
                 }
 
-                $sortBy = lcfirst(substr($sortBy, strlen($assocName)));
-                $aliases[$sortBy] = $this->getJoinName($assocName, $sortBy);
-            }
-        }
-
-        if (isset($aliases[$sortBy])) {
-            $alias = $aliases[$sortBy];
-
-            if (!in_array($alias, $queryBuilder->getAllAliases())) {
-                $queryBuilder->leftJoin(sprintf('%s.%s', $parentAlias ?? 'q', $sortBy), $alias);
+                $value = sprintf('%s-%s-%s', $fieldNames[$sortBy] ?? 'name', $sortDir, $alias);
             }
 
-            $sort = sprintf('%s-%s-%s', $fieldNames[$sortBy] ?? 'name', $sortDir, $alias);
+            $sort[$key] = $value;
         }
 
-        return $sort;
+        return implode(self::SPLIT_DELIMITER, array_values($sort));
     }
 
     /**
