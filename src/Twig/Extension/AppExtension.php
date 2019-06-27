@@ -60,16 +60,19 @@ final class AppExtension extends AbstractExtension
     /**
      * @param int $hours
      * @param int $minutes
+     * @param int $seconds
      *
      * @return string|null
      */
-    public function getTime(int $hours, int $minutes): ?string
+    public function getTime(int $hours, int $minutes, int $seconds = 0): ?string
     {
-        $minutes += $hours * 60;
-        $hours = floor($minutes / 60);
-        $minutes = $minutes % 60;
+        $seconds = $seconds + $minutes * 60 + $hours * 3600;
 
-        return sprintf('%02d:%02d', $hours, $minutes);
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds / 60) % 60);
+        $seconds = $seconds % 60;
+
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
 
     /**
