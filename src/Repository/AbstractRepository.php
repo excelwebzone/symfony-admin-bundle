@@ -316,11 +316,16 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function search(array $criteria, int $page = 1, int $limit = null, $sort = null, bool $doCount = false)
     {
+        $ignorePermissions = $criteria['ignorePermissions'] ?? false;
+        if (isset($criteria['ignorePermissions'])) {
+            unset($criteria['ignorePermissions']);
+        }
+
         $queryBuilder = $this->createQueryBuilder('q');
 
         $this->applyCriteria($queryBuilder, $criteria);
 
-        if (method_exists($this, 'applyPermissions')) {
+        if (!$ignorePermissions && method_exists($this, 'applyPermissions')) {
             $this->applyPermissions($queryBuilder, $criteria);
         }
 
@@ -441,6 +446,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function getMinMax(array $criteria, string $field): ?array
     {
+        $ignorePermissions = $criteria['ignorePermissions'] ?? false;
+        if (isset($criteria['ignorePermissions'])) {
+            unset($criteria['ignorePermissions']);
+        }
+
         $queryBuilder = $this->createQueryBuilder('q')->select(sprintf('
             MIN(q.%s) AS min,
             MAX(q.%s) AS max
@@ -448,7 +458,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         $this->applyCriteria($queryBuilder, $criteria);
 
-        if (method_exists($this, 'applyPermissions')) {
+        if (!$ignorePermissions && method_exists($this, 'applyPermissions')) {
             $this->applyPermissions($queryBuilder, $criteria);
         }
 
@@ -482,12 +492,17 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy)
     {
+        $ignorePermissions = $criteria['ignorePermissions'] ?? false;
+        if (isset($criteria['ignorePermissions'])) {
+            unset($criteria['ignorePermissions']);
+        }
+
         $queryBuilder = $this->createQueryBuilder('q');
 
         $this->applyGrouping($queryBuilder, $criteria, $groupBy);
         $this->applyCriteria($queryBuilder, $criteria);
 
-        if (method_exists($this, 'applyPermissions')) {
+        if (!$ignorePermissions && method_exists($this, 'applyPermissions')) {
             $this->applyPermissions($queryBuilder, $criteria);
         }
 
