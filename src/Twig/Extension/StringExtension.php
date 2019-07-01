@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
+use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Html2Text\Html2Text;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -17,6 +18,7 @@ final class StringExtension extends AbstractExtension
         return [
             new TwigFunction('preg_match', [$this, 'pregMatch']),
             new TwigFunction('preg_replace', [$this, 'pregReplace']),
+            new TwigFunction('serialize', [$this, 'serialize']),
         ];
     }
 
@@ -54,11 +56,43 @@ final class StringExtension extends AbstractExtension
     }
 
     /**
+     * @param string      $string
+     * @param string|null $enumClass
+     *
+     * @return array|null
+     */
+    public function serialize(string $string, string $enumClass = null): ?array
+    {
+        try {
+            $data = unserialize($string);
+            if (!is_array($data)) {
+                $data = [$data];
+            }
+
+            if ($enumClass) {
+                foreach ($data as $key => $value) {
+                    if ($enumClass::isValueExist($value)) {
+                        $data[$key] = $enumClass::getReadableValue($value);
+                    }
+                }
+            } else {
+                foreach ($data as $key => $value) {
+                    $data[$key] = StringUtil::ucwords($value);
+                }
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * @param string $string
      *
-     * @return mixed
+     * @return string
      */
-    public function html2Text(string $string)
+    public function html2Text(string $string): string
     {
         return (new Html2Text($string))->getText();
     }

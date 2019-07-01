@@ -303,7 +303,7 @@ abstract class AbstractReport
 
                 $value = $this->getColumnValue($column, $item);
 
-                if (!in_array($options['format'], ['text', 'enum', 'datetime'])) {
+                if (!in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
                 }
 
@@ -340,6 +340,30 @@ abstract class AbstractReport
                         }
 
                         break;
+
+                    case 'serialize':
+                        try {
+                            $tmp = $value ? unserialize($value) : [];
+                            if (!is_array($tmp)) {
+                                $tmp = [$tmp];
+                            }
+
+                            if ($enumClass = $options['options']['enumClass']) {
+                                foreach ($tmp as $k => $v) {
+                                    if ($enumClass::isValueExist($v)) {
+                                        $tmp[$k] = $enumClass::getReadableValue($v);
+                                    }
+                                }
+                            } else {
+                                foreach ($tmp as $k => $v) {
+                                    $tmp[$k] = StringUtil::ucwords($v);
+                                }
+                            }
+
+                            $value = implode(', ', $tmp);
+                        } catch (\Exception $e) {
+                            // do nothing
+                        }
                 }
 
                 if ($value instanceof \DateTimeInterface) {
@@ -370,7 +394,7 @@ abstract class AbstractReport
      * @param string     $format
      * @param array|null $options
      *
-     * $format = text, datetime, number, money, percent, or enum
+     * $format = text, datetime, serialize, number, money, percent, or enum
      *
      * @return array
      */
