@@ -51,6 +51,16 @@ abstract class AbstractReport
         foreach (array_keys($this->getChartTotals()) as $key) {
             $totals[$key] = 0;
         }
+        // add hidden fields
+        foreach ($this->getChartComplexColumns() as $key => $value) {
+            preg_match_all('/\b([a-zA-Z_]+)\b/', $value, $matches);
+
+            foreach ($matches[0] as $column) {
+                if (!isset($totals[$column])) {
+                    $totals[$column] = 0;
+                }
+            }
+        }
 
         $items = $this->getChartColumns();
         foreach ($items as $key => $value) {
@@ -109,8 +119,14 @@ abstract class AbstractReport
                 }
             }
 
-            foreach (array_keys($this->getChartTotals()) as $key) {
+            foreach (array_keys($totals) as $key) {
                 $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
+            }
+        }
+
+        foreach ($totals as $key => $value) {
+            if (array_key_exists($key, $this->getChartComplexColumns())) {
+                $totals[$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $totals, $this->getChartComplexColumns()));
             }
         }
 
@@ -243,7 +259,7 @@ abstract class AbstractReport
      */
     public function getChartConvertCallback(): string
     {
-        return 'intval';
+        return 'floatval';
     }
 
     /**
@@ -700,7 +716,7 @@ abstract class AbstractReport
             $formula = $complexColumns[$column];
 
             foreach ($data as $key => $value) {
-                $formula = str_replace($key, floatval($value), $formula);
+                $formula = preg_replace(sprintf('/\b%s\b/', $key), floatval($value), $formula);
             }
 
             $value = 0 + create_function('', sprintf('return (%s);', $formula))();
