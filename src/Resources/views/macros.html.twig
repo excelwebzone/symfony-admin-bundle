@@ -23,7 +23,7 @@
   {% if parameters.iSelf is defined and parameters.iSelf %}
    {{ iconHtml|trim|raw }}
   {% endif %}
-  {% spaceless %}
+  {% apply spaceless %}
   <a href="{{ parameters.path is defined ? parameters.path : 'javascript: void(0);' }}"
     {% if (parameters.id is defined) %}
       id="{{ parameters.id }}"
@@ -43,7 +43,7 @@
     {% endif %}
     {{- parameters.label|trim }}
   </a>
-  {% endspaceless %}
+  {% endapply %}
 {% endmacro %}
 
 {#
