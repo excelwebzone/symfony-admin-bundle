@@ -11,7 +11,6 @@ use Pagerfanta\Pagerfanta;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractReportController extends AbstractController
 {
@@ -47,14 +46,13 @@ abstract class AbstractReportController extends AbstractController
     }
 
     /**
-     * @param Request         $request
-     * @param KernelInterface $kernel
-     * @param Packages        $assetsManager
-     * @param Report          $report
+     * @param Request  $request
+     * @param Packages $assetsManager
+     * @param Report   $report
      *
      * @return JsonResponse
      */
-    public function export(Request $request, KernelInterface $kernel, Packages $assetsManager, Report $report): JsonResponse
+    public function export(Request $request, Packages $assetsManager, Report $report): JsonResponse
     {
         // get consts
         $sort = $request->query->get('sort');
@@ -85,7 +83,7 @@ abstract class AbstractReportController extends AbstractController
         // remove header
         array_shift($items);
 
-        return $this->generateExport($kernel, $assetsManager, $columns, $items);
+        return $this->generateExport($assetsManager, $columns, $items);
     }
 
     /**

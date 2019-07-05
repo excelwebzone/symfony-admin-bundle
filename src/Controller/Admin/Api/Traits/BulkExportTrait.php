@@ -2,25 +2,24 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits;
 
-use Ddeboer\DataImport\Writer\ExcelWriter;
 use Doctrine\Common\Annotations\AnnotationReader;
 use EWZ\SymfonyAdminBundle\Annotation\ConfigField;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 trait BulkExportTrait
 {
     /**
-     * @param KernelInterface $kernel
-     * @param Packages        $assetsManager
-     * @param array           $objects
+     * @param Packages $assetsManager
+     * @param array    $objects
      *
      * @return JsonResponse
      */
-    private function doBulkExport(KernelInterface $kernel, Packages $assetsManager, array $objects): JsonResponse
+    private function doBulkExport(Packages $assetsManager, array $objects): JsonResponse
     {
         $objectClass = $this->getRepository()->getClass();
         $annotationReader = new AnnotationReader();
@@ -91,30 +90,22 @@ trait BulkExportTrait
             }
         }
 
-        return $this->generateExport($kernel, $assetsManager, $columns, $items, $enumColumns);
+        return $this->generateExport($assetsManager, $columns, $items, $enumColumns);
     }
 
     /**
-     * @param KernelInterface $kernel
-     * @param Packages        $assetsManager
-     * @param array           $columns
-     * @param array           $items
-     * @param array           $enumColumns
+     * @param Packages $assetsManager
+     * @param array    $columns
+     * @param array    $items
+     * @param array    $enumColumns
      *
      * @return JsonResponse
      */
-    private function generateExport(
-        KernelInterface $kernel,
-        Packages $assetsManager,
-        array $columns,
-        array $items,
-        array $enumColumns = []
-    ): JsonResponse {
-        // generate filename
-        $file = new \SplFileObject($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()), 'w');
-        $writer = new ExcelWriter($file);
-
-        $writer->prepare();
+    private function generateExport(Packages $assetsManager, array $columns, array $items, array $enumColumns = []): JsonResponse
+    {
+        // create a new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
         // header
         $row = [];
@@ -132,7 +123,7 @@ trait BulkExportTrait
         }
 
         // add headers
-        $writer->writeItem(array_values($row));
+        $source = [array_values($row)];
 
         foreach ($items as $item) {
             $row = [];
@@ -187,10 +178,15 @@ trait BulkExportTrait
             }
 
             // add data
-            $writer->writeItem($row);
+            $source[] = $row;
         }
 
-        $writer->finish();
+        // fill worksheet from values in array
+        $sheet->fromArray($source);
+
+        // generate filename
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()));
 
         $fileName = $this->fileUploader->create($fileName, $this->getParameter('symfony_admin.upload_url'));
 

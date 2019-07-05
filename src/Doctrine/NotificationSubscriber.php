@@ -60,7 +60,7 @@ class NotificationSubscriber implements EventSubscriber
     public function postPersist(LifecycleEventArgs $args): void
     {
         $event = new ObjectEvent($args->getObject());
-        $this->eventDispatcher->dispatch(Events::NOTIFICATION_OBJECT_CREATED, $event);
+        $this->eventDispatcher->dispatch($event, Events::NOTIFICATION_OBJECT_CREATED);
     }
 
     /**
