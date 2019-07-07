@@ -4,7 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Model;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
-use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -366,7 +366,7 @@ class User implements UserInterface, TwoFactorInterface
 
         $encoder = $encoderFactory->getEncoder($this);
 
-        if ($encoder instanceof BCryptPasswordEncoder) {
+        if ($encoder instanceof NativePasswordEncoder) {
             $this->setSalt(null);
         } else {
             $salt = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
