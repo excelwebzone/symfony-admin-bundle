@@ -28,7 +28,8 @@ class DateTimePickerType extends AbstractType
     {
         $defaults = [
             'html5' => false,
-            'widget' => 'single_text',
+            'date_widget' => 'single_text',
+            'time_widget' => 'single_text',
             'date_label' => 'form.datetime.date',
             'time_label' => 'form.datetime.time',
         ];
