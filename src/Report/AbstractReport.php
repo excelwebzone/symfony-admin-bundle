@@ -114,8 +114,10 @@ abstract class AbstractReport
                         continue;
                     }
 
-                    foreach (array_keys($items[$label]['data']) as $key) {
-                        $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
+                    foreach (array_keys($item['data']) as $key) {
+                        if (!array_key_exists($key, $this->getChartComplexColumns())) {
+                            $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->getColumnValue($key, $row));
+                        }
                     }
                 }
             } else {
@@ -129,20 +131,22 @@ abstract class AbstractReport
             }
 
             foreach (array_keys($totals) as $key) {
-                $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
+                if (!array_key_exists($key, $this->getChartComplexColumns())) {
+                    $totals[$key] += $this->getChartConvertCallback()($this->getColumnValue($key, $row));
+                }
             }
         }
 
         if (empty($labels)) {
             foreach ($items as $label => $item) {
-                foreach (array_keys($item) as $key) {
+                foreach (array_keys($item['data']) as $key) {
                     if (array_key_exists($key, $this->getChartComplexColumns())) {
-                        $items[$label]['data'][$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $item, $this->getChartComplexColumns()));
+                        $items[$label]['data'][$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $item['data'], $this->getChartComplexColumns()));
                     }
                 }
 
                 // remove extra columns
-                foreach (array_keys($item) as $key) {
+                foreach (array_keys($item['data']) as $key) {
                     if (!array_key_exists($key, $this->getChartColumns())) {
                         unset($items[$label]['data'][$key]);
                     }
@@ -161,6 +165,11 @@ abstract class AbstractReport
                 unset($totals[$key]);
             }
         }
+
+echo '<pre>';
+var_dump($totals, $items);
+die;
+
 
         if (!empty($labels)) {
             // remove empty labels
