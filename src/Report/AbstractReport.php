@@ -166,11 +166,6 @@ abstract class AbstractReport
             }
         }
 
-echo '<pre>';
-var_dump($totals, $items);
-die;
-
-
         if (!empty($labels)) {
             // remove empty labels
             foreach (array_keys($labels) as $label) {
