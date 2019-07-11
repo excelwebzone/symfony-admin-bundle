@@ -451,10 +451,14 @@ abstract class AbstractRepository extends ServiceEntityRepository
             unset($criteria['ignorePermissions']);
         }
 
-        $queryBuilder = $this->createQueryBuilder('q')->select(sprintf('
-            MIN(q.%s) AS min,
-            MAX(q.%s) AS max
-        ', $field, $field));
+        $queryBuilder = $this->createQueryBuilder('q');
+
+        list($alias, $field) = $this->guessAliasAndField($queryBuilder, $field);
+
+        $queryBuilder->select(sprintf('
+            MIN(%s.%s) AS min,
+            MAX(%s.%s) AS max
+        ', $alias, $field, $alias, $field));
 
         $this->applyCriteria($queryBuilder, $criteria);
 
@@ -638,21 +642,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
-        $fieldNames = $this->getFieldNames(false);
-
-        foreach ($this->getAssociationNames(true) as $assocName) {
-            if (strlen($key) > strlen($assocName)
-                && $assocName === substr($key, 0, strlen($assocName))
-                && !in_array($key, $fieldNames)
-            ) {
-                $key = lcfirst(substr($key, strlen($assocName)));
-                $alias = $this->getJoinName($assocName);
-
-                if (!in_array($alias, $queryBuilder->getAllAliases())) {
-                    $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
-                }
-            }
-        }
+        list($alias, $key) = $this->guessAliasAndField($queryBuilder, $key);
 
         if (is_array($value)) {
             if (isset($value['unit'])) {
@@ -796,5 +786,32 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         return null;
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param string       $fieldName
+     *
+     * @return array [alias, fieldName]
+     */
+    protected function guessAliasAndField(QueryBuilder $queryBuilder, string $fieldName): array
+    {
+        $fieldNames = $this->getFieldNames(false);
+
+        foreach ($this->getAssociationNames(true) as $assocName) {
+            if (strlen($fieldName) > strlen($assocName)
+                && $assocName === substr($fieldName, 0, strlen($assocName))
+                && !in_array($fieldName, $fieldNames)
+            ) {
+                $fieldName = lcfirst(substr($fieldName, strlen($assocName)));
+                $alias = $this->getJoinName($assocName);
+
+                if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                    $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
+                }
+            }
+        }
+
+        return [$alias ?? 'q', $fieldName];
     }
 }
