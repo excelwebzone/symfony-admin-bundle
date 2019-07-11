@@ -4,8 +4,8 @@ namespace EWZ\SymfonyAdminBundle\Model;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
-use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class User implements UserInterface, TwoFactorInterface
