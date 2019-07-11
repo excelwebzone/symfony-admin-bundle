@@ -80,13 +80,15 @@ abstract class AbstractReport
             preg_match_all('/\b([a-zA-Z_]+)\b/', $value, $matches);
 
             foreach ($matches[0] as $column) {
-                if (!isset($totals[$column])) {
+                if (isset($totals[$key]) && !isset($totals[$column])) {
                     $totals[$column] = 0;
                 }
 
-                foreach ($items as $k => $v) {
-                    if (!isset($items[$k]['data'][$column])) {
-                        $items[$k]['data'][$column] = 0;
+                if (empty($labels)) {
+                    foreach ($items as $label => $item) {
+                        if (isset($item['data'][$key]) && !isset($item['data'][$column])) {
+                            $items[$label]['data'][$column] = 0;
+                        }
                     }
                 }
             }
@@ -113,9 +115,7 @@ abstract class AbstractReport
                     }
 
                     foreach (array_keys($items[$label]['data']) as $key) {
-                        if (!array_key_exists($key, $this->getChartComplexColumns())) {
-                            $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
-                        }
+                        $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
                     }
                 }
             } else {
@@ -124,30 +124,28 @@ abstract class AbstractReport
                         $items[$key]['data'][$row[$this->getChartGroupByField()]] = 0;
                     }
 
-                    if (!array_key_exists($key, $this->getChartComplexColumns())) {
-                        $items[$key]['data'][$row[$this->getChartGroupByField()]] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
-                    }
+                    $items[$key]['data'][$row[$this->getChartGroupByField()]] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
                 }
             }
 
             foreach (array_keys($totals) as $key) {
-                if (!array_key_exists($key, $this->getChartComplexColumns())) {
-                    $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
-                }
+                $totals[$key] += $this->getChartConvertCallback()($this->calcComplexColumn($key, $row, $this->getChartComplexColumns()));
             }
         }
 
-        foreach ($items as $key => $value) {
-            foreach ($value['data'] as $k => $v) {
-                if (array_key_exists($k, $this->getChartComplexColumns())) {
-                    $items[$key]['data'][$k] = $this->getChartConvertCallback()($this->calcComplexColumn($k, $value['data'], $this->getChartComplexColumns()));
+        if (empty($labels)) {
+            foreach ($items as $label => $item) {
+                foreach (array_keys($item) as $key) {
+                    if (array_key_exists($key, $this->getChartComplexColumns())) {
+                        $items[$label]['data'][$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $item, $this->getChartComplexColumns()));
+                    }
                 }
-            }
 
-            // remove extra columns
-            foreach ($value['data'] as $k => $v) {
-                if (!array_key_exists($k, $this->getChartColumns())) {
-                    unset($items[$key]['data'][$k]);
+                // remove extra columns
+                foreach (array_keys($item) as $key) {
+                    if (!array_key_exists($key, $this->getChartColumns())) {
+                        unset($items[$label]['data'][$key]);
+                    }
                 }
             }
         }
