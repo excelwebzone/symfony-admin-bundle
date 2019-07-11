@@ -638,9 +638,12 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
+        $fieldNames = $this->getFieldNames(false);
+
         foreach ($this->getAssociationNames(true) as $assocName) {
             if (strlen($key) > strlen($assocName)
                 && $assocName === substr($key, 0, strlen($assocName))
+                && !in_array($key, $fieldNames)
             ) {
                 $key = lcfirst(substr($key, strlen($assocName)));
                 $alias = $this->getJoinName($assocName);
@@ -740,6 +743,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         $sort = explode(self::SPLIT_DELIMITER, $sort);
 
+        $fieldNames = $this->getFieldNames(false);
+
         foreach ($sort as $key => $value) {
             list($sortBy, $sortDir) = explode('-', $value, 2);
 
@@ -749,6 +754,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
                 if (strlen($sortBy) > strlen($assocName)
                     && $assocName === substr($sortBy, 0, strlen($assocName))
+                    && !in_array($sortBy, $fieldNames)
                 ) {
                     $parentAlias = $alias;
                     if (!in_array($parentAlias, $queryBuilder->getAllAliases())) {
