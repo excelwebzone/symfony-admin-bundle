@@ -88,7 +88,7 @@
           <div class="option-text">
             <div class="left text">
               <div class="name">
-                <img src="{{ asset('images/logo-word-dashboard.png') }}" class="sidebar-brand-logo" />
+                <img src="{{ asset(sidebarBrandLogo|default('images/logo-word-dashboard.png')) }}" class="sidebar-brand-logo" />
               </div>
               <div class="clear"></div>
             </div>
@@ -97,7 +97,7 @@
 
         <div class="nav-icons">
           <div class="icon">
-            <img src="{{ asset('images/logo-dashboard.png') }}" class="sidebar-brand-icon" />
+            <img src="{{ asset(sidebarBrandIcon|default('images/logo-dashboard.png')) }}" class="sidebar-brand-icon" />
           </div>
         </div>
       </a>
