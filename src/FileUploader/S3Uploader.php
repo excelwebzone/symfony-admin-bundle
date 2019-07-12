@@ -88,6 +88,9 @@ final class S3Uploader extends AbstractFileUploader
             throw new \Exception($error);
         }
 
+        // fix image orientation
+        $this->fixOrientate($file);
+
         if ($prefix) {
             $prefix .= '__';
         }

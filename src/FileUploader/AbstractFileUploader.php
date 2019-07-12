@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\FileUploader;
 
+use Intervention\Image\ImageManagerStatic;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -9,6 +10,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class AbstractFileUploader implements FileUploaderInterface
 {
+    const IMAGE_DRIVER_GD = 'gd';
+    const IMAGE_DRIVER_IMAGICK = 'imagick';
+
     /** @var ValidatorInterface */
     protected $validator;
 
@@ -25,24 +29,42 @@ abstract class AbstractFileUploader implements FileUploaderInterface
     protected $maxFilesize;
 
     /**
+     * @var string
+     *
+     * Intervention Image supports "GD Library" and "Imagick" to process images
+     * internally. You may choose one of them according to your PHP
+     * configuration. By default PHP's "GD Library" implementation is used.
+     *
+     * Supported: "gd", "imagick"
+     */
+    protected $imageDriver;
+
+    /**
      * @param ValidatorInterface  $validator
      * @param TranslatorInterface $translator
      * @param string              $mimeTypesExtensions
      * @param array               $mimeTypesTypes
      * @param int                 $maxFilesize
+     * @param string              $imageDriver
      */
     public function __construct(
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         string $mimeTypesExtensions,
         array $mimeTypesTypes,
-        int $maxFilesize
+        int $maxFilesize,
+        string $imageDriver = self::IMAGE_DRIVER_GD
     ) {
         $this->validator = $validator;
         $this->translator = $translator;
         $this->mimeTypesExtensions = $mimeTypesExtensions;
         $this->mimeTypesTypes = $mimeTypesTypes;
         $this->maxFilesize = $maxFilesize;
+        $this->imageDriver = $imageDriver;
+
+        if (!in_array($this->imageDriver, [self::IMAGE_DRIVER_GD, self::IMAGE_DRIVER_IMAGICK])) {
+            $this->imageDriver = self::IMAGE_DRIVER_GD;
+        }
     }
 
     /**
@@ -93,5 +115,34 @@ abstract class AbstractFileUploader implements FileUploaderInterface
         }
 
         return null;
+    }
+
+    /**
+     * @param UploadedFile $file
+     */
+    public function fixOrientate(UploadedFile $file): void
+    {
+        if ('image/' !== substr($file->getMimeType(), 0, 6)) {
+            return;
+        }
+
+        try {
+            // configure with favored image driver (by default uses GD image driver)
+            if (self::IMAGE_DRIVER_GD !== $this->imageDriver) {
+                ImageManagerStatic::configure([
+                    'driver' => $this->imageDriver,
+                ]);
+            }
+
+            // create a new image resource
+            $image = ImageManagerStatic::make($file->getPathname());
+
+            // adjusts image orientation automatically
+            $image->orientate();
+
+            $image->save($file->getPathname());
+        } catch (\Exception $e) {
+            // do nothing
+        }
     }
 }

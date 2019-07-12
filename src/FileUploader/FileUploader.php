@@ -74,6 +74,9 @@ final class FileUploader extends AbstractFileUploader
             throw new \Exception($error);
         }
 
+        // fix image orientation
+        $this->fixOrientate($file);
+
         // create folder if doesn't exists
         if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
             mkdir($filePath, 0777, true);
