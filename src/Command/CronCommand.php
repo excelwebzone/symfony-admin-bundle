@@ -89,7 +89,7 @@ class CronCommand extends Command
                     $schedule->getCommand(),
                     array_merge(
                         $this->resolveOptions($schedule->getArguments()),
-                        ['--env' => $this->getContainer()->getParameter('kernel.environment')]
+                        ['--env' => $_SERVER['APP_ENV'] ?? 'dev']
                     )
                 );
             } else {
