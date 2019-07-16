@@ -17,6 +17,13 @@
       <input type="password" name="_password" class="form-control" placeholder="Enter your password" />
     </div>
 
+    {% if rememberMe|default(false) %}
+      <div class="form-check">
+        <input type="checkbox" id="remember_me" name="_remember_me" checked="checked" class="form-check-input" />
+        <label for="remember_me" class="form-check-label font-weight-normal d-block">Keep me logged in</label>
+      </div>
+    {% endif %}
+
     <button type="submit" class="{{ loginButton|default('button-submit button-login') }}">Sign in</button>
   </form>
 {% endblock %}
