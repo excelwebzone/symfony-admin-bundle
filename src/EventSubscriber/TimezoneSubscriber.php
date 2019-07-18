@@ -175,7 +175,9 @@ class TimezoneSubscriber implements EventSubscriberInterface
             $datetime = new \DateTimeImmutable(sprintf('@%d', $request->server->get('REQUEST_TIME')));
         }
 
-        DateTimeKernel::setDateTimeServer($datetime);
+        if ($datetime ?? null) {
+            DateTimeKernel::setDateTimeServer($datetime);
+        }
 
         return true;
     }
