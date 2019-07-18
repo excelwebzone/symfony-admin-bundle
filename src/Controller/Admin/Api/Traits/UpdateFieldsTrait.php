@@ -36,70 +36,72 @@ trait UpdateFieldsTrait
 
             $method = sprintf('set%s', StringUtil::classify($key));
             if (method_exists($object, $method)) {
-                if ($value) {
-                    $fieldMapping = $this->getRepository()->getFieldMapping($key);
-                    if (isset($fieldMapping['targetEntity'])) {
-                        switch ($fieldMapping['type']) {
-                            case ClassMetadataInfo::ONE_TO_MANY:
-                            case ClassMetadataInfo::MANY_TO_MANY:
-                                $value = new ArrayCollection(
+                $fieldMapping = $this->getRepository()->getFieldMapping($key);
+                if (isset($fieldMapping['targetEntity'])) {
+                    switch ($fieldMapping['type']) {
+                        case ClassMetadataInfo::ONE_TO_MANY:
+                        case ClassMetadataInfo::MANY_TO_MANY:
+                            $value = $value
+                                ? new ArrayCollection(
                                     $this->objectManager
                                         ->getRepository($fieldMapping['targetEntity'])
                                         ->findBy(['id' => $value])
-                                );
+                                )
+                                : null;
 
-                                break;
+                            break;
 
-                            case ClassMetadataInfo::ONE_TO_ONE:
-                            case ClassMetadataInfo::MANY_TO_ONE:
-                            default:
-                                $value = $this->objectManager
+                        case ClassMetadataInfo::ONE_TO_ONE:
+                        case ClassMetadataInfo::MANY_TO_ONE:
+                        default:
+                            $value = $value
+                                ? $this->objectManager
                                     ->getRepository($fieldMapping['targetEntity'])
-                                    ->find($value);
-                        }
-                    } elseif (isset($fieldMapping['type'])) {
-                        switch ($fieldMapping['type']) {
-                            case Type::SMALLINT:
-                            case Type::INTEGER:
-                                $value = intval($value);
-                                break;
+                                    ->find($value)
+                                : null;
+                    }
+                } elseif (isset($fieldMapping['type'])) {
+                    switch ($fieldMapping['type']) {
+                        case Type::BOOLEAN:
+                            $value = $value ? boolval($value) : false;
+                            break;
 
-                            case Type::DECIMAL:
-                            case Type::FLOAT:
-                                $value = floatval($value);
-                                break;
+                        case Type::SMALLINT:
+                        case Type::INTEGER:
+                            $value = $value ? intval($value) : null;
+                            break;
 
-                            case Type::BOOLEAN:
-                                $value = boolval($value);
-                                break;
+                        case Type::DECIMAL:
+                        case Type::FLOAT:
+                            $value = $value ? floatval($value) : null;
+                            break;
 
-                            case Type::DATETIME:
-                            case Type::DATETIMETZ:
-                            case Type::DATE:
-                            case Type::TIME:
-                                $value = new \DateTime($value);
-                                break;
+                        case Type::DATETIME:
+                        case Type::DATETIMETZ:
+                        case Type::DATE:
+                        case Type::TIME:
+                            $value = $value ? new \DateTime($value) : null;
+                            break;
 
-                            case Type::DATETIME_IMMUTABLE:
-                            case Type::DATETIMETZ_IMMUTABLE:
-                            case Type::DATE_IMMUTABLE:
-                            case Type::TIME_IMMUTABLE:
-                                $value = new \DateTimeImmutable($value);
-                                break;
+                        case Type::DATETIME_IMMUTABLE:
+                        case Type::DATETIMETZ_IMMUTABLE:
+                        case Type::DATE_IMMUTABLE:
+                        case Type::TIME_IMMUTABLE:
+                            $value = $value ? new \DateTimeImmutable($value) : null;
+                            break;
 
-                            case Type::DATEINTERVAL:
-                                $value = new \DateInterval($value);
-                                break;
+                        case Type::DATEINTERVAL:
+                            $value = $value ? new \DateInterval($value) : null;
+                            break;
 
-                            case Type::TARRAY:
-                            case Type::SIMPLE_ARRAY:
-                            case Type::JSON_ARRAY:
-                            case Type::JSON:
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-                                break;
-                        }
+                        case Type::TARRAY:
+                        case Type::SIMPLE_ARRAY:
+                        case Type::JSON_ARRAY:
+                        case Type::JSON:
+                            if ($value && !is_array($value)) {
+                                $value = [$value];
+                            }
+                            break;
                     }
                 }
 
