@@ -4,6 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr;
@@ -63,6 +64,31 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         return $class;
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return array
+     */
+    public function getFieldMapping(string $fieldName): array
+    {
+        /** @var ClassMetadata $classMetadata */
+        $classMetadata = $this->getClassMetadata($this->getClass());
+
+        try {
+            return $classMetadata->getFieldMapping($fieldName);
+        } catch (MappingException $e) {
+            // not found
+        }
+
+        try {
+            return $classMetadata->getAssociationMapping($fieldName);
+        } catch (MappingException $e) {
+            // not found
+        }
+
+        return [];
     }
 
     /**
