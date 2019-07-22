@@ -53,7 +53,13 @@
         {{ UI.filterDropdown(defaultFilter, publicFilters, filters, 'admin_api_filter_update', 'admin_api_filter_delete') }}
 
         {# tools/actions #}
-        <div class="list-buttons-container">
+        {% if useToggleButtons|default(false) %}
+          <div class="list-buttons-container has-toggle js-toggle-container">
+            <span class="list-buttons-toggle-content js-toggle-content">
+        {% else %}
+          <div class="list-buttons-container">
+        {% endif %}
+
           {% block report_actions %}{% endblock %}
 
           {% if reportExportPath is defined %}
@@ -72,7 +78,19 @@
             <i class="toggle-button zmdi zmdi-filter-list" data-toggle="collapse" data-target=".drawer-frame"></i>
             <span class="counter js-filter-counter"></span>
           </div>
-        </div>
+
+        {% if useToggleButtons %}
+            </span>
+
+            <div class="list-buttons-toggle-button">
+              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Tools">
+                <i class="toggle-button zmdi zmdi-settings js-toggle-button" data-toggle-open-class="active"></i>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          </div>
+        {% endif %}
       </div>
 
       {% block report_chart %}
