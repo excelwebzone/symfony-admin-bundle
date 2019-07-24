@@ -759,6 +759,14 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         $sort = explode(self::SPLIT_DELIMITER, $sort);
 
+        foreach ($sort as $key => $value) {
+            list($sortBy, $sortDir) = explode('-', $value, 2);
+
+            if (isset($fieldNames[$sortBy])) {
+                $sort[$key] = str_replace(sprintf('%s-', $sortBy), sprintf('%s-', $fieldNames[$sortBy]), $value);
+            }
+        }
+
         $fieldNames = $this->getFieldNames(false);
 
         foreach ($sort as $key => $value) {
