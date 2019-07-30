@@ -110,7 +110,7 @@ abstract class AbstractFileUploader implements FileUploaderInterface
         if ($isPhoto) {
             list($width, $height) = @getimagesize($file->getPathName());
             if ($width > 10000 || $height > 10000) {
-                return $this->translator->trans('error.photo.bad_dimensions', ['%dimensions%' => '10,000x10,000']);
+                return $this->translator->trans('error.file.bad_dimensions', ['%dimensions%' => '10,000x10,000']);
             }
         }
 
