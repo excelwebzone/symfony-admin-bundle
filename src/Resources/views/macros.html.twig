@@ -866,7 +866,7 @@
             {% if links.complete_toggle|default(false) %}
               <div class="entity-profile-frame-complete-toggle task-check-box checkbox">
                 <label class="task-check-box-container <% if (isComplete) { %>is-completed<% } %>">
-                  <input type="checkbox" value="<%- id %>" class="checkbox-input js-complete-item" <% if (isComplete) { %>checked="checked"<% } %> data-endpoint="{{ links.complete_toggle|replace({'__ID__': '<%- id %>'})|raw }}" />
+                  <input type="checkbox" value="<%- id %>" class="checkbox-input js-complete-item" <% if (isComplete) { %>checked="checked"<% } %> data-endpoint="{{ links.complete_toggle|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}" />
                   <span class="task-check-box-checkbox">
                     <i class="zmdi zmdi-square-o unchecked"></i>
                     <i class="zmdi zmdi-check-square checked"></i>
@@ -880,7 +880,7 @@
               <div class="entity-profile-frame-title-icon">
                 {% if links.update_photo|default(false) %}
                   <div class="profile-image-component profile-image-component-circle dropzone <% if (photo) { %>is-photo-loaded<% } else { %>is-empty<% } %> js-file-chooser"
-                    data-endpoint="{{ links.update_photo|replace({'__ID__': '<%- id %>'})|raw }}"
+                    data-endpoint="{{ links.update_photo|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"
                     data-accepted-files="image/*"
                     data-update-avatar="true"
                     data-update-ember-table-avatar="true"
