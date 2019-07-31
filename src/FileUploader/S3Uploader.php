@@ -69,7 +69,6 @@ final class S3Uploader extends AbstractFileUploader
             'Bucket' => $this->s3Bucket,
             'Key' => $newFileName,
             'ContentType' => mime_content_type($fileName),
-            'ContentLength' => filesize($fileName),
         ]);
 
         return $result['ObjectURL'];
@@ -108,7 +107,6 @@ final class S3Uploader extends AbstractFileUploader
             'Bucket' => $this->s3Bucket,
             'Key' => $fileName,
             'ContentType' => $file->getMimeType(),
-            'ContentLength' => $file->getSize(),
         ]);
 
         // delete old file (if exists)
