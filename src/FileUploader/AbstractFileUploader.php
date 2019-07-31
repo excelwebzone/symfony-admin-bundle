@@ -45,7 +45,7 @@ abstract class AbstractFileUploader implements FileUploaderInterface
      * @param string              $mimeTypesExtensions
      * @param array               $mimeTypesTypes
      * @param int                 $maxFilesize
-     * @param string              $imageDriver
+     * @param string|null         $imageDriver
      */
     public function __construct(
         ValidatorInterface $validator,
@@ -53,7 +53,7 @@ abstract class AbstractFileUploader implements FileUploaderInterface
         string $mimeTypesExtensions,
         array $mimeTypesTypes,
         int $maxFilesize,
-        string $imageDriver = self::IMAGE_DRIVER_GD
+        string $imageDriver = null
     ) {
         $this->validator = $validator;
         $this->translator = $translator;

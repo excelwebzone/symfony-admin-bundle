@@ -20,6 +20,7 @@ final class FileUploader extends AbstractFileUploader
      * @param string              $mimeTypesExtensions
      * @param array               $mimeTypesTypes
      * @param int                 $maxFilesize
+     * @param string|null         $imageDriver
      */
     public function __construct(
         KernelInterface $kernel,
@@ -27,11 +28,12 @@ final class FileUploader extends AbstractFileUploader
         TranslatorInterface $translator,
         string $mimeTypesExtensions,
         array $mimeTypesTypes,
-        int $maxFilesize
+        int $maxFilesize,
+        string $imageDriver = null
     ) {
         $this->kernel = $kernel;
 
-        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize);
+        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
     }
 
     /**
