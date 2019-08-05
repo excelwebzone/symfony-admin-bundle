@@ -166,6 +166,12 @@
             {% if reportReloadList is defined and reportReloadList == true %}
               data-reload-list="true"
             {% endif %}
+            {% if reportColors is defined %}
+              data-colors="{{ reportColors|json_encode }}"
+            {% endif %}
+            {% if reportFormat is defined %}
+              data-format="{{ reportFormat }}"
+            {% endif %}
           ></div>
 
           <div class="chart-loading-overlay">
