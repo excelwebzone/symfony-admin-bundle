@@ -14,6 +14,16 @@ class User implements UserInterface, TwoFactorInterface
     const ROLE_ADMIN = 'ROLE_ADMIN';
     const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
+    const PHP_DATE_FORMAT_US = 'm/d/Y';
+    const PHP_DATE_FORMAT_OTHER = 'd/m/Y';
+    const PHP_TIME_FORMAT_12HOURS = 'h:i A';
+    const PHP_TIME_FORMAT_24HOURS = 'H:i:s';
+
+    const JS_DATE_FORMAT_US = 'MM/DD/YYYY';
+    const JS_DATE_FORMAT_OTHER = 'DD/MM/YYYY';
+    const JS_TIME_FORMAT_12HOURS = 'hh/mm AA';
+    const JS_TIME_FORMAT_24HOURS = 'HH/mm/ss';
+
     /** @var int */
     protected $id;
 
@@ -86,8 +96,8 @@ class User implements UserInterface, TwoFactorInterface
     public function __construct()
     {
         $this->timezone = date_default_timezone_get();
-        $this->dateFormat = 'm/d/Y';
-        $this->timeFormat = 'h:i A';
+        $this->dateFormat = self::PHP_DATE_FORMAT_US;
+        $this->timeFormat = self::PHP_TIME_FORMAT_12HOURS;
     }
 
     /**

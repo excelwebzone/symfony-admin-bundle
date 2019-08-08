@@ -35,10 +35,20 @@ abstract class AbstractReport
 
     /**
      * @param ObjectManager $objectManager
+     * @param User          $user
      */
-    public function __construct(ObjectManager $objectManager)
+    public function __construct(ObjectManager $objectManager, User $user)
     {
         $this->objectManager = $objectManager;
+        $this->user = $user;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->getUser();
     }
 
     /**
@@ -388,7 +398,7 @@ abstract class AbstractReport
 
                     case 'datetime':
                         if ($value instanceof \DateTimeInterface) {
-                            $value = $value->format(sprintf('%s H:i:s', $this->getUser()->getDateFormat()));
+                            $value = $value->format(sprintf('%s %s', $this->getUser()->getDateFormat(), $this->getUser()->getTimeFormat()));
                         }
 
                         break;
@@ -604,22 +614,6 @@ abstract class AbstractReport
         }
 
         return $columns;
-    }
-
-    /**
-     * @return User|null
-     */
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param User|null $user
-     */
-    public function setUser(User $user = null): void
-    {
-        $this->user = $user;
     }
 
     /**

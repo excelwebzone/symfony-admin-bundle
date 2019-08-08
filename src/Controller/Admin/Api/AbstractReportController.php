@@ -62,7 +62,6 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var AbstractReport $report */
         $report = $this->getReportObject($report);
-        $report->setUser($this->getUser());
         $report->setCriteria($criteria);
         $report->setSort($sort);
 
@@ -167,7 +166,7 @@ abstract class AbstractReportController extends AbstractController
             StringUtil::classify($name)
         );
 
-        return new $class($this->objectManager);
+        return new $class($this->objectManager, $this->getUser());
     }
 
     /**
