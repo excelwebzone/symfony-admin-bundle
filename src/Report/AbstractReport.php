@@ -71,7 +71,7 @@ abstract class AbstractReport
         }
 
         $labels = $this->getChartLabels();
-        if (empty($labels) && $result = $this->getChartMinMaxDates()) {
+        if (is_null($labels) && $result = $this->getChartMinMaxDates()) {
             $items = DateTimeUtil::getDatePeriodItems(
                 $this->getGroupingType(),
                 new \DateTime($result['min']),
@@ -94,7 +94,7 @@ abstract class AbstractReport
                     $totals[$column] = 0;
                 }
 
-                if (empty($labels)) {
+                if (is_null($labels)) {
                     foreach ($items as $label => $item) {
                         if (isset($item['data'][$key]) && !isset($item['data'][$column])) {
                             $items[$label]['data'][$column] = 0;
@@ -115,7 +115,7 @@ abstract class AbstractReport
                 break;
             }
 
-            if (empty($labels)) {
+            if (is_null($labels)) {
                 foreach ($items as $label => $item) {
                     // skip if out of date range
                     if (new \DateTime($row[$this->getChartGroupByField()]) < new \DateTime($item['start'])
@@ -147,7 +147,7 @@ abstract class AbstractReport
             }
         }
 
-        if (empty($labels)) {
+        if (is_null($labels)) {
             foreach ($items as $label => $item) {
                 foreach (array_keys($item['data']) as $key) {
                     if (array_key_exists($key, $this->getChartComplexColumns())) {
@@ -176,7 +176,7 @@ abstract class AbstractReport
             }
         }
 
-        if (!empty($labels)) {
+        if (!is_null($labels)) {
             // remove empty labels
             foreach (array_keys($labels) as $label) {
                 $total = 0;
