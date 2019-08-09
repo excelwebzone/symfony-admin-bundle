@@ -48,7 +48,7 @@ abstract class AbstractReport
      */
     public function getUser(): User
     {
-        return $this->getUser();
+        return $this->user;
     }
 
     /**
