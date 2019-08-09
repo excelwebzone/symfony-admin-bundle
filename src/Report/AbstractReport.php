@@ -577,6 +577,10 @@ abstract class AbstractReport
             }
         }
 
+        if (empty($columns)) {
+            return [];
+        }
+
         $complexColumns = [];
         foreach ($this->getTotalColumns() as $key => $value) {
             if ($value['useFormula']) {
