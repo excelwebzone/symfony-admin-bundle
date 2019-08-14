@@ -317,11 +317,21 @@ abstract class AbstractReport
             return [];
         }
 
+        $columns = $this->getExportColumns();
+
+        // remove hidden columns
+        foreach ($columns as $column => $options) {
+            $hide = $options['options']['hide'] ?? false;
+            if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
+                unset($columns[$column]);
+            }
+        }
+
         $data = [];
 
         // add header
         $data[0] = [];
-        foreach (array_values($this->getExportColumns()) as $options) {
+        foreach (array_values($columns) as $options) {
             $data[0][] = $options['label'];
         }
 
@@ -332,7 +342,7 @@ abstract class AbstractReport
         foreach ($this->search() as $item) {
             $orgItem = $item;
             $row = [];
-            foreach ($this->getExportColumns() as $column => $options) {
+            foreach ($columns as $column => $options) {
                 $item = $orgItem;
 
                 // handle sub-columns
@@ -367,12 +377,6 @@ abstract class AbstractReport
 
                 if (!in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
-                }
-
-                // hide value / reset to null
-                $hide = $options['options']['hide'] ?? false;
-                if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
-                    $value = null;
                 }
 
                 switch ($options['format']) {
