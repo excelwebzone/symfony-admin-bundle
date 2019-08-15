@@ -482,7 +482,7 @@
     {% endif %}
       {% if value %}
         {% if 'badge' == key and parameters.color|default(false) %}
-          <span class="badge p-2" style="color: #fff; background-color: #{{ parameters.color }}">{{ value }}</span>
+          <span class="badge p-2" style="color: #{{ contrast_color(parameters.color) }}; background-color: #{{ parameters.color }}">{{ value }}</span>
         {% elseif 'date' == key %}
           <time datetime="{{ value|date(app.user.dateFormat ~ '\TH:i:s.000\Z') }}" title="{{ value|date('M d, Y \\a\\t h:i A') }}">{{ value|date(app.user.dateFormat) }}</time>
         {% elseif 'datetime' == key %}
