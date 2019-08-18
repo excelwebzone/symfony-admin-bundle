@@ -58,7 +58,7 @@ abstract class AbstractReport
     {
         // holds the overall total
         $totals = [];
-        foreach (array_keys($this->getChartTotals()) as $key) {
+        foreach ($this->getChartTotals() as $key) {
             $totals[$key] = 0;
         }
 
@@ -141,8 +141,14 @@ abstract class AbstractReport
             }
 
             foreach (array_keys($totals) as $key) {
-                if (!array_key_exists($key, $this->getChartComplexColumns())) {
-                    $totals[$key] += $this->getChartConvertCallback()($this->getColumnValue($key, $row));
+                if (!array_key_exists($key, $this->getChartComplexColumns())
+                    || in_array($key, $this->getChartAvg())
+                ) {
+                    $totals[$key] += $this->getChartConvertCallback()(
+                        in_array($key, $this->getChartAvg())
+                            ? $this->calcComplexColumn($key, $row, $this->getChartComplexColumns())
+                            : $this->getColumnValue($key, $row)
+                    );
                 }
             }
         }
@@ -165,14 +171,20 @@ abstract class AbstractReport
         }
 
         foreach ($totals as $key => $value) {
-            if (array_key_exists($key, $this->getChartComplexColumns())) {
+            if (array_key_exists($key, $this->getChartComplexColumns())
+                && !in_array($key, $this->getChartAvg())
+            ) {
                 $totals[$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $totals, $this->getChartComplexColumns()));
             }
         }
         // remove extra columns
         foreach ($totals as $key => $value) {
-            if (!array_key_exists($key, $this->getChartTotals())) {
+            if (!in_array($key, $this->getChartTotals())) {
                 unset($totals[$key]);
+            }
+            if (in_array($key, $this->getChartAvg())) {
+                $check = current($items);
+                $totals[$key] = $check && count($check['data']) ? $totals[$key] / count($check['data']) : 0;
             }
         }
 
@@ -273,7 +285,15 @@ abstract class AbstractReport
      */
     public function getChartTotals(): array
     {
-        return ['total' => 'Total'];
+        return ['total'];
+    }
+
+    /**
+     * @return array
+     */
+    public function getChartAvg(): array
+    {
+        return [];
     }
 
     /**
