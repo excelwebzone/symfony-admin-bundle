@@ -500,6 +500,17 @@ abstract class AbstractRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param array  $criteria
+     * @param string $groupBy
+     *
+     * @return int
+     */
+    public function countGroupedData(array $criteria, string $groupBy): int
+    {
+        return $this->getGroupedData($criteria, -1, null, null, $groupBy, true);
+    }
+
+    /**
      * @param array       $criteria
      * @param string|null $sort
      * @param string      $groupBy
@@ -517,10 +528,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * @param int|null    $limit
      * @param string|null $sort
      * @param string      $groupBy
+     * @param bool        $doCount
      *
      * @return Pagerfanta|bool
      */
-    public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy)
+    public function getGroupedData(array $criteria, int $page = 1, int $limit = null, string $sort = null, string $groupBy, bool $doCount = false)
     {
         $ignorePermissions = $criteria['ignorePermissions'] ?? false;
         if (isset($criteria['ignorePermissions'])) {
@@ -559,6 +571,10 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         // get number of results
         $nbResults = (int) $nativeQuery->getSingleScalarResult();
+
+        if ($doCount) {
+            return $nbResults;
+        }
 
         // mock parse function on $query to retrive SQL column names
         $reflectionClass = new \ReflectionClass(Query::class);
