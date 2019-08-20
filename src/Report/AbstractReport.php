@@ -527,6 +527,38 @@ abstract class AbstractReport
     }
 
     /**
+     * @param array $columns
+     *
+     * @return [array, array]
+     */
+    public function getCards(array $columns = []): array
+    {
+        // prepare items
+        $items = [];
+        foreach ($columns as $groupBy => $values) {
+            if ($values) {
+                foreach ($values as $key => $value) {
+                    $items[$key][$groupBy] = $value;
+                }
+            }
+        }
+        foreach ($columns as $groupBy => $values) {
+            foreach (array_keys($items) as $key) {
+                if (!array_key_exists($groupBy, $items[$key])) {
+                    $items[$key][$groupBy] = null;
+                }
+
+                ksort($items[$key]);
+            }
+
+            // set count - used in view (JS)
+            $columns[$groupBy] = $values ? count($values) : 0;
+        }
+
+        return [$items, $columns];
+    }
+
+    /**
      * @param string $column
      * @param string $format
      * @param bool   $useSum

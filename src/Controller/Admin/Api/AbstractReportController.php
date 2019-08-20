@@ -99,12 +99,13 @@ abstract class AbstractReportController extends AbstractController
         $sort = $request->query->get('sort');
         $groupingType = $request->query->get('groupingType', 'monthly');
         $showTotals = 1 == $request->query->get('showTotals') && 1 === $page;
+        $cardView = 1 == $request->query->get('cardView');
 
         // convert request filters into query
         $criteria = json_decode($request->query->get('filters', '[]'), true);
 
         // set the report template (columns)
-        $template = $this->getReportTemplate($report);
+        $template = $this->getReportTemplate($report, $cardView);
 
         /** @var AbstractReport $report */
         $report = $this->getReportObject($report);
@@ -114,8 +115,17 @@ abstract class AbstractReportController extends AbstractController
         $report->setSort($sort);
         $report->setGroupingType($groupingType);
 
-        /** @var Pagerfanta|array $items */
-        $items = $report->search();
+        if ($cardView) {
+            list($items, $columns) = $report->getCards();
+        } else {
+            /** @var Pagerfanta|array $items */
+            $items = $report->search();
+
+            /** @var array $totals */
+            $totals = $showTotals
+                ? $report->searchTotals($report->getTotalData() ?: $items)
+                : [];
+        }
 
         // convert to Pagerfanta
         if (is_array($items)) {
@@ -129,11 +139,6 @@ abstract class AbstractReportController extends AbstractController
             $items = $pagerfanta;
         }
 
-        /** @var array $totals */
-        $totals = $showTotals
-            ? $report->searchTotals($report->getTotalData() ?: $items)
-            : [];
-
         $html = $this->renderView($template, [
             'criteria' => $criteria,
             'items' => $items,
@@ -144,8 +149,15 @@ abstract class AbstractReportController extends AbstractController
             'page' => $page,
             'count' => $items ? count($items->getCurrentPageResults()) : 0,
             'total' => $items ? $items->getNbResults() : 0,
-            'totals' => $totals,
         ];
+
+        if (1 === $page && isset($totals)) {
+            $data['totals'] = $totals;
+        }
+
+        if (1 === $page && isset($columns)) {
+            $data['columns'] = $columns;
+        }
 
         return $this->json(array_merge($data, [
             'ok' => true,
@@ -171,16 +183,18 @@ abstract class AbstractReportController extends AbstractController
 
     /**
      * @param Report $report
+     * @param bool   $cardView
      *
      * @return string
      */
-    private function getReportTemplate(Report $report): string
+    private function getReportTemplate(Report $report, bool $cardView = false): string
     {
         list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
 
-        return sprintf('admin/partial/report/%s/%s.html.twig',
+        return sprintf('admin/partial/report/%s/%s%s.html.twig',
             strtolower(StringUtil::tableize($category)),
-            strtolower(StringUtil::tableize($name))
+            strtolower(StringUtil::tableize($name)),
+            $cardView ? '_card' : null
         );
     }
 }

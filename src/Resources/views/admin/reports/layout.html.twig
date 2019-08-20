@@ -68,6 +68,18 @@
             </div>
           {% endif %}
 
+          {% if reportCardView is defined %}
+            {% if reportCardView %}
+              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show List View">
+                <i class="toggle-button zmdi zmdi-view-list js-toggle-card-view"></i>
+              </div>
+            {% else %}
+              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Card View">
+                <i class="toggle-button zmdi zmdi-view-column js-toggle-card-view"></i>
+              </div>
+            {% endif %}
+          {% endif %}
+
           {% if block('report_chart') is not empty %}
             <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Chart">
               <i class="toggle-button zmdi zmdi-chart js-toggle-button js-toggle-ignore" data-toggle-open-class="active" data-toggle="collapse" data-target=".list-page-chart"></i>
@@ -191,6 +203,9 @@
         data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
         {% if reportTotals is defined and reportTotals == true %}
           data-totals="true"
+        {% endif %}
+        {% if reportCardView is defined and reportCardView == true %}
+          data-card-view="true"
         {% endif %}
       >
         {% block report_table %}{% endblock %}
