@@ -155,8 +155,20 @@ abstract class AbstractReportController extends AbstractController
             $data['totals'] = $totals;
         }
 
-        if (1 === $page && isset($columns)) {
-            $data['columns'] = $columns;
+        if (isset($columns)) {
+            $data['count'] = 0;
+            foreach ($items as $item) {
+                $data['count'] += count($item);
+            }
+
+            $data['total'] = 0;
+            foreach ($columns as $rows) {
+                $data['total'] += $rows;
+            }
+
+            if (1 === $page) {
+                $data['columns'] = $columns;
+            }
         }
 
         return $this->json(array_merge($data, [
