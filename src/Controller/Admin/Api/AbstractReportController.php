@@ -107,23 +107,23 @@ abstract class AbstractReportController extends AbstractController
         // set the report template (columns)
         $template = $this->getReportTemplate($report, $cardView);
 
-        /** @var AbstractReport $report */
-        $report = $this->getReportObject($report);
-        $report->setCriteria($criteria);
-        $report->setPage($page);
-        $report->setLimit($limit);
-        $report->setSort($sort);
-        $report->setGroupingType($groupingType);
+        /** @var AbstractReport $reportObject */
+        $reportObject = $this->getReportObject($report);
+        $reportObject->setCriteria($criteria);
+        $reportObject->setPage($page);
+        $reportObject->setLimit($limit);
+        $reportObject->setSort($sort);
+        $reportObject->setGroupingType($groupingType);
 
         if ($cardView) {
-            list($items, $columns) = $report->getCards();
+            list($items, $columns) = $reportObject->getCards();
         } else {
             /** @var Pagerfanta|array $items */
-            $items = $report->search();
+            $items = $reportObject->search();
 
             /** @var array $totals */
             $totals = $showTotals
-                ? $report->searchTotals($report->getTotalData() ?: $items)
+                ? $reportObject->searchTotals($reportObject->getTotalData() ?: $items)
                 : [];
         }
 
@@ -140,6 +140,7 @@ abstract class AbstractReportController extends AbstractController
         }
 
         $html = $this->renderView($template, [
+            'report' => $report,
             'criteria' => $criteria,
             'items' => $items,
         ]);
