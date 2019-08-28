@@ -24,6 +24,8 @@ class User implements UserInterface, TwoFactorInterface
     const JS_TIME_FORMAT_12HOURS = 'hh/mm AA';
     const JS_TIME_FORMAT_24HOURS = 'HH/mm/ss';
 
+    const SETTINGS_KEY_TABLES = 'tables';
+
     /** @var int */
     protected $id;
 
@@ -576,26 +578,36 @@ class User implements UserInterface, TwoFactorInterface
     }
 
     /**
-     * @param string $table
+     * @param string $group
+     * @param string $key
      *
-     * @return array|null
+     * @return mixed|null
      */
-    public function getTableColumns(string $table): ?array
+    public function getSettingsKeyValue(string $group, string $key)
     {
-        return $this->settings['tables'][$table] ?? null;
+        return $this->settings[$group][$key] ?? null;
     }
 
     /**
-     * @param string $table
-     * @param array  $columns
+     * @param string     $group
+     * @param string     $key
+     * @param mixed|null $value
      */
-    public function setTableColumns(string $table, array $columns): void
+    public function setSettingsKeyValue(string $group, string $key, $value = null): void
     {
-        if (!isset($this->settings['tables'])) {
-            $this->settings['tables'] = [];
+        if (!isset($this->settings[$group])) {
+            $this->settings[$group] = [];
         }
 
-        $this->settings['tables'][$table] = $columns;
+        if (!isset($this->settings[$group][$key])) {
+            $this->settings[$group][$key] = null;
+        }
+
+        $this->settings[$group][$key] = $value;
+
+        if (empty($value)) {
+            unset($this->settings[$group][$key]);
+        }
     }
 
     /**

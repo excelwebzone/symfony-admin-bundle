@@ -237,7 +237,7 @@
 {% macro listPageColumns(layoutTableName, column, index, fixedColumns, defaultColumns) %}
   {% import _self as UI %}
 
-  {% set columns = app.user.tableColumns(layoutTableName)|default(false) %}
+  {% set columns = app.user.settingsKeyValue(constant('EWZ\\SymfonyAdminBundle\\Model\\User::SETTINGS_KEY_TABLES'), layoutTableName) %}
   {% set defaultSortField = app.request.get('sort')|default('createdAt-desc')|split('-')[0] %}
   {% set defaultSortDir = app.request.get('sort')|default('createdAt-desc')|split('-')[1] %}
 
