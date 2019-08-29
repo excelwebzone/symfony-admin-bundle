@@ -183,8 +183,8 @@ abstract class AbstractReport
                 unset($totals[$key]);
             }
             if (in_array($key, $this->getChartAvg())) {
-                $check = current($items);
-                $totals[$key] = $check && count($check['data']) ? $totals[$key] / count($check['data']) : 0;
+                $count = count($labels ?: $items);
+                $totals[$key] = $count ? $totals[$key] / $count : 0;
             }
         }
 
