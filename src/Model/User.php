@@ -25,6 +25,7 @@ class User implements UserInterface, TwoFactorInterface
     const JS_TIME_FORMAT_24HOURS = 'HH/mm/ss';
 
     const SETTINGS_KEY_TABLES = 'tables';
+    const SETTINGS_KEY_FILTERS = 'filters';
 
     /** @var int */
     protected $id;

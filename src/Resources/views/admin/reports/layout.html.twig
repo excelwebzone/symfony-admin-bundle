@@ -8,8 +8,6 @@
 {% set header_title = 'Report: ' ~ report %}
 {% set header_class = 'header-reports' %}
 
-{% set preloadFilters = app.request.get('filters') %}
-
 {% block body %}
   <div class="reports-page">
     <div class="list-page-container has-navigation">
@@ -26,31 +24,16 @@
         {% endif %}
 
         {# main filter #}
-        {% if preloadFilters %}
-          {% set defaultFilter = {
-            id: 'preload',
-            title: 'Preload Search',
-            filter: preloadFilters,
-            isLocked: true
-          } %}
-        {% else %}
-          {% set defaultFilter = {
-            id: 'public',
-            title: 'All Records',
-            filter: defaultFilter,
-            isLocked: true
-          } %}
-        {% endif %}
         {% set publicFilters = [
           {
-            id: 'public',
-            title: 'All Records',
-            filter: defaultFilter,
+            id: 'all',
+            name: 'All Records',
+            params: defaultFilter,
             isLocked: true,
             isDefault: true
           }
         ] %}
-        {{ UI.filterDropdown(defaultFilter, publicFilters, filters, 'admin_api_filter_update', 'admin_api_filter_delete') }}
+        {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
 
         {# tools/actions #}
         {% if useToggleButtons|default(false) %}

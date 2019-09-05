@@ -529,12 +529,59 @@
   </div>
 {% endmacro %}
 
-{% macro filterDropdown(defaultFilter, publicFilters, privateFilters = [], editUrl = null, deleteUrl = null) %}
+{% macro filterDropdown(sectionFilter, publicFilters, privateFilters = [], preloadFilters = null, defaultUrl = null, editUrl = null, deleteUrl = null) %}
   {% import _self as UI %}
+
+  {% set defaultFilterId = app.user.settingsKeyValue(constant('EWZ\\SymfonyAdminBundle\\Model\\User::SETTINGS_KEY_FILTERS'), sectionFilter) %}
+  {% set defaultFilter = null %}
+
+  {% if defaultFilterId %}
+    {% for filter in publicFilters %}
+      {% if defaultFilterId == filter.id %}
+        {% set defaultFilter = filter %}
+      {% endif %}
+    {% endfor %}
+    {% for filter in privateFilters %}
+      {% if defaultFilterId == filter.id %}
+        {% set defaultFilter = filter %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if not defaultFilter %}
+    {% for filter in publicFilters %}
+      {% if filter.isDefault|default(false) %}
+        {% set defaultFilterId = filter.id %}
+        {% set defaultFilter = filter %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if preloadFilters %}
+    {% set defaultFilter = null %}
+
+    {% for filter in publicFilters %}
+      {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
+        {% set defaultFilter = filter %}
+      {% endif %}
+    {% endfor %}
+    {% for filter in privateFilters %}
+      {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
+        {% set defaultFilter = filter %}
+      {% endif %}
+    {% endfor %}
+
+    {% if not defaultFilter %}
+      {% set defaultFilter = {
+        id: 'preload',
+        name: 'Preload Search',
+        params: preloadFilters
+      } %}
+    {% endif %}
+  {% endif %}
 
   <div class="dropdown list-filter-selector-list list-filter-selector">
     <div class="list-filter-selector-selected" data-toggle="dropdown">
-      <span class="dropdown-text">{{ defaultFilter.title }}</span> (<span class="dropdown-count">0</span>)
+      <span class="dropdown-text">{{ defaultFilter.name|title }}</span> (<span class="dropdown-count">0</span>)
       <div class="list-filter-selector-indicator">
         <i class="zmdi zmdi-caret-down"></i>
       </div>
@@ -544,11 +591,16 @@
       <div class="option-list js-filter-active">
         <ul>
           {{ UI.filterDropdownItem(
+            sectionFilter,
             defaultFilter.id,
-            defaultFilter.title,
-            defaultFilter.filter|default({}),
-            defaultFilter.isActive|default(false),
-            defaultFilter.isLocked|default(false)
+            defaultFilter.name|title,
+            defaultFilter.params|default({}),
+            true,
+            true,
+            defaultFilterId == defaultFilter.id,
+            defaultUrl,
+            editUrl,
+            deleteUrl
           ) }}
         </ul>
       </div>
@@ -561,14 +613,16 @@
           <li class="option-list-label option-list-label-empty js-no-private-filters" {% if privateFilters|length %}style="display: none"{% endif %}>
             <div class="option-list-label-label">No Private Filters</div>
           </li>
-          {% for filter in privateFilters|default([]) %}
+          {% for filter in privateFilters %}
             {{ UI.filterDropdownItem(
+              sectionFilter,
               filter.id,
-              filter|title,
+              filter.name|title,
               filter.params,
               false,
               false,
-              false,
+              defaultFilterId == filter.id,
+              defaultUrl,
               editUrl,
               deleteUrl
             ) }}
@@ -576,13 +630,21 @@
           <li class="option-list-label js-public-filters">
             <div class="option-list-label-label">Public Filters</div>
           </li>
+          <li class="option-list-label option-list-label-empty js-no-public-filters" {% if publicFilters|length %}style="display: none"{% endif %}>
+            <div class="option-list-label-label">No Public Filters</div>
+          </li>
           {% for filter in publicFilters %}
             {{ UI.filterDropdownItem(
+              sectionFilter,
               filter.id,
-              filter.title,
-              filter.filter|default({}),
-              filter.isActive|default(false),
-              filter.isLocked|default(false),
+              filter.name|title,
+              filter.params|default({}),
+              false,
+              true,
+              defaultFilterId == filter.id,
+              defaultUrl,
+              null,
+              null,
               filter.isDefault|default(false)
             ) }}
           {% endfor %}
@@ -602,9 +664,9 @@
   {% if deleteUrl %}
     <script type="text/template" id="deleteFilterModalTemplate">
       <form class="modal-form js-entity-form"
-        data-endpoint="{{ path(deleteUrl, {id: '__ID__'})|replace({'__ID__': '<%- id %>'})|raw }}"
+        data-endpoint="{{ path(deleteUrl, {id: '__ID__', section: sectionFilter})|replace({'__ID__': '<%- id %>'})|raw }}"
         data-submit="true"
-        data-remove-row=".js-saved-filter[data-id=<%- id %>]"
+        data-remove-row=".js-filter-item[data-id=<%- id %>]"
       >
         <input type="hidden" name="_method" value="DELETE" />
 
@@ -625,27 +687,36 @@
   {% endif %}
 {%- endmacro -%}
 
-{% macro filterDropdownItem(id, title, filters = null, isActive = false, isLocked = false, isDefault = false, editUrl = null, deleteUrl = null) %}
-  <li class="option-list-item option-list-item-filter option-list-item-has-overflow {% if isActive %}option-list-item-active{% endif %} {% if isLocked %}is-locked{% endif %} {% if isDefault %}is-default{% endif %} js-saved-filter" data-id="{{ id }}" data-filter="{% if filters %}{% if filters is iterable %}{{ filters|json_encode }}{% else %}{{ filters }}{% endif %}{% else %}{}{% endif %}">
+{% macro filterDropdownItem(section, id, title, filters = null, isActive = false, isLocked = false, isDefault = false, defaultUrl = null, editUrl = null, deleteUrl = null, isPublicDefault = false) %}
+  <li class="option-list-item option-list-item-filter option-list-item-has-overflow {% if isActive %}option-list-item-active{% endif %} {% if isLocked %}is-locked{% endif %} {% if isDefault %}is-default{% endif %} {% if isPublicDefault %}is-public-default{% endif %} js-filter-item" data-id="{{ id }}" data-filter="{% if filters %}{% if filters is iterable %}{{ filters|json_encode }}{% else %}{{ filters }}{% endif %}{% else %}{}{% endif %}">
     <div class="option-list-item-right-content">
-      {% if isLocked %}
-        <div class="option-list-item-hover-content">
-          <i class="zmdi zmdi-icon zmdi-lock"></i>
-        </div>
-      {% else %}
-        <div class="option-list-item-hover-content">
-          {% if editUrl %}
-            <span data-toggle="tooltip" data-placement="top" title="Edit">
-              <i class="zmdi zmdi-icon zmdi-settings js-entity-modal" data-endpoint="{{ path(editUrl, {id: id}) }}"></i>
-            </span>
-          {% endif %}
-          {% if deleteUrl %}
-            <span data-toggle="tooltip" data-placement="top" title="Delete">
-              <i class="zmdi zmdi-icon zmdi-delete js-entity-modal-template" data-template="#deleteFilterModalTemplate" data-arguments="{{ {id: id, name: title}|json_encode }}"></i>
-            </span>
-          {% endif %}
-        </div>
+      {% if isDefault %}
+        <i class="zmdi zmdi-star js-default-item-icon"></i>
       {% endif %}
+
+      <div class="option-list-item-hover-content">
+        {% if id == 'preload' %}
+          <i class="zmdi zmdi-icon zmdi-lock"></i>
+        {% else %}
+          {% if defaultUrl and id != 'preload' %}
+            <span data-toggle="tooltip" data-placement="top" title="Make Default" {% if isDefault %}style="display: none"{% endif %}>
+              <i class="zmdi zmdi-icon zmdi-star{% if not isDefault %}-outline{% endif %} js-filter-item-default" data-endpoint="{{ path(defaultUrl, {section: section, id: id}) }}"></i>
+            </span>
+          {% endif %}
+
+          {% if not isLocked and editUrl %}
+            <span data-toggle="tooltip" data-placement="top" title="Edit">
+              <i class="zmdi zmdi-icon zmdi-settings js-filter-item-update js-entity-modal" data-endpoint="{{ path(editUrl, {id: id}) }}"></i>
+            </span>
+          {% endif %}
+
+          {% if not isLocked and deleteUrl %}
+            <span data-toggle="tooltip" data-placement="top" title="Delete">
+              <i class="zmdi zmdi-icon zmdi-delete js-filter-item-delete js-entity-modal-template" data-template="#deleteFilterModalTemplate" data-arguments="{{ {id: id, name: title}|json_encode }}"></i>
+            </span>
+          {% endif %}
+        {% endif %}
+      </div>
     </div>
     <div class="option-list-item-text">{{ title }}</div>
   </li>
