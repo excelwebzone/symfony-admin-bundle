@@ -738,6 +738,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         } elseif (is_null($value)) {
             $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
         } elseif (!is_string($value)
+            || is_numeric($value)
             || in_array($key, $this->getAssociationNames())
         ) {
             $queryBuilder
