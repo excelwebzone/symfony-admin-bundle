@@ -1,6 +1,9 @@
 {% set stars = stars|default(5) %}
 <div class="rating {% if readonly is not defined or readonly %}is-readonly{% endif %} p-0">
+  <input type="hidden" value="{{ rating }}" />
+
   {% for star in 1..stars %}
-    <div class="star star-2x {% if star == 1 %}is-max{% endif %} {% if stars - star + 1 <= rating %}is-selected{% else %}is-empty{% endif %} {{ class|default(null) }}"></div>
+    {%- set value = stars - star + 1 -%}
+    <div id="rating_star_{{ value }}" class="star {% if value <= rating %}is-selected{% endif %} {% if loop.first %}is-max{% endif %} {{ class|default(null) }}" data-value="{{ value }}" title="{{ value }}"></div>
   {% endfor %}
 </div>
