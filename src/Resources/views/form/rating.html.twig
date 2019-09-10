@@ -1,5 +1,6 @@
-<div class="rating p-0">
-  {% for i in 1..max %}
-    <div class="star star-2x {% if i <= rating %}is-selected{% else %}is-empty{% endif %} {{ class }}"></div>
+{% set stars = stars|default(5) %}
+<div class="rating {% if readonly is not defined or readonly %}is-readonly{% endif %} p-0">
+  {% for star in 1..stars %}
+    <div class="star star-2x {% if star == 1 %}is-max{% endif %} {% if stars - star + 1 <= rating %}is-selected{% else %}is-empty{% endif %} {{ class|default(null) }}"></div>
   {% endfor %}
 </div>

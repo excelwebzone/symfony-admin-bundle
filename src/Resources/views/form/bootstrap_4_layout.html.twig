@@ -4,35 +4,15 @@
 
 {% block rating_widget %}
 {% apply spaceless %}
-  <div {{ block('rating_widget_container_attributes') }}>
-    <div class="rating-well">
-      {{- block('form_widget_simple') -}}
-      {%- for star in 1..stars -%}
-        {%- set value = stars - star + 1 -%}
-        <div id="rating_star_{{ value }}" class="star {% if value <= form.vars.value %}is-selected{% endif %} {% if loop.first %}is-max{% endif %}" data-value="{{ value }}" title="{{ value }}"></div>
-      {%- endfor -%}
-      {%- if not required -%}
-        <div id="rating_star_0" class="star is-empty is-selected" data-value="0" title="None"></div>
-      {%- endif -%}
-    </div>
+  <div class="rating">
+    {{- block('form_widget_simple') -}}
+    {%- for star in 1..stars -%}
+      {%- set value = stars - star + 1 -%}
+      <div id="rating_star_{{ value }}" class="star {% if value <= form.vars.value %}is-selected{% endif %} {% if loop.first %}is-max{% endif %}" data-value="{{ value }}" title="{{ value }}"></div>
+    {%- endfor -%}
   </div>
 {% endapply %}
 {% endblock rating_widget %}
-
-{% block rating_widget_container_attributes %}
-{% apply spaceless %}
-  {%- for attrname, attrvalue in attr -%}
-    {{- " " -}}
-    {%- if attrname in ['placeholder', 'title'] -%}
-      {{- attrname }}="{{ attrvalue|trans({}, translation_domain) }}"
-    {%- elseif attrvalue is same as(true) -%}
-      {{- attrname }}="{{ attrname }}"
-    {%- elseif attrvalue is not same as(false) -%}
-      {{- attrname }}="{{ attrvalue }}"
-    {%- endif -%}
-  {%- endfor -%}
-{% endapply %}
-{% endblock rating_widget_container_attributes %}
 
 {% block address_widget -%}
   <div class="row address">

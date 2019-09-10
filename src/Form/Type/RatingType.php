@@ -28,9 +28,6 @@ class RatingType extends AbstractType
         $resolver->setDefaults([
             'required' => false,
             'stars' => 5,
-            'attr' => [
-                'class' => 'rating',
-            ],
         ]);
     }
 
