@@ -1,4 +1,6 @@
 {% set stars = stars|default(5) %}
+{% set rating = rating|default(0) %}
+
 <div class="rating {% if readonly is not defined or readonly %}is-readonly{% endif %} p-0">
   <input type="hidden" value="{{ rating }}" />
 
