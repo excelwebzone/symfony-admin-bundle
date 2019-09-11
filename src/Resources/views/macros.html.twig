@@ -1004,9 +1004,9 @@
                     {% if subtitle.ends_with|default(false) %}data-ends-with="{{ subtitle.ends_with }}"{% endif %}
                     {% if subtitle.is_numeric|default(false) %}data-is-numeric="true"{% endif %}
                     {% if subtitle.is_integer|default(false) %}data-is-integer="true"{% endif %}
-                  ><%- subtitle.{{ subtitle.field }} %></span>
+                  ><%= _.unescape(subtitle.{{ subtitle.field }}) %></span>
                 {% else %}
-                  <%- subtitle %>
+                  <%= _.unescape(subtitle) %>
                 {% endfor %}
               </div>
             </div>
