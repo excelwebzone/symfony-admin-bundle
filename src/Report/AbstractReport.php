@@ -168,6 +168,19 @@ abstract class AbstractReport
                     }
                 }
             }
+        } else {
+            // remove empty labels
+            foreach (array_keys($labels) as $label) {
+                $total = 0;
+                foreach ($items as $item) {
+                    $labels[$label][] = $item['data'][$label] ?? 0;
+                    $total += $item['data'][$label] ?? 0;
+                }
+
+                if (0 === $total) {
+                    unset($labels[$label]);
+                }
+            }
         }
 
         foreach ($totals as $key => $value) {
@@ -188,20 +201,25 @@ abstract class AbstractReport
             }
         }
 
-        if (!is_null($labels)) {
-            // remove empty labels
-            foreach (array_keys($labels) as $label) {
-                $total = 0;
-                foreach ($items as $item) {
-                    $labels[$label][] = $item['data'][$label] ?? 0;
-                    $total += $item['data'][$label] ?? 0;
-                }
+        if (is_null($labels)) {
+            // prepare data
+            $tmp = [];
+            foreach (array_values($this->getChartColumns()) as $value) {
+                $tmp[$value] = [
+                    'name' => $value,
+                    'data' => [],
+                ];
+            }
 
-                if (0 === $total) {
-                    unset($labels[$label]);
+            foreach ($items as $item) {
+                foreach ($this->getChartColumns() as $key => $value) {
+                    $tmp[$value]['data'][] = $item['data'][$key] ?? 0;
                 }
             }
 
+            $labels = array_keys($items);
+            $items = array_values($tmp);
+        } else {
             // prepare data
             $tmp = [];
             foreach ($items as $key => $item) {
@@ -221,24 +239,6 @@ abstract class AbstractReport
             $labels = array_values(array_map(function ($value) {
                 return $value[0];
             }, $labels));
-        } else {
-            // prepare data
-            $tmp = [];
-            foreach (array_values($this->getChartColumns()) as $value) {
-                $tmp[$value] = [
-                    'name' => $value,
-                    'data' => [],
-                ];
-            }
-
-            foreach ($items as $item) {
-                foreach ($this->getChartColumns() as $key => $value) {
-                    $tmp[$value]['data'][] = $item['data'][$key] ?? 0;
-                }
-            }
-
-            $labels = array_keys($items);
-            $items = array_values($tmp);
         }
 
         return [$totals, $items, $labels];
