@@ -4,6 +4,8 @@ namespace EWZ\SymfonyAdminBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -24,6 +26,14 @@ class DateTimePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    public function buildView(FormView $view, FormInterface $form, array $options)
+    {
+        $view->vars['time_interval'] = intval($options['time_interval']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $defaults = [
@@ -32,6 +42,7 @@ class DateTimePickerType extends AbstractType
             'time_widget' => 'single_text',
             'date_label' => 'form.datetime.date',
             'time_label' => 'form.datetime.time',
+            'time_interval' => 30,
         ];
 
         /** @var TokenInterface $token */

@@ -66,51 +66,22 @@
         <ul>
           {% set choices = [] %}
           {% for hour in 0..23 %}
-            {% if hour == 0 %}
+            {% for m in 0..(60/time_interval)|round-1 %}
+              {% set minute = m * time_interval %}
+
               {% set choices = choices|merge([
                 {
-                  value: '00:00',
-                  label: 'Midnight'
-                },
-                {
-                  value: '00:30',
-                  label: '12:30 AM'
+                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute),
+                  label: hour == 0 and minute == 0
+                    ? 'Midnight'
+                    : hour == 12 and minute == 0
+                      ? 'Noon'
+                      : hour < 12
+                        ? (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM'
+                        : (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM'
                 }
               ]) %}
-            {% elseif hour == 12 %}
-              {% set choices = choices|merge([
-                {
-                  value: '12:00',
-                  label: 'Noon'
-                },
-                {
-                  value: '12:30',
-                  label: '12:30 PM'
-                }
-              ]) %}
-            {% elseif hour < 12 %}
-              {% set choices = choices|merge([
-                {
-                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':00',
-                  label: hour ~ ':00 AM'
-                },
-                {
-                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':30',
-                  label: hour ~ ':30 AM'
-                }
-              ]) %}
-            {% else %}
-              {% set choices = choices|merge([
-                {
-                  value: hour ~ ':00',
-                  label: (hour - 12) ~ ':00 PM'
-                },
-                {
-                  value: hour ~ ':30',
-                  label: (hour - 12) ~ ':30 PM'
-                }
-              ]) %}
-            {% endif %}
+            {% endfor %}
           {% endfor %}
           {% for choice in choices %}
             <li class="option-list-item {% if choice.value == form.vars.value %}is-selected is-highlighted{% endif %}" data-value="{{ choice.value }}">
@@ -138,6 +109,7 @@
     </div>
     <div class="col-md-6">
       {{- form_row(form.time, {
+        time_interval: time_interval,
         attr: {
           placeholder: 'Add Time'
         }
