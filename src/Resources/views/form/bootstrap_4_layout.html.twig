@@ -71,7 +71,9 @@
 
               {% set timeLabel = hour < 10 ? '0' ~ hour : hour %}
               {% if not time_24hour %}
-                {% if hour <= 12 %}
+                {% if hour == 12 %}
+                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
+                {% elseif hour < 12 %}
                   {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
                 {% elseif hour > 12 %}
                   {% set timeLabel = (hour - 12) < 10 ? '0' ~ (hour - 12) : (hour - 12) %}
