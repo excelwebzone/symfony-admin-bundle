@@ -69,6 +69,18 @@
             {% for m in 0..(60/time_interval)|round-1 %}
               {% set minute = m * time_interval %}
 
+              {% set timeLabel = hour < 10 ? '0' ~ hour : hour %}
+              {% if not time_24hour %}
+                {% if hour <= 12 %}
+                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
+                {% elseif hour > 12 %}
+                  {% set timeLabel = (hour - 12) < 10 ? '0' ~ (hour - 12) : (hour - 12) %}
+                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
+                {% endif %}
+              {% else %}
+                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) %}
+              {% endif %}
+
               {% set choices = choices|merge([
                 {
                   value: (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute),
@@ -76,9 +88,7 @@
                     ? 'Midnight'
                     : hour == 12 and minute == 0
                       ? 'Noon'
-                      : hour < 12
-                        ? (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM'
-                        : (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM'
+                      : timeLabel
                 }
               ]) %}
             {% endfor %}
@@ -110,6 +120,7 @@
     <div class="col-md-6">
       {{- form_row(form.time, {
         time_interval: time_interval,
+        time_24hour: time_24hour,
         attr: {
           placeholder: 'Add Time'
         }
