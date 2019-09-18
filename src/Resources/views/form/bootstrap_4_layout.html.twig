@@ -121,6 +121,7 @@
       {{- form_row(form.time, {
         time_interval: time_interval,
         time_24hour: time_24hour,
+        disabled: disabled,
         attr: {
           placeholder: 'Add Time'
         }
@@ -291,7 +292,6 @@
         parent_label_class: label_attr.class|default(''),
         translation_domain: choice_translation_domain,
         valid: valid,
-        disabled: disabled,
         attr: attr,
         onIcon: onIcon|default(false),
         offIcon: offIcon|default(false)
