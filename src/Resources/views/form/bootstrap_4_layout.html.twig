@@ -45,10 +45,15 @@
 {%- endblock date_widget %}
 
 {% block time_widget -%}
-  <div class="dropdown has-filter {% if disabled %}is-disabled{% endif %} js-select-dropdown">
+  {% set placeholder = attr.placeholder|default('') -%}
+  {%- if placeholder is not none -%}
+    {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
+  {%- endif -%}
+
+  <div class="dropdown has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown">
     <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
       <span class="dropdown-text {% if form.vars.value is empty %}dropdown-placeholder{% endif %}">
-        {{ form.vars.value }}
+        {{ form.vars.value|default(placeholder) }}
       </span>
 
       {% if not attr.readonly|default(false) %}
@@ -122,13 +127,15 @@
       }) -}}
     </div>
     <div class="col-md-6">
+      {%- if attr.placeholder|default('') is empty -%}
+        {%- set attr = attr|merge({placeholder: 'Add Time'}) -%}
+      {%- endif -%}
+
       {{- form_row(form.time, {
         time_interval: time_interval,
         time_24hour: time_24hour,
         disabled: disabled,
-        attr: {
-          placeholder: 'Add Time'
-        }
+        attr: attr
       }) -}}
     </div>
   </div>
