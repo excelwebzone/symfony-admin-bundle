@@ -32,6 +32,12 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var AbstractReport $report */
         $report = $this->getReportObject($report);
+
+        // remove compare from criteria
+        if ($report->getCompareField()) {
+            unset($criteria[$report->getCompareField()]);
+        }
+
         $report->setCriteria($criteria);
         $report->setGroupingType($groupingType);
 
@@ -62,6 +68,12 @@ abstract class AbstractReportController extends AbstractController
 
         /** @var AbstractReport $report */
         $report = $this->getReportObject($report);
+
+        // remove compare from criteria
+        if ($report->getCompareField()) {
+            unset($criteria[$report->getCompareField()]);
+        }
+
         $report->setCriteria($criteria);
         $report->setSort($sort);
 
@@ -139,10 +151,14 @@ abstract class AbstractReportController extends AbstractController
             $items = $pagerfanta;
         }
 
+        /** @var Pagerfanta|array $compareItems */
+        $compareItems = $reportObject->searchCompare($items);
+
         $html = $this->renderView($template, [
             'report' => $report,
             'criteria' => $criteria,
             'items' => $items,
+            'compareItems' => $compareItems,
         ]);
 
         $data = [

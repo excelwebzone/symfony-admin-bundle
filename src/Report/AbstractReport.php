@@ -21,6 +21,18 @@ abstract class AbstractReport
     /** @var array */
     protected $criteria;
 
+    /** @var string */
+    protected $compareField;
+
+    /** @var string */
+    protected $compareDateField;
+
+    /** @var string */
+    protected $compareIdField;
+
+    /** @var string */
+    protected $compareIdFilter;
+
     /** @var int */
     protected $page = 1;
 
@@ -515,12 +527,64 @@ abstract class AbstractReport
     public function search()
     {
         if ($this->getRepository()) {
+            $criteria = $this->getCriteria();
+
+            if ($this->getCompareField()) {
+                unset($criteria[$this->getCompareField()]);
+            }
+
             return $this->getRepository()->search(
-                $this->getCriteria(),
+                $criteria,
                 $this->getPage(),
                 $this->getLimit(),
                 $this->getSort()
             );
+        }
+
+        return [];
+    }
+
+    /**
+     * @param Pagerfanta|array $items
+     *
+     * @return Pagerfanta|array
+     */
+    public function searchCompare($items)
+    {
+        $count = is_array($items)
+            ? count($items)
+            : count($items->getCurrentPageResults());
+
+        if ($this->getRepository() && $count) {
+            $criteria = $orgCriteria = $this->getCriteria();
+
+            if (!$this->getCompareField()
+                || !isset($criteria[$this->getCompareField()])
+                || !$this->getCompareDateField()
+                || !isset($criteria[$this->getCompareDateField()])
+            ) {
+                return [];
+            }
+
+            $criteria[$this->getCompareDateField()] = $criteria[$this->getCompareField()];
+
+            $ids = [];
+            foreach ($items as $item) {
+                $ids[] = $this->getColumnValue($this->getCompareIdField(), $item);
+            }
+            $criteria[$this->getCompareIdFilter() ?: $this->getCompareIdField()] = $ids;
+
+            $this->setCriteria($criteria);
+
+            $result = [];
+            foreach ($this->search() as $item) {
+                $result[$this->getColumnValue($this->getCompareIdField(), $item)] = $item;
+            }
+
+            // revert filters back
+            $this->setCriteria($orgCriteria);
+
+            return $result;
         }
 
         return [];
@@ -690,6 +754,70 @@ abstract class AbstractReport
     public function setCriteria(array $criteria): void
     {
         $this->criteria = $criteria;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCompareField(): ?string
+    {
+        return $this->compareField;
+    }
+
+    /**
+     * @param string|null $compareField
+     */
+    public function setCompareField(string $compareField = null): void
+    {
+        $this->compareField = $compareField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCompareDateField(): ?string
+    {
+        return $this->compareDateField;
+    }
+
+    /**
+     * @param string|null $compareDateField
+     */
+    public function setCompareDateField(string $compareDateField = null): void
+    {
+        $this->compareDateField = $compareDateField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCompareIdField(): ?string
+    {
+        return $this->compareIdField;
+    }
+
+    /**
+     * @param string|null $compareIdField
+     */
+    public function setCompareIdField(string $compareIdField = null): void
+    {
+        $this->compareIdField = $compareIdField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCompareIdFilter(): ?string
+    {
+        return $this->compareIdFilter;
+    }
+
+    /**
+     * @param string|null $compareIdFilter
+     */
+    public function setCompareIdFilter(string $compareIdFilter = null): void
+    {
+        $this->compareIdFilter = $compareIdFilter;
     }
 
     /**
