@@ -68,11 +68,6 @@ class User extends BaseUser
     protected $emailCanonical;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    protected $googleAuthenticatorSecret;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     protected $enabled = true;
