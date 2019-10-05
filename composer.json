@@ -20,7 +20,6 @@
     "html2text/html2text": "^4.2",
     "mtdowling/cron-expression": "^1.2",
     "ramsey/uuid": "^3.8",
-    "scheb/two-factor-bundle": "^3.17",
     "symfony/asset": "^4.3",
     "symfony/console": "^4.3",
     "symfony/form": "^4.3",

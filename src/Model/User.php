@@ -3,12 +3,11 @@
 namespace EWZ\SymfonyAdminBundle\Model;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface, TwoFactorInterface
+class User implements UserInterface
 {
     const ROLE_DEFAULT = 'ROLE_USER';
     const ROLE_ADMIN = 'ROLE_ADMIN';
@@ -56,9 +55,6 @@ class User implements UserInterface, TwoFactorInterface
 
     /** @var string */
     protected $emailCanonical;
-
-    /** @var string */
-    protected $googleAuthenticatorSecret;
 
     /** @var bool */
     protected $enabled;
@@ -270,38 +266,6 @@ class User implements UserInterface, TwoFactorInterface
     {
         $this->setUsernameCanonical($this->canonicalizeUsername((string) $this->getUsername()));
         $this->setEmailCanonical($this->canonicalizeEmail((string) $this->getEmail()));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isGoogleAuthenticatorEnabled(): bool
-    {
-        return $this->googleAuthenticatorSecret ? true : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGoogleAuthenticatorUsername(): string
-    {
-        return $this->getUsername();
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getGoogleAuthenticatorSecret(): string
-    {
-        return $this->googleAuthenticatorSecret ?? '';
-    }
-
-    /**
-     * @param string|null $googleAuthenticatorSecret
-     */
-    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): void
-    {
-        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
     }
 
     /**

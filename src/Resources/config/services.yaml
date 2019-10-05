@@ -75,7 +75,6 @@ services:
         arguments:
             - '@twig'
             - '@symfony_admin.file_uploader'
-            - '@?scheb_two_factor.security.google_authenticator'
 
     symfony_admin.twig.extension.repository_extension:
         class: EWZ\SymfonyAdminBundle\Twig\Extension\RepositoryExtension

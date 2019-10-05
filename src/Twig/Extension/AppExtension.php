@@ -3,9 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
 use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
-use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -18,19 +16,14 @@ final class AppExtension extends AbstractExtension
     /** @var FileUploaderInterface */
     protected $fileUploader;
 
-    /** @var GoogleAuthenticatorInterface */
-    private $twoFactor;
-
     /**
-     * @param \Twig_Environment                 $twig
-     * @param FileUploaderInterface             $fileUploader
-     * @param GoogleAuthenticatorInterface|null $twoFactor
+     * @param \Twig_Environment     $twig
+     * @param FileUploaderInterface $fileUploader
      */
-    public function __construct(\Twig_Environment $twig, FileUploaderInterface $fileUploader, GoogleAuthenticatorInterface $twoFactor = null)
+    public function __construct(\Twig_Environment $twig, FileUploaderInterface $fileUploader)
     {
         $this->twig = $twig;
         $this->fileUploader = $fileUploader;
-        $this->twoFactor = $twoFactor;
     }
 
     /**
@@ -40,7 +33,6 @@ final class AppExtension extends AbstractExtension
     {
         return [
             new TwigFunction('time', [$this, 'getTime']),
-            new TwigFunction('qrcode_url', [$this, 'getQRCodeUrl']),
             new TwigFunction('contrast_color', [$this, 'getContrastColor']),
             new TwigFunction('mime_content_type', [$this, 'getMimeContentType']),
             new TwigFunction('filesize', [$this, 'getFilesize']),
@@ -73,16 +65,6 @@ final class AppExtension extends AbstractExtension
         $seconds = $seconds % 60;
 
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-    }
-
-    /**
-     * @param User $user
-     *
-     * @return string
-     */
-    public function getQRCodeUrl(User $user): string
-    {
-        return $this->twoFactor ? $this->twoFactor->getUrl($user) : null;
     }
 
     /**
