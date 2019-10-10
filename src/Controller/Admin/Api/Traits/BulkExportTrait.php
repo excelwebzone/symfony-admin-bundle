@@ -3,6 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\Collection;
 use EWZ\SymfonyAdminBundle\Annotation\ConfigField;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -141,6 +142,12 @@ trait BulkExportTrait
 
                 if ($data instanceof \DateTimeInterface) {
                     $data = $data->format($this->getUser()->getDateFormat());
+                } elseif ($data instanceof Collection) {
+                    $elements = [];
+                    foreach ($data as $element) {
+                        $elements[] = (string) $element;
+                    }
+                    $data = implode(', ', $elements);
                 }
 
                 if (isset($enumColumns[$column])) {
