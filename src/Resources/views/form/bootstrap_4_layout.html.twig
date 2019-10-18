@@ -149,7 +149,7 @@
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
 
-  <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %} js-autocomplete-dropdown"
+  <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %} js-autocomplete-dropdown"
     data-endpoint="{{ filter_url|default('') }}"
     data-placeholder="{{ placeholder }}"
     {% if json|default(false) %}
@@ -317,7 +317,7 @@
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
 
-  <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %}"
+  <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %}"
     data-placeholder="{{ placeholder }}"
   >
     {% if multiple %}
@@ -473,7 +473,7 @@
   {%- if help is not empty -%}
     {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
   {%- endif -%}
-  <{{ element|default('div') }} class="form-group {{ element_class|default('') }} {% if required %}is-required{% endif %} {% if disabled %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
+  <{{ element|default('div') }} class="form-group {{ element_class|default('') }} {% if required %}is-required{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
     {{- form_label(form) -}}
     {%- if icon is defined and icon -%}
       <i class="{{ icon }}"></i>
