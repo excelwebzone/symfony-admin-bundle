@@ -15,8 +15,12 @@
       <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
     {% endblock %}
 
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('apple-touch-icon.png') }}">
+    {% block icons %}
+      <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+      <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('apple-touch-icon.png') }}">
+    {% endblock %}
+
+    {% block head %}{% endblock %}
   </head>
   <body class="{% block body_class %}{% endblock %} logged-{% if is_granted('ROLE_USER') %}in{% else %}out{% endif %} {{ app.request.attributes.get('_route') }}">
 
