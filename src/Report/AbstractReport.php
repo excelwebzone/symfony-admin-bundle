@@ -392,7 +392,7 @@ abstract class AbstractReport
         // remove hidden columns
         foreach ($columns as $column => $options) {
             $hide = $options['options']['hide'] ?? false;
-            if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
+            if (true === $hide) {
                 unset($columns[$column]);
             }
         }
@@ -447,6 +447,12 @@ abstract class AbstractReport
 
                 if (!in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
+                }
+
+                // hide value / reset to null
+                $hide = $options['options']['hide'] ?? false;
+                if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
+                    $value = null;
                 }
 
                 switch ($options['format']) {
