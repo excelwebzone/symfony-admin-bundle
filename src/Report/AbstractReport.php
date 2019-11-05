@@ -436,6 +436,8 @@ abstract class AbstractReport
                                 && 0 === $item->count()
                             )
                         ) {
+                            $row[] = null;
+
                             continue 2;
                         }
                     }
