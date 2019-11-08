@@ -7,7 +7,7 @@
 
 {% block body %}
   <div class="settings-left-column">
-    <ul class="settings-nav">
+    <ul class="settings-nav {{ settings_nav_class|default(null) }}">
       {% block settings_nav %}{% endblock %}
     </ul>
   </div>
