@@ -684,7 +684,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
-        list($alias, $key) = $this->guessAliasAndField($queryBuilder, $key);
+        list($alias, $key) = $this->guessAliasAndField($queryBuilder, $key, $alias);
 
         if (is_array($value)) {
             if (isset($value['unit'])) {
@@ -844,10 +844,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * @param QueryBuilder $queryBuilder
      * @param string       $fieldName
+     * @param string       $defaultAlias
      *
      * @return array [alias, fieldName]
      */
-    protected function guessAliasAndField(QueryBuilder $queryBuilder, string $fieldName): array
+    protected function guessAliasAndField(QueryBuilder $queryBuilder, string $fieldName, string $defaultAlias = 'q'): array
     {
         $fieldNames = $this->getFieldNames(false);
 
@@ -862,9 +863,29 @@ abstract class AbstractRepository extends ServiceEntityRepository
                 if (!in_array($alias, $queryBuilder->getAllAliases())) {
                     $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
                 }
+
+                if (isset($this->getJoinNames()[$assocName])) {
+                    foreach ($this->getJoinNames()[$assocName] as $subAssocName => $subAlias) {
+                        if (strlen($fieldName) > strlen($subAssocName)
+                            && $subAssocName === substr($fieldName, 0, strlen($subAssocName))
+                        ) {
+                            $fieldName = lcfirst(substr($fieldName, strlen($subAssocName)));
+
+                            if (!in_array($subAlias, $queryBuilder->getAllAliases())) {
+                                $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $subAssocName), $subAlias);
+                            }
+
+                            $alias = $subAlias;
+
+                            break 2;
+                        }
+                    }
+                }
+
+                break;
             }
         }
 
-        return [$alias ?? 'q', $fieldName];
+        return [$alias ?? $defaultAlias, $fieldName];
     }
 }
