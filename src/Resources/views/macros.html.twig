@@ -182,7 +182,7 @@
     {% set parameters = parameters|merge({iCss: false}) %}
     {{ UI.link(parameters) }}
     {% if parameters.help %}
-      <div class="option-list-item-help-text">{{ parameters.help|trip|raw }}</div>
+      <div class="option-list-item-help-text">{{ parameters.help|trim|raw }}</div>
     {% endif %}
   </li>
 {% endmacro %}
