@@ -181,7 +181,7 @@
     {% set parameters = parameters|merge({class: (parameters.class|default('') ~ ' option-list-item-text')|trim}) %}
     {% set parameters = parameters|merge({iCss: false}) %}
     {{ UI.link(parameters) }}
-    {% if parameters.help %}
+    {% if parameters.help is defined %}
       <div class="option-list-item-help-text">{{ parameters.help|trim|raw }}</div>
     {% endif %}
   </li>
