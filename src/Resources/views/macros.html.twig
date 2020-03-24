@@ -41,7 +41,7 @@
     {% if parameters.iSelf is not defined or not parameters.iSelf %}
      {{ iconHtml|trim|raw }}
     {% endif %}
-    {{- parameters.label|trim }}
+    {{- parameters.label|trim|raw }}
   </a>
   {% endapply %}
 {% endmacro %}
@@ -69,7 +69,7 @@
   <div class="dropdown {% if parameters.filtered|default(false) %}has-filter{% endif %} {{ parameters.aCss|default('')}} {% if parameters.multiSelect|default(false) %}multi-select-dropdown{% endif %}">
     <div class="{{ parameters.lCss|default('') }}" data-toggle="dropdown">
       {% if parameters.label %}
-        <span class="dropdown-text">{{ parameters.label|raw }}</span>
+        <span class="dropdown-text">{{ parameters.label|trim|raw }}</span>
       {% endif %}
 
       {% if parameters.iWrapCss is defined %}
@@ -181,6 +181,9 @@
     {% set parameters = parameters|merge({class: (parameters.class|default('') ~ ' option-list-item-text')|trim}) %}
     {% set parameters = parameters|merge({iCss: false}) %}
     {{ UI.link(parameters) }}
+    {% if parameters.help %}
+      <div class="option-list-item-help-text">{{ parameters.help|trip|raw }}</div>
+    {% endif %}
   </li>
 {% endmacro %}
 
@@ -192,7 +195,7 @@
       <i class="option-list-item-icon {{ parameters.iCss }}"></i>
     {% endif %}
 
-    <div class="option-list-item-text">{{- parameters.label|trim }}</div>
+    <div class="option-list-item-text">{{- parameters.label|trim|raw }}</div>
   </li>
 {% endmacro %}
 
