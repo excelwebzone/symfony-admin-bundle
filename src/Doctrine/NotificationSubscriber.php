@@ -28,7 +28,7 @@ class NotificationSubscriber implements EventSubscriber
     /** @var TokenStorageInterface */
     protected $tokenStorage;
 
-    /** @var NotificationEvent */
+    /** @var ObjectEvent */
     protected $notificationEvent;
 
     /**
