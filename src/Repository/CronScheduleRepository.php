@@ -34,7 +34,7 @@ abstract class CronScheduleRepository extends AbstractRepository
      */
     public function hasSchedule(string $command, array $arguments, string $definition): bool
     {
-        $schedules = $this->findBy([
+        $schedules = $this->searchAll([
             'command' => $command,
             'definition' => $definition,
         ]);

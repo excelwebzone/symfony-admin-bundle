@@ -45,7 +45,7 @@ trait UpdateFieldsTrait
                                 ? new ArrayCollection(
                                     $this->objectManager
                                         ->getRepository($fieldMapping['targetEntity'])
-                                        ->findBy(['id' => $value])
+                                        ->searchAll(['id' => $value])
                                 )
                                 : null;
 
