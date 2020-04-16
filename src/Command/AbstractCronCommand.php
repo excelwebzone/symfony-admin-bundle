@@ -34,7 +34,7 @@ abstract class AbstractCronCommand extends Command implements CronCommandInterfa
         if ($cronSchedule && !$cronSchedule->isEnabled()) {
             $output->writeln('<error>Command already running</error>');
 
-            return;
+            return 0;
         }
 
         $cronSchedule->setEnabled(false);

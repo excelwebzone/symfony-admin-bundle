@@ -101,6 +101,8 @@ class CronCommand extends Command
         }
 
         $output->writeln('All commands scheduled', OutputInterface::VERBOSITY_DEBUG);
+
+        return 0;
     }
 
     /**

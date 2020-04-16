@@ -53,6 +53,8 @@ class CronDefinitionsLoadCommand extends Command
                 $this->cronScheduleRepository->update($schedule);
             }
         }
+
+        return 0;
     }
 
     /**
