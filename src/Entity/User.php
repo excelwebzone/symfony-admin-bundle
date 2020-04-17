@@ -46,7 +46,7 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
-     * @Assert\Length(min = 4)
+     * @Assert\Length(min=4)
      */
     protected $username;
 
