@@ -151,8 +151,8 @@ abstract class AbstractReportController extends AbstractController
             $items = $pagerfanta;
         }
 
-        /** @var Pagerfanta|array $compareItems */
-        $compareItems = $reportObject->searchCompare($items);
+        /** @var array $compareItems */
+        $compareItems = $reportObject->searchCompare($items ?: []);
 
         $html = $this->renderView($template, [
             'report' => $report,

@@ -315,9 +315,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function searchOne(array $criteria, string $sort = null)
     {
-        $result = $this->search($criteria, 1, 1, $sort)->getCurrentPageResults();
+        if (!$items = $this->search($criteria, 1, 1, $sort)) {
+            return null;
+        }
 
-        return $result[0] ?? null;
+        return $items->getCurrentPageResults()[0];
     }
 
     /**

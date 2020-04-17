@@ -405,11 +405,16 @@ abstract class AbstractReport
             $data[0][] = $options['label'];
         }
 
+        // handle empty results
+        if (!$items = $this->search()) {
+            return $data;
+        }
+
         // force all records
         $this->setPage(-1);
 
         // add rows
-        foreach ($this->search() as $item) {
+        foreach ($items as $item) {
             $orgItem = $item;
             $row = [];
             foreach ($columns as $column => $options) {
@@ -593,13 +598,15 @@ abstract class AbstractReport
     /**
      * @param Pagerfanta|array $items
      *
-     * @return Pagerfanta|array
+     * @return array
      */
-    public function searchCompare($items)
+    public function searchCompare($items): array
     {
-        $count = is_array($items)
-            ? count($items)
-            : count($items->getCurrentPageResults());
+        if ($items instanceof Pagerfanta) {
+            $items = $items->getCurrentPageResults();
+        }
+
+        $count = count($items);
 
         if ($this->getRepository() && $count) {
             $criteria = $orgCriteria = $this->getCriteria();
