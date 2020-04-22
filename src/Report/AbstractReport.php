@@ -405,13 +405,13 @@ abstract class AbstractReport
             $data[0][] = $options['label'];
         }
 
+        // force all records
+        $this->setPage(-1);
+
         // handle empty results
         if (!$items = $this->search()) {
             return $data;
         }
-
-        // force all records
-        $this->setPage(-1);
 
         // add rows
         foreach ($items as $item) {
