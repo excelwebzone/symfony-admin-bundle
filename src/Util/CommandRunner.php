@@ -9,7 +9,7 @@ use Symfony\Component\Process\PhpExecutableFinder;
  * Please note, that this class should be used only from the console commands as it uses $_SERVER['argv'][0]
  * to get the path to symfony "console" file.
  */
-class CommandRunner
+final class CommandRunner
 {
     /**
      * Runs the command in background process without the lock of main stream.
