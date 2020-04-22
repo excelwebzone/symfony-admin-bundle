@@ -7,7 +7,7 @@ use EWZ\SymfonyAdminBundle\Exception\AnnotationException;
 
 /**
  * @Annotation
- * @Target({"PROPERTY"})
+ * @Target("PROPERTY")
  */
 class AllowedTags
 {
