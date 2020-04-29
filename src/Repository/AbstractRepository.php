@@ -46,6 +46,10 @@ abstract class AbstractRepository extends ServiceEntityRepository
      */
     public function __construct(RegistryInterface $registry, TokenStorageInterface $tokenStorage)
     {
+        if (empty($this->className) || !class_exists($this->className)) {
+            throw new \LogicException(sprintf('$className for "%s" is not defined or not exists.', $this));
+        }
+
         parent::__construct($registry, $this->className);
 
         $this->tokenStorage = $tokenStorage;
