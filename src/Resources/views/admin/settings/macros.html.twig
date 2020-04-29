@@ -1,5 +1,5 @@
-{% macro containerBlock(title, cta, description, body) %}
-  <div class="container-block">
+{% macro containerBlock(title, cta, description, body, class = null) %}
+  <div class="container-block {{ class }}">
     <div class="container-block-header">
       <span class="container-block-title">{{ title|title }}</span>
       <span class="container-block-cta">{{ cta|raw }}</span>
@@ -10,5 +10,226 @@
     {% if body is not empty %}
       <div class="container-block-body">{{ body|raw }}</div>
     {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro containerBlockToggle(id, title, body, class = null) %}
+  <div class="container-block js-toggle-container {{ class }}" id="{{ id }}">
+    <div class="container-block-header">
+      <span class="container-block-title js-toggle-button">
+        <span class="zmdi zmdi-chevron-down"></span>
+        {{ title|title }}
+      </span>
+    </div>
+    <div class="container-block-body js-toggle-content hide">
+      {{ body|raw }}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro renderTable(titles, rows, isBordered = true, class = null, rowsClass = null, id = null, data = {}) %}
+  <div class="settings-content-table {{ class }}"
+    {% if id %}
+      id="{{ id }}"
+    {% endif %}
+
+    {% for key, value in data %}
+      data-{{ key }}="{{ value }}"
+    {% endfor %}
+    >
+    <div class="settings-content-table-block {% if isBordered %}is-bordered{% endif %}">
+      <div class="settings-content-table-header">
+        {% for title in titles %}
+          {{ title|raw }}
+        {% endfor %}
+      </div>
+
+      <div class="{{ rowsClass }}">
+        {% for row in rows %}
+          {{ row|raw }}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro renderRow(items, data = {}, class = null) %}
+  <div class="settings-content-table-item {{ class }}"
+    {% for key, value in data %}
+      data-{{ key }}="{{ value }}"
+    {% endfor %}
+  >
+    {% for item in items %}
+      {{ item|raw }}
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro renderDragIcon(isHeader = false) %}
+  <div class="settings-content-table-item-drag-icon">
+    {% if not isHeader %}
+      <i class="material-icons drag-handle">drag_handle</i>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro renderLabel(items, isHeader = false, isFixed = false, class = null) %}
+  <div class="settings-content-table-item-label {% if isHeader %}is-header{% endif %} {% if isFixed %}is-fixed{% endif %} {{ class }}">
+    {% for item in items %}
+      {{ item|raw }}
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro renderLabelFixed(items, isHeader = false, class = null) %}
+  {{ _self.renderLabel(items, isHeader, true, class) }}
+{% endmacro %}
+
+{% macro addLabel(label, class = null) %}
+  <div class="settings-content-table-item-label-content {{ class }}">{{ label|raw }}</div>
+{% endmacro %}
+
+{% macro addLabelSearch(placeholder = 'Search') %}
+  <div class="settings-content-table-item-label-content">
+    <div class="popup-container js-toggle-container" data-toggle="tooltip" data-placement="bottom" title="Search">
+      <i class="button button-toggle zmdi zmdi-search js-toggle-button" data-toggle-open-class="active" data-toggle-focus=".list-search>.input-text"></i>
+
+      <div class="popup-content list-search open-right bg-transparent js-toggle-content">
+        <input type="text" placeholder="{{ placeholder }}" class="search input-text pt-0" autocomplete="off" />
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro addLabelIcon(icon, isHeader = false) %}
+  <div class="settings-content-table-item-icon">
+    {% if not isHeader %}
+      <i class="{{ icon }}"></i>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro renderColumn(items, isHeader = false, isNarrow = false, class = null, ignore = false) %}
+  {% if not ignore %}
+    <div class="settings-content-table-item-column {% if isHeader %}is-header{% endif %} {% if isNarrow %}is-narrow{% endif %} {{ class }}">
+      {% for item in items %}
+        {{ item|raw }}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro renderColumnNarrow(items, isHeader = false, class = null, ignore = false) %}
+  {{ _self.renderColumn(items, isHeader, true, class, ignore) }}
+{% endmacro %}
+
+{% macro addColumnHtml(html) %}
+  {{ html|raw }}
+{% endmacro %}
+
+{% macro addColumnHelpIcon(icon, title) %}
+  <span class="help-icon" data-toggle="tooltip" data-placement="top" title="{{ title }}">
+    <i class="{{ icon }}"></i>
+  </span>
+{% endmacro %}
+
+{% macro renderActions(actions = [], length = null, class = null) %}
+  <div class="settings-content-table-item-actions {{ class }}" data-icons="{{ length|default(actions|length) }}">
+    {% for action in actions %}
+      {{ action|raw }}
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro addActionGroup(actions, hide = false, class = null) %}
+  <div class="{{ class }} {% if hide %}hide{% endif %}">
+    {% for action in actions %}
+      {{ action|raw }}
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro addActionLink(title, icon, endpoint, data = {}, class = null, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    {{ UI.link({
+      iCss: icon,
+      iTooltip: {
+        title: title
+      },
+      class: 'settings-content-table-item-action-icon',
+      aCss: class,
+      data: data|merge({
+        endpoint: endpoint
+      })
+    }) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro addActionModal(title, icon, endpoint, data = {}, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    {{ UI.link({
+      iCss: icon,
+      iTooltip: {
+        title: title
+      },
+      class: 'settings-content-table-item-action-icon',
+      aCss: 'js-entity-modal',
+      data: data|merge({
+        endpoint: endpoint
+      })
+    }) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro addActionModalTemplate(title, icon, template, arguments, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    {{ UI.link({
+      iCss: icon,
+      iTooltip: {
+        title: title
+      },
+      class: 'settings-content-table-item-action-icon',
+      aCss: 'js-entity-modal-template',
+      data: {
+        template: template,
+        arguments: arguments|json_encode
+      }
+    }) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro addActionToggleObject(title, icon, data = {}, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    {{ UI.link({
+      iCss: icon,
+      iTooltip: {
+        title: title
+      },
+      class: 'settings-content-table-item-action-icon',
+      aCss: 'js-toggle-object',
+      data: data
+    }) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro renderUserLabel(user) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  <div class="settings-content-company-user-list-item-thumbnail media">
+    <span class="settings-content-company-user-picture media-left">
+      {{ UI.profileImageComponentEntity(user) }}
+    </span>
+    <div class="settings-content-main-content media-body">
+      <a href="{{ path('admin_settings_users_profile_edit', {id: user.id}) }}" class="settings-content-company-user-text name">{{ user }}</a>
+      <div class="settings-content-secondary-content email">{{ user.email }}</div>
+    </div>
   </div>
 {% endmacro %}

@@ -1,4 +1,17 @@
 {#
+  Create an icon
+  Parameters - array:
+    [
+      class - default class
+      title - tooltip title
+      placement - tooltip placement (default: top)
+    ]
+#}
+{% macro icon(parameters) %}
+  <i class="{{ parameters.class }}" {% if parameters.title is defined and parameters.title %}data-toggle="tooltip" data-placement="{{ parameters.placement|default('top') }}" title="{{ parameters.title }}"{% endif %}></i>
+{% endmacro %}
+
+{#
   Create the link
   Parameters - array:
     [
@@ -9,15 +22,22 @@
       aCss - additional button class
       iCss - css class for 'i' tag (icon)
       iSelf - show icon before link
+      iTooltip - add icon tooltip ({placement: top, title: '...'})
       data - additional data attributes
     ]
 #}
 {% macro link(parameters) %}
+  {% import _self as UI %}
+
   {# need to remove spaces just before label #}
   {% set iconHtml = '' %}
   {% if parameters.iCss is defined and parameters.iCss %}
     {% set iconHtml %}
-    <i class="{{ parameters.iCss }}"></i>
+      {{ UI.icon({
+        class: parameters.iCss,
+        title: parameters.iTooltip|default({}).title|default(false),
+        placement: parameters.iTooltip|default({}).placement|default(false)
+      }) }}
     {% endset %}
   {% endif %}
   {% if parameters.iSelf is defined and parameters.iSelf %}
@@ -41,7 +61,7 @@
     {% if parameters.iSelf is not defined or not parameters.iSelf %}
      {{ iconHtml|trim|raw }}
     {% endif %}
-    {{- parameters.label|trim|raw }}
+    {{- parameters.label|default('')|trim|raw }}
   </a>
   {% endapply %}
 {% endmacro %}
@@ -1104,20 +1124,50 @@
   {% endif %}
 {% endmacro %}
 
-{% macro deleteModalTemplate(deleteUrl) %}
-  <script type="text/template" id="deleteModalTemplate">
-    <form class="modal-form js-entity-form"
-      data-endpoint="{{ deleteUrl|replace({'__ID__': '<%- id %>'})|raw }}"
-      data-submit="true"
-    >
-      <input type="hidden" name="_method" value="DELETE" />
+{% macro deleteModalTemplate(deleteUrl, removeRowKey = null, id = 'delete') %}
+  {% import _self as UI %}
 
-      <div class="modal-header modal-slim-header">
-        Are you sure you want to remove <%- name %>
-      </div>
-      <div class="modal-footer modal-slim-footer">
-        <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="button button-flat button-flat-primary">Delete</button>
+  {% set data = [] %}
+  {% if removeRowKey %}
+    {% set data = data|merge({
+      'remove-row': removeRowKey
+    }) %}
+  {% endif %}
+
+  {{ UI.renderModalTemplate(id, deleteUrl, data, 'Are you sure you want to remove __NAME__?', null, null, true, true, 'Cancel', 'Delete') }}
+{% endmacro %}
+
+{% macro renderModalTemplate(id, url, data = {}, header = null, body = null, footer = null, isDelete = false, isSlim = false, cancelButton = 'Cancel', submitButton = 'Submit') %}
+  <script type="text/template" id="{{ id }}ModalTemplate">
+    <form class="modal-form js-entity-form"
+      data-endpoint="{{ url|replace({'__ID__': '<%- id %>'})|raw }}"
+      data-submit="true"
+
+      {% for key, value in data %}
+        data-{{ key }}="{{ value|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}"
+      {% endfor %}
+    >
+      {% if isDelete %}
+        <input type="hidden" name="_method" value="DELETE" />
+      {% endif %}
+
+      {% if header %}
+        <div class="modal-header {% if isSlim %}modal-slim-header{% endif %}">
+          {{ header|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}
+        </div>
+      {% endif %}
+      {% if body %}
+        <div class="modal-body">
+          {{ body|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}
+        </div>
+      {% endif %}
+      <div class="modal-footer {% if isSlim %}modal-slim-footer{% endif %}">
+        <button type="button" class="button button-flat" data-dismiss="modal">{{ cancelButton }}</button>
+        <button type="submit" class="button button-flat button-flat-primary">{{ submitButton }}</button>
+
+        {% if footer %}
+          {{ footer|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}
+        {% endif %}
       </div>
       <div class="modal-corner">
         <div class="button-close" data-dismiss="modal">
