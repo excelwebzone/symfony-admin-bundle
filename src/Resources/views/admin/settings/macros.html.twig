@@ -134,7 +134,7 @@
 {% endmacro %}
 
 {% macro renderActions(actions = [], length = null, class = null) %}
-  <div class="settings-content-table-item-actions {{ class }}" data-icons="{{ length|default(actions|length) }}">
+  <div class="settings-content-table-item-actions {{ class }}" data-colspan="{{ length|default(actions|length) }}">
     {% for action in actions %}
       {{ action|raw }}
     {% endfor %}
