@@ -5,7 +5,6 @@ namespace EWZ\SymfonyAdminBundle\EventSubscriber;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
 use EWZ\SymfonyAdminBundle\Doctrine\DBAL\Types\DateTimeType;
-use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Util\DateTimeKernel;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -133,7 +132,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
         if ($token = $this->tokenStorage->getToken()) {
             $user = $token->getUser();
 
-            if ($user instanceof User) {
+            if (method_exists($user, 'getTimezone')) {
                 DateTimeKernel::setTimeZoneClient(new \DateTimeZone($user->getTimezone()));
             }
         }
