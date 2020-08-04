@@ -39,23 +39,22 @@
 
                             <li class="navigation-category glue-zippy">
                               <p class="navigation-item navigation-category-cta glue-zippy-btn {% if isActive %}is-active{% endif %}">{{ category.name }}</p>
-                              <div>
-                                <ul class="navigation-products">
-                                  {% for menu in category.items %}
-                                    {% if menu.hide is not defined or not menu.hide %}
-                                      <li class="navigation-products-item">
-                                        <a href="{{ menu.path }}" class="navigation-item {% if menu.icon is defined and menu.icon %}has-icon{% endif %} {% if menu.active|default(false) %}is-active{% endif %}">
-                                          {% if menu.icon is defined and menu.icon %}
-                                            <i class="zmdi zmdi-{{ menu.icon }}"></i>
-                                          {% endif %}
 
-                                          {{ menu.name }}
-                                        </a>
-                                      </li>
-                                    {% endif %}
-                                  {% endfor %}
-                                </ul>
-                              </div>
+                              <ul class="navigation-products">
+                                {% for menu in category.items %}
+                                  {% if menu.hide is not defined or not menu.hide %}
+                                    <li class="navigation-products-item">
+                                      <a href="{{ menu.path }}" class="navigation-item {% if menu.icon is defined and menu.icon %}has-icon{% endif %} {% if menu.active|default(false) %}is-active{% endif %}">
+                                        {% if menu.icon is defined and menu.icon %}
+                                          <i class="zmdi zmdi-{{ menu.icon }}"></i>
+                                        {% endif %}
+
+                                        {{ menu.name }}
+                                      </a>
+                                    </li>
+                                  {% endif %}
+                                {% endfor %}
+                              </ul>
                             </li>
                           {% endif %}
                         {% endfor %}

@@ -3,7 +3,6 @@
 {% block title 'Oops' %}
 
 {% set header_title = object|title ~ 's' %}
-{% set header_class = 'header-' ~ object|lower %}
 
 {% block body %}
   <div class="error-takeover">
@@ -17,7 +16,7 @@
           Sorry about that. Here's a couple things you can try.
         </div>
 
-        <a href="{{ path('admin_homepage') }}" class="button button-raised button-raised-primary">Go to the Dashboard</a>
+        <a href="{{ path('admin_homepage') }}" class="btn btn-primary">Go to the Dashboard</a>
       </div>
     </div>
   </div>

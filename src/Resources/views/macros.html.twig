@@ -289,7 +289,7 @@
 {% macro listPageTable(rightColumns, leftColumns = null, data = {}, headerHeight = 53, rowHeight = 53, defaultColumnWidth = 185, relatedObject = null) %}
   {% import _self as UI %}
 
-  <div class="ember-table-tables-container js-ember-table"
+  <div class="datagrid-tables-container js-datagrid"
     data-header-height="{{ headerHeight }}"
     data-row-height="{{ rowHeight }}"
     data-default-column-width="{{ defaultColumnWidth }}"
@@ -307,21 +307,21 @@
       data-settings-endpoint="{{ path('admin_api_user_settings_table', {id: app.user.id, table: data.layoutTableName}) }}"
     {% endif %}
   >
-    <div class="ember-table-table-container ember-table-fixed-table-container ember-table-header-container js-ember-table-header-height js-ember-table-width">
-      <div class="ember-table-table-fixed-wrapper">
+    <div class="datagrid-table-container datagrid-fixed-table-container datagrid-header-container js-datagrid-header-height js-datagrid-width">
+      <div class="datagrid-table-fixed-wrapper">
         {% if leftColumns is not empty %}
-          <div class="ember-table-left-table-block ember-table-table-block ember-table-header-block js-ember-table-header-height js-ember-column-left-width">
-            <div class="ember-table-table-row ember-table-header-row js-ember-row-left-width">
-              <div class="js-ember-row-left-width">
+          <div class="datagrid-left-table-block datagrid-table-block datagrid-header-block js-datagrid-header-height js-datagrid-column-left-width">
+            <div class="datagrid-table-row datagrid-header-row js-datagrid-row-left-width">
+              <div class="js-datagrid-row-left-width">
                 {{ leftColumns }}
               </div>
             </div>
           </div>
         {% endif %}
 
-        <div class="ember-table-right-table-block ember-table-table-block ember-table-header-block js-ember-table-header-height js-ember-column-right-width">
-          <div class="ember-table-table-row ember-table-header-row {{ data.scrollBlockClass|default('js-scroll-left') }} js-ember-row-right-width">
-            <div class="js-ember-row-right-width">
+        <div class="datagrid-right-table-block datagrid-table-block datagrid-header-block js-datagrid-header-height js-datagrid-column-right-width">
+          <div class="datagrid-table-row datagrid-header-row {{ data.scrollBlockClass|default('js-scroll-left') }} js-datagrid-row-right-width">
+            <div class="js-datagrid-row-right-width">
               {{ rightColumns }}
             </div>
           </div>
@@ -329,19 +329,19 @@
       </div>
     </div>
 
-    <div class="ember-table-table-container ember-table-table-container ember-table-body-container antiscroll-wrap js-antiscroll js-ember-table-max-height js-ember-table-width" data-scroll-block="{{ data.scrollBlockTarget|default('.js-scroll-left') }}" data-horizontal="true" data-vertical="true">
+    <div class="datagrid-table-container datagrid-table-container datagrid-body-container antiscroll-wrap js-antiscroll js-datagrid-max-height js-datagrid-width" data-scroll-block="{{ data.scrollBlockTarget|default('.js-scroll-left') }}" data-horizontal="true" data-vertical="true">
       <div class="antiscroll-box antiscroll-inner">
 
         {% if leftColumns is not empty %}
-          <div class="ember-table-left-table-block ember-table-table-block js-ember-table-height js-ember-column-left-width">
-            <div class="js-ember-table-max-height js-ember-row-left-width">
+          <div class="datagrid-left-table-block datagrid-table-block js-datagrid-height js-datagrid-column-left-width">
+            <div class="js-datagrid-max-height js-datagrid-row-left-width">
               {{ data.left|default('') }}
             </div>
           </div>
         {% endif %}
 
-        <div class="ember-table-right-table-block ember-table-table-block js-ember-table-height js-ember-row-right-width">
-          <div class="js-ember-table-max-height js-ember-row-right-width">
+        <div class="datagrid-right-table-block datagrid-table-block js-datagrid-height js-datagrid-row-right-width">
+          <div class="js-datagrid-max-height js-datagrid-row-right-width">
             {{ data.right|default('') }}
           </div>
         </div>
@@ -367,7 +367,7 @@
 {% endmacro %}
 
 {% macro emptyColumn(index, width) %}
-  <div class="ember-table-cell ember-table-header-cell table-header-cell table-header-cell-empty text-center js-ember-table-header-height js-ember-table-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
+  <div class="datagrid-cell datagrid-header-cell table-header-cell table-header-cell-empty text-center js-datagrid-header-height js-datagrid-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
     <div class="table-header-cell-content">
       <span></span>
     </div>
@@ -375,7 +375,7 @@
 {% endmacro %}
 
 {% macro selectColumn(index, width, jsClass = 'js-bulk-select-all') %}
-  <div class="ember-table-cell ember-table-header-cell table-header-cell table-header-cell-select text-right js-ember-table-header-height js-ember-table-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
+  <div class="datagrid-cell datagrid-header-cell table-header-cell table-header-cell-select text-right js-datagrid-header-height js-datagrid-column-width" data-index="{{ index }}" data-column-width="{{ width }}">
     <div class="table-header-cell-content">
       <span class="checkbox">
         <label class="checkbox-label">
@@ -392,7 +392,7 @@
 {% endmacro %}
 
 {% macro itemColumn(index, width, field, name, align = 'left', sortable = true, sortDir = null, class = null) %}
-  <div class="ember-table-cell ember-table-header-cell table-header-cell {{ class }} text-{{ align }} {% if sortable %}table-header-cell-sortable sortable {% if sortDir %}table-header-cell-sort-{{ sortDir }}ending{% endif %}{% endif %} js-ember-table-header-height js-ember-table-column-width"
+  <div class="datagrid-cell datagrid-header-cell table-header-cell {{ class }} text-{{ align }} {% if sortable %}table-header-cell-sortable sortable {% if sortDir %}table-header-cell-sort-{{ sortDir }}ending{% endif %}{% endif %} js-datagrid-header-height js-datagrid-column-width"
     data-index="{{ index }}"
     data-column-width="{{ width }}"
     data-field="{{ field }}"
@@ -404,7 +404,7 @@
 {% endmacro %}
 
 {% macro checkboxCell(index, id, jsClass = 'js-bulk-select') %}
-  <div class="ember-table-cell table-cell-select text-right js-ember-table-column-width" data-index="{{index }}">
+  <div class="datagrid-cell table-cell-select text-right js-datagrid-column-width" data-index="{{index }}">
     <span class="checkbox">
       <label class="checkbox-label">
         <input  type="checkbox" value="{{ id }}" class="checkbox-input {{ jsClass }}" />
@@ -419,7 +419,7 @@
 {% endmacro %}
 
 {% macro followCell(index, id, isChecked, followUrl, parameters = {}) %}
-  <div class="ember-table-cell table-cell-follow text-center js-ember-table-column-width" data-index="{{ index }}">
+  <div class="datagrid-cell table-cell-follow text-center js-datagrid-column-width" data-index="{{ index }}">
     <span class="checkbox">
       <label class="checkbox-label">
         <input type="checkbox" value="{{ id }}"
@@ -444,7 +444,7 @@
 {% endmacro %}
 
 {% macro taskCheckboxCell(index, id, isChecked, completeUrl, parameters = {}) %}
-  <div class="ember-table-cell table-cell-task text-right js-ember-table-column-width" data-index="{{index }}">
+  <div class="datagrid-cell table-cell-task text-right js-datagrid-column-width" data-index="{{index }}">
     <span class="task-check-box-small task-check-box checkbox">
       <label class="task-check-box-container {% if isChecked %}is-completed{% endif %}">
         <input type="checkbox" value="{{ id }}"
@@ -473,7 +473,7 @@
 {% macro avatarCell(index, avatar, class = null) %}
   {% import _self as UI %}
 
-  <div class="ember-table-cell table-cell-avatar text-center js-ember-table-column-width" data-index="{{ index }}">
+  <div class="datagrid-cell table-cell-avatar text-center js-datagrid-column-width" data-index="{{ index }}">
     {% if avatar.id is defined %}
       {{ UI.profileImageComponentEntity(avatar, class) }}
     {% else %}
@@ -483,7 +483,7 @@
 {% endmacro %}
 
 {% macro itemCell(index, value, key = 'text', link = null, align = 'left', class = null, parameters = {}) %}
-  <div class="ember-table-cell table-cell-{{ key|replace({'_': '-'}) }} {{ class }} text-{{ align }} js-ember-table-column-width" data-index="{{ index }}">
+  <div class="datagrid-cell table-cell-{{ key|replace({'_': '-'}) }} {{ class }} text-{{ align }} js-datagrid-column-width" data-index="{{ index }}">
     {% if link and key not in ['email', 'phone'] %}
       <a href="{{ link }}"
         {% if parameters.data is defined %}
@@ -551,7 +551,7 @@
 {% endmacro %}
 
 {% macro fieldCell(index, form, attr = {}) %}
-  <div class="ember-table-cell table-cell-text text-center js-ember-table-column-width" data-index="{{ index }}">
+  <div class="datagrid-cell table-cell-text text-center js-datagrid-column-width" data-index="{{ index }}">
     {{ form_row(form, attr) }}
   </div>
 {% endmacro %}
@@ -705,8 +705,8 @@
           Are you sure you want to delete filter <%- name %>?
         </div>
         <div class="modal-footer modal-slim-footer">
-          <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="button button-flat button-flat-primary">Ok</button>
+          <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Ok</button>
         </div>
         <div class="modal-corner">
           <div class="button-close" data-dismiss="modal">
@@ -761,7 +761,7 @@
       </div>
       <div class="filter-options-title">Filter {{ title|title }}</div>
       <div class="filter-options-clear-button">
-        <button type="button" class="button button-flat button-flat-primary js-filter-clear-button">Clear All</button>
+        <button type="button" class="btn btn-flat-primary js-filter-clear-button">Clear All</button>
       </div>
     </div>
 
@@ -778,8 +778,8 @@
       {% set section = section|split('|')[0] %}
 
       <div class="filter-options-footer">
-        <button type="button" class="button button-raised button-raised-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
-        <button type="button" class="button button-raised button-raised-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create') }}">Save Filter Set</button>
+        <button type="button" class="btn btn-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
+        <button type="button" class="btn btn-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create') }}">Save Filter Set</button>
       </div>
     {% endif %}
   </div>
@@ -901,8 +901,8 @@
         </div>
 
         <div class="bulk-edit-drawer-footer">
-          <button type="button" class="button button-flat js-drawer-close">Cancel</button>
-          <button type="submit" class="button button-raised button-raised-primary">Update</button>
+          <button type="button" class="btn btn-flat-secondary js-drawer-close">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update</button>
         </div>
 
         <div class="d-none">
@@ -932,8 +932,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="button button-flat" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="button button-flat button-flat-primary">Delete</button>
+        <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Delete</button>
       </div>
       <div class="modal-corner">
         <div class="button-close" data-dismiss="modal">
@@ -985,7 +985,7 @@
                     data-endpoint="{{ links.update_photo|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"
                     data-accepted-files="image/*"
                     data-update-avatar="true"
-                    data-update-ember-table-avatar="true"
+                    data-update-datagrid-avatar="true"
                     data-id="<%- id %>"
                     data-trigger="photo:uploaded"
                   >
@@ -1162,8 +1162,8 @@
         </div>
       {% endif %}
       <div class="modal-footer {% if isSlim %}modal-slim-footer{% endif %}">
-        <button type="button" class="button button-flat" data-dismiss="modal">{{ cancelButton }}</button>
-        <button type="submit" class="button button-flat button-flat-primary">{{ submitButton }}</button>
+        <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">{{ cancelButton }}</button>
+        <button type="submit" class="btn btn-primary">{{ submitButton }}</button>
 
         {% if footer %}
           {{ footer|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}

@@ -1,66 +1,43 @@
 {% import '@SymfonyAdmin/macros.html.twig' as UI %}
 
 <header>
-  <div class="header {{ header_class|default('') }}">
-    <div class="header-left">
-      <a href="#" class="navigation-mobile-toggle js-navigation-toggle">
-        <span class="navigation-mobile-toggle-icon material-icons">menu</span>
-      </a>
+  <div class="header">
+    <a href="#" class="sidebar-mobile-toggle js-sidebar-toggle">
+      <i class="zmdi zmdi-menu"></i>
+    </a>
 
-      <div class="header-title">
+    <div class="header-global-nav">
+      <div class="global-nav">
+        {{ header_button|default('')|raw }}
         <span>{{ header_title|default('')|raw }}</span>
       </div>
     </div>
 
-    {% block global_search %}
-      {% if search_endpoint|default(false) is not empty %}
-        <div class="header-center">
-          <div class="header-search">
-            <div class="typeahead typeahead-global-search is-empty"
-              data-endpoint="{{ search_endpoint }}"
-              {% if search_redirect|default(false) %}
-                data-redirect="{{ search_redirect }}"
-              {% endif %}
-              {% if search_empty|default(false) %}
-                data-empty="{{ search_empty }}"
-              {% endif %}
-            >
-              <div class="typeahead-header">
-                <input type="text" class="global-search-typeahead-text-field" placeholder="Search.." autocomplete="off" />
-                <div class="typeahead-global-search-icon">
-                  <i class="zmdi zmdi-search"></i>
-                </div>
-              </div>
-              <div class="typeahead-options"></div>
-            </div>
+    <div class="header-action-bar">
+      {% block buttons %}
+        {% set label %}
+          <div class="header-profile profile-avatar">
+            {% if app.user.photo is defined %}
+              <img src="{{ asset(app.user.photo|default('images/avatar.png')) }}" />
+            {% else %}
+              <img src="{{ asset('images/avatar.png') }}" />
+            {% endif %}
           </div>
-        </div>
-      {% endif %}
-    {% endblock %}
-
-    <div class="header-right">
-      <div class="header-action-bar">
-        {% block buttons %}{% endblock %}
-
-        {% if actions is not defined %}
-          {% set actions = [] %}
-        {% endif %}
+        {% endset %}
 
         {{ UI.dropdownButton({
-          label: false,
+          label: label,
           right: true,
-          aCss: 'header-icon dropdown-header-icon popup-container',
-          iCss: 'button button-toggle zmdi zmdi-more-vert',
-          elements: actions|merge([
+          aCss: 'border-0',
+          elements: [
             {
               path: path('security_logout'),
               label: 'Log Out',
-              iCss: 'zmdi zmdi-square-right',
-              opCss: 'option-list-item-divider'
+              iCss: 'zmdi zmdi-square-right'
             }
-          ])
+          ]
         }) }}
-      </div>
+      {% endblock %}
     </div>
   </div>
 </header>

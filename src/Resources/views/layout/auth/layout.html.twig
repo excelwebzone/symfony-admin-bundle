@@ -1,48 +1,34 @@
 {% extends '@SymfonyAdmin/base.html.twig' %}
 
-{% set hasFooter = block('footer') is not empty %}
-
 {% block layout %}
-  {% block links %}{% endblock %}
-
   <div class="authentication-wrapper">
-    {% block alert %}
-      <div class="alert-container">
-        {%- if errors|default(false) -%}
-          {%- for error in errors -%}
-            <div class="box">
-              <div class="text">
-                {{ error|trans|raw }}
-              </div>
-            </div>
-          {%- endfor -%}
-        {%- endif -%}
-        {%- for type, messages in app.flashes -%}
-          {%- for message in messages -%}
-            <div class="box">
-              <div class="text">
-                {{ message|trans|raw }}
-              </div>
-            </div>
-          {%- endfor -%}
-        {%- endfor -%}
-      </div>
-    {% endblock %}
+    <div class="authentication-left">
+      <img src="{{ asset('images/logo.svg') }}" class="logo" />
+    </div>
 
-    {% block header %}
-      <div class="authentication-header">
-        <div class="logo">
-          <img src="{{ asset('images/logo.png') }}" class="logo" />
-        </div>
-      </div>
-    {% endblock %}
+    <div class="authentication-right">
+      <div class="authentication-body">
+        {% block alert %}
+          <div class="alert-container">
+            {%- if errors|default(false) -%}
+              {%- for error in errors -%}
+                <div class="alert">
+                  {{ error|trans|raw }}
+                </div>
+              {%- endfor -%}
+            {%- endif -%}
+            {%- for type, messages in app.flashes -%}
+              {%- for message in messages -%}
+                <div class="alert">
+                  {{ message|trans|raw }}
+                </div>
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        {% endblock %}
 
-    <div class="authentication-page">
-      <div class="box {% if not hasFooter %}no-footer{% endif %}">
         {% block body %}{% endblock %}
       </div>
-
-      {% block footer %}{% endblock %}
     </div>
   </div>
 {% endblock %}

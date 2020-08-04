@@ -10,14 +10,15 @@
 {% endblock %}
 
 {% block layout %}
-  <div class="application-content {% if 'true' == app.request.cookies.get('sidebar_collapsed', 'true') %}sidebar-collapsed{% endif %}">
+  <div class="application-content {{ application_content_class|default(null) }} {% if 'true' == app.request.cookies.get('sidebar_collapsed', 'true') %}sidebar-collapsed{% endif %}">
     {% include '@SymfonyAdmin/layout/backend/sidebar.html.twig' %}
+
+    {% block body_drawer %}{% endblock %}
 
     <div class="content-wrapper">
       <div class="content-overlay"></div>
 
       {% include '@SymfonyAdmin/layout/backend/header.html.twig' %}
-      {% include '@SymfonyAdmin/layout/backend/navigation.html.twig' %}
 
       <div class="body-content">
         {% block body %}{% endblock %}

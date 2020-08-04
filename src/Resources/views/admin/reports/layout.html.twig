@@ -6,12 +6,13 @@
 {% block title 'Report: ' ~ report %}
 
 {% set header_title = 'Report: ' ~ report %}
-{% set header_class = 'header-reports' %}
+
+{% set application_content_class = 'has-navigation' %}
 
 {% block body %}
   <div class="reports-page">
-    <div class="list-page-container has-navigation">
-      {{ LUI.navigation(navItems) }}
+    <div class="list-page-container">
+      {{ LUI.navigation(reportsNavItems) }}
 
       <div class="list-page-header">
         {# use to override default filter #}

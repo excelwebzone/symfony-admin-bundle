@@ -32,113 +32,125 @@
 {%- endblock address_widget %}
 
 {% block date_widget -%}
-  {{ form_widget(form, {type: 'hidden'}) }}
+  {%- if attr.original|default(false) -%}
+    {{ form_widget(form) }}
+  {%- else -%}
+    {{ form_widget(form, {type: 'hidden'}) }}
 
-  {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-datepicker')|trim}) -%}
-  <input type="text"
-    {{ block('attributes') }}
-    {%- if disabled %} disabled="disabled"{% endif -%}
-    {%- if required %} required="required"{% endif -%}
-    {%- if value is not empty %}value="{{ value|date(is_granted('ROLE_USER') ? app.user.dateFormat : constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US')) }}"{% endif -%}
-    data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %}"
-  />
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-datepicker')|trim}) -%}
+    <input type="text"
+      {{ block('attributes') }}
+      {%- if disabled %} disabled="disabled"{% endif -%}
+      {%- if required %} required="required"{% endif -%}
+      {%- if value is not empty %}value="{{ value|date(is_granted('ROLE_USER') ? app.user.dateFormat : constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US')) }}"{% endif -%}
+      data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %}"
+    />
+  {%- endif -%}
 {%- endblock date_widget %}
 
 {% block time_widget -%}
-  {% set placeholder = attr.placeholder|default('') -%}
-  {%- if placeholder is not none -%}
-    {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
-  {%- endif -%}
+  {%- if attr.original|default(false) -%}
+    {{ form_widget(form) }}
+  {%- else -%}
+    {% set placeholder = attr.placeholder|default('') -%}
+    {%- if placeholder is not none -%}
+      {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
+    {%- endif -%}
 
-  <div class="dropdown has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown">
-    <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
-      <span class="dropdown-text {% if form.vars.value is empty %}dropdown-placeholder{% endif %}">
-        {{ form.vars.value|default(placeholder) }}
-      </span>
+    <div class="dropdown has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown">
+      <div class="dropdown-selected {% if disabled or attr.readonly|default(false) %}disabled{% endif %}" data-toggle="dropdown">
+        <span class="dropdown-text {% if form.vars.value is empty %}dropdown-placeholder{% endif %}">
+          {{ form.vars.value|default(placeholder) }}
+        </span>
 
-      {% if not attr.readonly|default(false) %}
-        <div class="dropdown-indicator">
-          <i class="zmdi zmdi-caret-down"></i>
+        {% if not attr.readonly|default(false) %}
+          <div class="dropdown-indicator">
+            <i class="zmdi zmdi-caret-down"></i>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="dropdown-menu dropdown-options">
+        <div class="dropdown-filter">
+          <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
         </div>
-      {% endif %}
-    </div>
+        <div class="option-list">
+          <ul>
+            {% set choices = [] %}
+            {% for hour in 0..23 %}
+              {% for m in 0..(60/time_interval)|round-1 %}
+                {% set minute = m * time_interval %}
 
-    <div class="dropdown-menu dropdown-options">
-      <div class="dropdown-filter">
-        <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
-      </div>
-      <div class="option-list">
-        <ul>
-          {% set choices = [] %}
-          {% for hour in 0..23 %}
-            {% for m in 0..(60/time_interval)|round-1 %}
-              {% set minute = m * time_interval %}
-
-              {% set timeLabel = hour < 10 ? '0' ~ hour : hour %}
-              {% if not time_24hour %}
-                {% if hour == 0 %}
-                  {% set timeLabel = '12:' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
-                {% elseif hour == 12 %}
-                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
-                {% elseif hour < 12 %}
-                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
-                {% elseif hour > 12 %}
-                  {% set timeLabel = (hour - 12) < 10 ? '0' ~ (hour - 12) : (hour - 12) %}
-                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
+                {% set timeLabel = hour < 10 ? '0' ~ hour : hour %}
+                {% if not time_24hour %}
+                  {% if hour == 0 %}
+                    {% set timeLabel = '12:' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
+                  {% elseif hour == 12 %}
+                    {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
+                  {% elseif hour < 12 %}
+                    {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' AM' %}
+                  {% elseif hour > 12 %}
+                    {% set timeLabel = (hour - 12) < 10 ? '0' ~ (hour - 12) : (hour - 12) %}
+                    {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) ~ ' PM' %}
+                  {% endif %}
+                {% else %}
+                    {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) %}
                 {% endif %}
-              {% else %}
-                  {% set timeLabel = timeLabel ~ ':' ~ (minute < 10 ? '0' ~ minute : minute) %}
-              {% endif %}
 
-              {% set choices = choices|merge([
-                {
-                  value: (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute),
-                  label: hour == 0 and minute == 0
-                    ? 'Midnight'
-                    : hour == 12 and minute == 0
-                      ? 'Noon'
-                      : timeLabel
-                }
-              ]) %}
+                {% set choices = choices|merge([
+                  {
+                    value: (hour < 10 ? '0' ~ hour : hour) ~ ':' ~ (minute < 10 ? '0' ~ minute : minute),
+                    label: hour == 0 and minute == 0
+                      ? 'Midnight'
+                      : hour == 12 and minute == 0
+                        ? 'Noon'
+                        : timeLabel
+                  }
+                ]) %}
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
-          {% for choice in choices %}
-            <li class="option-list-item {% if choice.value == form.vars.value %}is-selected is-highlighted{% endif %}" data-value="{{ choice.value }}">
-              <span class="option-list-item-text">{{ choice.label }}</span>
-            </li>
-          {% endfor %}
-        </ul>
+            {% for choice in choices %}
+              <li class="option-list-item {% if choice.value == form.vars.value %}is-selected is-highlighted{% endif %}" data-value="{{ choice.value }}">
+                <span class="option-list-item-text">{{ choice.label }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="d-none">
+        {{ form_widget(form, {type: 'hidden'}) }}
       </div>
     </div>
-
-    <div class="d-none">
-      {{ form_widget(form, {type: 'hidden'}) }}
-    </div>
-  </div>
+  {%- endif -%}
 {%- endblock time_widget %}
 
 {% block datetime_widget -%}
-  <div class="row datatime">
-    <div class="col-md-6">
-      {{- form_row(form.date, {
-        attr: {
-          placeholder: 'Add Date'
-        }
-      }) -}}
-    </div>
-    <div class="col-md-6">
-      {%- if attr.placeholder|default('') is empty -%}
-        {%- set attr = attr|merge({placeholder: 'Add Time'}) -%}
-      {%- endif -%}
+  {%- if attr.original|default(false) -%}
+    {{ form_widget(form) }}
+  {%- else -%}
+    <div class="row datatime">
+      <div class="col-md-6">
+        {{- form_row(form.date, {
+          attr: {
+            placeholder: 'Add Date'
+          }
+        }) -}}
+      </div>
+      <div class="col-md-6">
+        {%- if attr.placeholder|default('') is empty -%}
+          {%- set attr = attr|merge({placeholder: 'Add Time'}) -%}
+        {%- endif -%}
 
-      {{- form_row(form.time, {
-        time_interval: time_interval,
-        time_24hour: time_24hour,
-        disabled: disabled,
-        attr: attr
-      }) -}}
+        {{- form_row(form.time, {
+          time_interval: time_interval,
+          time_24hour: time_24hour,
+          disabled: disabled,
+          attr: attr
+        }) -}}
+      </div>
     </div>
-  </div>
+  {%- endif -%}
 {%- endblock datetime_widget %}
 
 {% block autocomplete_widget -%}
@@ -150,9 +162,11 @@
   {%- endif -%}
 
   <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %} js-autocomplete-dropdown"
-    data-endpoint="{{ filter_url|default('') }}"
     data-placeholder="{{ placeholder }}"
-    {% if json|default(false) %}
+    {% if filter_url|default(null) %}
+      data-endpoint="{{ filter_url }}"
+    {% endif %}
+    {% if json|default(null) %}
       data-json="{{ json }}"
     {% endif %}
   >
@@ -473,12 +487,26 @@
   {%- if help is not empty -%}
     {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
   {%- endif -%}
-  <{{ element|default('div') }} class="form-group {{ element_class|default('') }} {% if required %}is-required{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
-    {{- form_label(form) -}}
-    {%- if icon is defined and icon -%}
+  {%- if element_class is not defined -%}
+    {%- set element_class = null -%}
+  {%- endif -%}
+  {%- if icon is not defined -%}
+    {%- set icon = null -%}
+  {%- endif -%}
+  {%- if icon is not empty -%}
+    {%- set element_class = (element_class ~ ' has-icon')|trim -%}
+  {%- endif -%}
+  <{{ element|default('div') }} class="form-group {{ element_class }} {% if required %}is-required{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
+    {%- if 'has-floating-label' not in element_class -%}
+      {{- form_label(form) -}}
+    {%- endif -%}
+    {%- if icon is not empty -%}
       <i class="{{ icon }}"></i>
     {%- endif -%}
     {{- form_widget(form, widget_attr) -}}
+    {%- if 'has-floating-label' in element_class -%}
+      {{- form_label(form) -}}
+    {%- endif -%}
     <div class="form-control-error">
       {{- form_errors(form) -}}
     </div>
@@ -528,15 +556,18 @@
 
 {% block form_help -%}
   {%- if help is not empty -%}
-    <small id="{{ id }}_help" class="form-text text-muted">
+    {%- set help_attr = help_attr|merge({class: (help_attr.class|default('') ~ ' form-text text-muted')|trim}) -%}
+    <small id="{{ id }}_help"{% with { attr: help_attr } %}{{ block('attributes') }}{% endwith %}>
       {%- if help_indent is defined and help_indent -%}
         <span class="indent">
       {%- endif -%}
+
       {%- if translation_domain is same as(false) -%}
         {{- help|raw -}}
       {%- else -%}
-        {{- help|trans({}, translation_domain)|raw -}}
+        {{- help|trans(help_translation_parameters, translation_domain)|raw -}}
       {%- endif -%}
+
       {%- if help_indent is defined and help_indent -%}
         </span>
       {%- endif -%}
