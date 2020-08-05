@@ -1,94 +1,93 @@
 {% macro navigation(items) %}
   <div class="navigation-main">
-    <div class="navigation-main-wrapper">
-      <ul>
-        {% for item in items %}
-          {% if item.hide is not defined or not item.hide %}
-            {% if item.items is defined %}
-              {% set isActive = false %}
-              {% if item.multiLevel is defined and item.multiLevel %}
-                {% for category in item.items %}
-                  {% for menu in category.items %}
-                    {% if (menu.hide is not defined or not menu.hide) and menu.active|default(false) %}
-                      {% set isActive = true %}
-                    {% endif %}
-                  {% endfor %}
-                {% endfor %}
-              {% else %}
-                {% for menu in item.items %}
+    <ul>
+      {% for item in items %}
+        {% if item.hide is not defined or not item.hide %}
+          {% if item.items is defined %}
+            {% set isActive = false %}
+            {% if item.multiLevel is defined and item.multiLevel %}
+              {% for category in item.items %}
+                {% for menu in category.items %}
                   {% if (menu.hide is not defined or not menu.hide) and menu.active|default(false) %}
                     {% set isActive = true %}
                   {% endif %}
                 {% endfor %}
-              {% endif %}
-
-              <li class="navigation-tier-one navigation-has-secondary glue-zippy">
-                <a href="#" class="navigation-item navigation-item-secondary material-icons-extended-pseudo glue-zippy-btn {% if isActive %}is-active{% endif %}">{{ item.name }}</a>
-                <div class="navigation-tier-two">
-                  <div class="navigation-tier-two-inner">
-                    {% if item.multiLevel is defined and item.multiLevel %}
-                      <ul class="navigation-products-categories navigation-subnav">
-                        {% for category in item.items %}
-                          {% if category.hide is not defined or not category.hide %}
-                            {% set isActive = false %}
-                            {% for menu in category.items %}
-                              {% if (menu.hide is not defined or not menu.hide) and menu.active|default(false) %}
-                                {% set isActive = true %}
-                              {% endif %}
-                            {% endfor %}
-
-                            <li class="navigation-category glue-zippy">
-                              <p class="navigation-item navigation-category-cta glue-zippy-btn {% if isActive %}is-active{% endif %}">{{ category.name }}</p>
-
-                              <ul class="navigation-products">
-                                {% for menu in category.items %}
-                                  {% if menu.hide is not defined or not menu.hide %}
-                                    <li class="navigation-products-item">
-                                      <a href="{{ menu.path }}" class="navigation-item {% if menu.icon is defined and menu.icon %}has-icon{% endif %} {% if menu.active|default(false) %}is-active{% endif %}">
-                                        {% if menu.icon is defined and menu.icon %}
-                                          <i class="zmdi zmdi-{{ menu.icon }}"></i>
-                                        {% endif %}
-
-                                        {{ menu.name }}
-                                      </a>
-                                    </li>
-                                  {% endif %}
-                                {% endfor %}
-                              </ul>
-                            </li>
-                          {% endif %}
-                        {% endfor %}
-                      </ul>
-                    {% else %}
-                      <ul class="navigation-subnav">
-                        {% for menu in item.items %}
-                          {% if menu.hide is not defined or not menu.hide %}
-                            <li>
-                              <a href="{{ menu.path }}" class="navigation-item {% if menu.icon is defined and menu.icon %}has-icon{% endif %} {% if menu.active|default(false) %}is-active{% endif %}">
-                                {% if menu.icon is defined and menu.icon %}
-                                  <i class="zmdi zmdi-{{ menu.icon }}"></i>
-                                {% endif %}
-
-                                {{ menu.name }}
-                              </a>
-                            </li>
-                          {% endif %}
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
-                  </div>
-                </div>
-              </li>
+              {% endfor %}
             {% else %}
-              <li class="navigation-tier-one">
-                <a href="{{ item.path }}" class="navigation-item {% if item.active|default(false) %}is-active{% endif %}">
-                  {{ item.name }}
-                </a>
-              </li>
+              {% for menu in item.items %}
+                {% if (menu.hide is not defined or not menu.hide) and menu.active|default(false) %}
+                  {% set isActive = true %}
+                {% endif %}
+              {% endfor %}
             {% endif %}
+
+            <li class="{% if isActive %}is-active{% endif %}">
+              <a href="#">
+                {{ item.name }}
+
+                {% if (item.multiLevel is defined and item.multiLevel|length) or item.items|length %}
+                  <span class="arrow"></span>
+                {% endif %}
+              </a>
+
+              {% if item.multiLevel is defined and item.multiLevel %}
+                <ul>
+                  {% for category in item.items %}
+                    {% if category.hide is not defined or not category.hide %}
+                      {% set isActive = false %}
+                      {% for menu in category.items %}
+                        {% if (menu.hide is not defined or not menu.hide) and menu.active|default(false) %}
+                          {% set isActive = true %}
+                        {% endif %}
+                      {% endfor %}
+
+                      <li class="{% if isActive %}is-active{% endif %}">
+                        <a>
+                          {{ category.name }}
+
+                          {% if category.items|length %}
+                            <span class="arrow"></span>
+                          {% endif %}
+                        </a>
+
+                        <ul class="sub-menu">
+                          {% for menu in category.items %}
+                            {% if menu.hide is not defined or not menu.hide %}
+                              <li class="{% if menu.active|default(false) %}is-active{% endif %}">
+                                <a href="{{ menu.path }}">
+                                  {{ menu.name }}
+                                </a>
+                              </li>
+                            {% endif %}
+                          {% endfor %}
+                        </ul>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <ul>
+                  {% for menu in item.items %}
+                    {% if menu.hide is not defined or not menu.hide %}
+                      <li class="{% if menu.active|default(false) %}is-active{% endif %}">
+                        <a href="{{ menu.path }}">
+                          {{ menu.name }}
+                        </a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% else %}
+            <li class="{% if item.active|default(false) %}is-active{% endif %}">
+              <a href="{{ item.path }}">
+                {{ item.name }}
+              </a>
+            </li>
           {% endif %}
-        {% endfor %}
-      </ul>
-    </div>
+        {% endif %}
+      {% endfor %}
+    </ul>
   </div>
 {% endmacro %}
