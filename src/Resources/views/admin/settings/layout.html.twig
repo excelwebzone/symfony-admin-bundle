@@ -24,7 +24,7 @@
 
       <div class="media">
         <div class="media-body">
-          <h1 >{{ section_title|default('') }}</h1>
+          <h1>{{ section_title|default('') }}</h1>
 
           {% if section_action_icon is defined and section_action_icon %}
             <span class="ml-4 settings-content-action-icon js-entity-modal" data-endpoint="{{ section_action_icon.link }}">
@@ -37,6 +37,10 @@
           <a href="{{ section_help_link.link }}" class="page-title-help-link media-right" target="_blank">
             <i class="zmdi zmdi-help"></i> {{ section_help_link.title }}
           </a>
+        {% endif %}
+
+        {% if section_html is defined and section_html %}
+          {{ section_html|raw }}
         {% endif %}
       </div>
       <div class="media">

@@ -1,12 +1,16 @@
 {% macro containerBlock(title, cta, description, body, class = null) %}
   <div class="container-block {{ class }}">
-    <div class="container-block-header">
-      <span class="container-block-title">{{ title|title }}</span>
-      <span class="container-block-cta">{{ cta|raw }}</span>
-    </div>
-    <div class="container-block-subheader">
-      <span class="container-block-description">{{ description }}</span>
-    </div>
+    {% if title is not empty or cta is not empty %}
+      <div class="container-block-header">
+        <span class="container-block-title">{{ title|title }}</span>
+        <span class="container-block-cta">{{ cta|raw }}</span>
+      </div>
+    {% endif %}
+    {% if description is not empty %}
+      <div class="container-block-subheader">
+        <span class="container-block-description">{{ description }}</span>
+      </div>
+    {% endif %}
     {% if body is not empty %}
       <div class="container-block-body">{{ body|raw }}</div>
     {% endif %}
@@ -44,7 +48,7 @@
         {% endfor %}
       </div>
 
-      <div class="{{ rowsClass }}">
+      <div class="settings-content-table-rows {{ rowsClass }}">
         {% for row in rows %}
           {{ row|raw }}
         {% endfor %}
