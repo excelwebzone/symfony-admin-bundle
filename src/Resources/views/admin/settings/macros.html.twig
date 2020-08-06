@@ -224,7 +224,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro renderUserLabel(user) %}
+{% macro renderUserLabel(user, includeEmail = true) %}
   {% import '@SymfonyAdmin/macros.html.twig' as UI %}
 
   <div class="settings-content-company-user-list-item-thumbnail media">
@@ -233,7 +233,9 @@
     </span>
     <div class="settings-content-main-content media-body">
       <a href="{{ path('admin_settings_users_profile_edit', {id: user.id}) }}" class="settings-content-company-user-text name">{{ user }}</a>
-      <div class="settings-content-secondary-content email">{{ user.email }}</div>
+      {% if includeEmail %}
+        <div class="settings-content-secondary-content email">{{ user.email }}</div>
+      {% endif %}
     </div>
   </div>
 {% endmacro %}
