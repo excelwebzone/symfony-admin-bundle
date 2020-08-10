@@ -36,8 +36,6 @@
         ] %}
         {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
 
-        <div class="vertical-divider"></div>
-
         {% if block('report_chart') is not empty %}
           <div class="toggle-button-group nav">
             {% if reportCardView is defined %}
