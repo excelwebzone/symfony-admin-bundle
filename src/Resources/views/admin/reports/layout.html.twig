@@ -36,6 +36,58 @@
         ] %}
         {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
 
+        <div class="vertical-divider"></div>
+
+        {% if block('report_chart') is not empty %}
+          <div class="toggle-button-group nav">
+            {% if reportCardView is defined %}
+              {% if reportCardView %}
+                <div class="toggle-button js-toggle-card-view">
+                  <i class="zmdi zmdi-view-list"></i>
+                </div>
+
+                <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+                  <i class="zmdi zmdi-view-column"></i>
+                </div>
+              {% else %}
+                <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+                  <i class="zmdi zmdi-view-list"></i>
+                </div>
+
+                <div class="toggle-button js-toggle-card-view">
+                  <i class="zmdi zmdi-view-column"></i>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+                <i class="zmdi zmdi-view-list"></i>
+              </div>
+            {% endif %}
+
+            <div class="toggle-button" data-toggle="tab" data-target=".list-page-chart">
+              <i class="zmdi zmdi-chart"></i>
+            </div>
+          </div>
+        {% elseif reportCardView is defined %}
+          {% if reportCardView %}
+            <div class="toggle-button js-toggle-card-view">
+              <i class="zmdi zmdi-view-list"></i>
+            </div>
+
+            <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+              <i class="zmdi zmdi-view-column"></i>
+            </div>
+          {% else %}
+            <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+              <i class="zmdi zmdi-view-list"></i>
+            </div>
+
+            <div class="toggle-button js-toggle-card-view">
+              <i class="zmdi zmdi-view-column"></i>
+            </div>
+          {% endif %}
+        {% endif %}
+
         {# tools/actions #}
         {% if useToggleButtons|default(false) %}
           <div class="list-buttons-container has-toggle js-toggle-container">
@@ -49,24 +101,6 @@
           {% if reportExportPath is defined %}
             <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Export Data">
               <i class="toggle-button zmdi zmdi-download js-print-list" data-endpoint="{{ reportExportPath }}"></i>
-            </div>
-          {% endif %}
-
-          {% if reportCardView is defined %}
-            {% if reportCardView %}
-              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show List View">
-                <i class="toggle-button zmdi zmdi-view-list js-toggle-card-view"></i>
-              </div>
-            {% else %}
-              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Card View">
-                <i class="toggle-button zmdi zmdi-view-column js-toggle-card-view"></i>
-              </div>
-            {% endif %}
-          {% endif %}
-
-          {% if block('report_chart') is not empty %}
-            <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Chart">
-              <i class="toggle-button zmdi zmdi-chart js-toggle-button js-toggle-ignore" data-toggle-open-class="active" data-toggle="collapse" data-target=".list-page-chart"></i>
             </div>
           {% endif %}
 
@@ -89,110 +123,112 @@
         {% endif %}
       </div>
 
-      {% block report_chart %}
-        <div class="list-page-chart collapse">
-          <div class="list-chart-summary">
-            <div class="list-chart-summary-number-list">
-              {% block report_summary %}{% endblock %}
-            </div>
+      <div class="tab-content h-100">
+        {% block report_chart %}
+          <div class="tab-pane list-page-chart">
+            <div class="list-chart-summary">
+              <div class="list-chart-summary-number-list">
+                {% block report_summary %}{% endblock %}
+              </div>
 
-            {% block report_filter %}
-              <div class="list-chart-summary-control-rows">
-                <div class="list-chart-summary-control-row">
-                  {% block filter_summary %}
-                    <div class="list-chart-summary-filter">
-                      <div class="list-chart-summary-filter-label">Group By</div>
-                      <div class="list-chart-summary-filter-content">
-                        <div class="radio-button-group">
-                          <div class="form-group is-inline">
-                            <span class="radio-button-group-item">
-                              <input id="groupingType_daily" name="groupingType" class="radio-input" value="daily" type="radio" />
-                              <label for="groupingType_daily" class="radio-button-inline radio-button">
-                                <i class="zmdi zmdi-dot-circle checked"></i>
-                                <i class="zmdi zmdi-circle-o unchecked"></i>
-                                <span>Daily</span>
-                              </label>
-                            </span>
-                          </div>
+              {% block report_filter %}
+                <div class="list-chart-summary-control-rows">
+                  <div class="list-chart-summary-control-row">
+                    {% block filter_summary %}
+                      <div class="list-chart-summary-filter">
+                        <div class="list-chart-summary-filter-label">Group By</div>
+                        <div class="list-chart-summary-filter-content">
+                          <div class="radio-button-group">
+                            <div class="form-group is-inline">
+                              <span class="radio-button-group-item">
+                                <input id="groupingType_daily" name="groupingType" class="radio-input" value="daily" type="radio" />
+                                <label for="groupingType_daily" class="radio-button-inline radio-button">
+                                  <i class="zmdi zmdi-dot-circle checked"></i>
+                                  <i class="zmdi zmdi-circle-o unchecked"></i>
+                                  <span>Daily</span>
+                                </label>
+                              </span>
+                            </div>
 
-                          <div class="form-group is-inline">
-                            <span class="radio-button-group-item">
-                              <input id="groupingType_weekly" name="groupingType" class="radio-input" value="weekly" type="radio" />
-                              <label for="groupingType_weekly" class="radio-button-inline radio-button">
-                                <i class="zmdi zmdi-dot-circle checked"></i>
-                                <i class="zmdi zmdi-circle-o unchecked"></i>
-                                <span>Weekly</span>
-                              </label>
-                            </span>
-                          </div>
+                            <div class="form-group is-inline">
+                              <span class="radio-button-group-item">
+                                <input id="groupingType_weekly" name="groupingType" class="radio-input" value="weekly" type="radio" />
+                                <label for="groupingType_weekly" class="radio-button-inline radio-button">
+                                  <i class="zmdi zmdi-dot-circle checked"></i>
+                                  <i class="zmdi zmdi-circle-o unchecked"></i>
+                                  <span>Weekly</span>
+                                </label>
+                              </span>
+                            </div>
 
-                          <div class="form-group is-inline">
-                            <span class="radio-button-group-item">
-                              <input id="groupingType_monthly" name="groupingType" class="radio-input" value="monthly" type="radio" checked="checked" />
-                              <label for="groupingType_monthly" class="radio-button-inline radio-button">
-                                <i class="zmdi zmdi-dot-circle checked"></i>
-                                <i class="zmdi zmdi-circle-o unchecked"></i>
-                                <span>Monthly</span>
-                              </label>
-                            </span>
-                          </div>
+                            <div class="form-group is-inline">
+                              <span class="radio-button-group-item">
+                                <input id="groupingType_monthly" name="groupingType" class="radio-input" value="monthly" type="radio" checked="checked" />
+                                <label for="groupingType_monthly" class="radio-button-inline radio-button">
+                                  <i class="zmdi zmdi-dot-circle checked"></i>
+                                  <i class="zmdi zmdi-circle-o unchecked"></i>
+                                  <span>Monthly</span>
+                                </label>
+                              </span>
+                            </div>
 
-                          <div class="form-group is-inline">
-                            <span class="radio-button-group-item">
-                              <input id="groupingType_quarterly" name="groupingType" class="radio-input" value="quarterly" type="radio" />
-                              <label for="groupingType_quarterly" class="radio-button-inline radio-button">
-                                <i class="zmdi zmdi-dot-circle checked"></i>
-                                <i class="zmdi zmdi-circle-o unchecked"></i>
-                                <span>Quarterly</span>
-                              </label>
-                            </span>
+                            <div class="form-group is-inline">
+                              <span class="radio-button-group-item">
+                                <input id="groupingType_quarterly" name="groupingType" class="radio-input" value="quarterly" type="radio" />
+                                <label for="groupingType_quarterly" class="radio-button-inline radio-button">
+                                  <i class="zmdi zmdi-dot-circle checked"></i>
+                                  <i class="zmdi zmdi-circle-o unchecked"></i>
+                                  <span>Quarterly</span>
+                                </label>
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  {% endblock %}
+                    {% endblock %}
+                  </div>
+                </div>
+              {% endblock %}
+            </div>
+
+            <div class="chart-container-chart"
+              data-token="{{ report.token|replace({'-': '_'}) }}"
+              data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
+              {% if reportReloadList is defined and reportReloadList == true %}
+                data-reload-list="true"
+              {% endif %}
+              {% if reportColors is defined %}
+                data-colors="{{ reportColors|json_encode }}"
+              {% endif %}
+              {% if reportFormat is defined %}
+                data-format="{{ reportFormat }}"
+              {% endif %}
+            ></div>
+
+            <div class="chart-loading-overlay">
+              <div class="d-flex">
+                <div class="chart-loading-overlay-spinner">
+                  <div class="circle-spinner"></div>
                 </div>
               </div>
-            {% endblock %}
-          </div>
-
-          <div class="chart-container-chart"
-            data-token="{{ report.token|replace({'-': '_'}) }}"
-            data-endpoint="{{ path('admin_api_report_chart', {id: report.id}) }}"
-            {% if reportReloadList is defined and reportReloadList == true %}
-              data-reload-list="true"
-            {% endif %}
-            {% if reportColors is defined %}
-              data-colors="{{ reportColors|json_encode }}"
-            {% endif %}
-            {% if reportFormat is defined %}
-              data-format="{{ reportFormat }}"
-            {% endif %}
-          ></div>
-
-          <div class="chart-loading-overlay">
-            <div class="d-flex">
-              <div class="chart-loading-overlay-spinner">
-                <div class="circle-spinner"></div>
+              <div class="chart-loading-overlay-subtext d-flex mt-4">
+                Sorry, this seems to be taking a little longer than usual.
               </div>
             </div>
-            <div class="chart-loading-overlay-subtext d-flex mt-4">
-              Sorry, this seems to be taking a little longer than usual.
-            </div>
           </div>
-        </div>
-      {% endblock %}
+        {% endblock %}
 
-      <div class="list-page-table report-table-component"
-        data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
-        {% if reportTotals is defined and reportTotals == true %}
-          data-totals="true"
-        {% endif %}
-        {% if reportCardView is defined and reportCardView == true %}
-          data-card-view="true"
-        {% endif %}
-      >
-        {% block report_table %}{% endblock %}
+        <div class="tab-pane active list-page-table report-table-component"
+          data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
+          {% if reportTotals is defined and reportTotals == true %}
+            data-totals="true"
+          {% endif %}
+          {% if reportCardView is defined and reportCardView == true %}
+            data-card-view="true"
+          {% endif %}
+        >
+          {% block report_table %}{% endblock %}
+        </div>
       </div>
     </div>
 
