@@ -361,7 +361,7 @@
 {% macro listPageLoadingPopup(hide = false) %}
   <div class="list-page-loading-popup" {% if hide %}style="display: none"{% endif %}>
     <div class="list-loading-content">
-      <div class="list-loading-content-loading-spinner circle-spinner circle-spinner-white"></div> Loading..
+      <div class="list-loading-content-loading-spinner circle-spinner"></div>
     </div>
   </div>
 {% endmacro %}
@@ -682,10 +682,12 @@
         </ul>
       </div>
       <hr />
-      <div class="option-list">
+      <div class="option-list pt-0">
         <ul>
           <li class="option-list-item option-list-item-action-button" data-toggle="collapse" data-target=".drawer-frame">
-            <span class="option-list-item-text">Create a Custom Filter</span>
+            <span class="option-list-item-text">
+              <button type="button" class="btn btn-primary btn-block">Create a Custom Filter</button>
+            </span>
           </li>
         </ul>
       </div>
@@ -756,8 +758,10 @@
 {% macro filterDrawer(section, title, filterForm, allowSaving = true) %}
   <div class="filter-options drawer-frame drawer-frame-list collapse">
     <div class="filter-options-header">
-      <div class="filter-options-close-button" data-toggle="collapse" data-target=".drawer-frame">
-        <i class="zmdi zmdi-arrow-right"></i>
+      <div class="filter-options-close-button drawer-frame-close" data-toggle="collapse" data-target=".drawer-frame">
+        <div class="button button-icon">
+          <i class="zmdi zmdi-arrow-right"></i>
+        </div>
       </div>
       <div class="filter-options-title">Filter {{ title|title }}</div>
       <div class="filter-options-clear-button">
@@ -864,7 +868,7 @@
   <script type="text/template" id="bulk{{ drawerId|capitalize|replace({' ': ''}) }}EditDrawerTemplate">
     <div class="drawer-frame drawer-frame-list collapse">
       <div class="bulk-edit-drawer-header {{ section }}">
-        <div class="bulk-edit-drawer-close js-drawer-close">
+        <div class="bulk-edit-drawer-close drawer-frame-close js-drawer-close">
           <div class="button button-icon">
             <i class="zmdi zmdi-arrow-right"></i>
           </div>
@@ -952,7 +956,7 @@
       <div class="entity-profile-frame-header-box">
         <div class="entity-profile-frame-header-actions-box">
           <div class="entity-profile-frame-header-left-actions">
-            <span class="entity-profile-frame-header-action-button js-drawer-close">
+            <span class="entity-profile-frame-header-action-button drawer-frame-close js-drawer-close">
               <div class="button button-icon">
                 <i class="zmdi zmdi-arrow-right"></i>
               </div>
@@ -1065,17 +1069,17 @@
           {% endif %}
 
           {% if links.block_form|default(false) %}
-            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_form' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-profile">Details</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_form' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-profile">Details</div>
           {% endif %}
           {% if links.block_activity|default(false) %}
-            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_activity' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-activity">Activity</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_activity' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-activity">Activity</div>
           {% endif %}
           {% if links.block_related|default(false) %}
-            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_related' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-related">Related</div>
+            <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'block_related' %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-related">Related</div>
           {% endif %}
           {% if links.extra|default(false) %}
             {% for tab, values in links.extra %}
-              <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'extra.' ~ tab %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-{{ tab }}">{{ values.title }}</div>
+              <div style="width: {{ 100/numberOfTabs }}%" class="entity-profile-frame-tab {% if section %}tab-{{ section }}{% endif %} {% if defaultActive == 'extra.' ~ tab %}active{% endif %}" data-toggle="tab" data-target=".tab-entity-{{ tab }}">{{ values.title }}</div>
             {% endfor %}
           {% endif %}
         </div>
@@ -1134,10 +1138,10 @@
     }) %}
   {% endif %}
 
-  {{ UI.renderModalTemplate(id, deleteUrl, data, 'Are you sure you want to remove __NAME__?', null, null, true, true, 'Cancel', 'Delete') }}
+  {{ UI.renderModalTemplate(id, deleteUrl, data, 'Are you sure you want to remove __NAME__?', null, null, true, true, 'Cancel', 'Delete', 'btn-flat-alert', 'btn-alert') }}
 {% endmacro %}
 
-{% macro renderModalTemplate(id, url, data = {}, header = null, body = null, footer = null, isDelete = false, isSlim = false, cancelButton = 'Cancel', submitButton = 'Submit') %}
+{% macro renderModalTemplate(id, url, data = {}, header = null, body = null, footer = null, isDelete = false, isSlim = false, cancelButton = 'Cancel', submitButton = 'Submit', cancelStyle = '', submitStyle = '') %}
   <script type="text/template" id="{{ id }}ModalTemplate">
     <form class="modal-form js-entity-form"
       data-endpoint="{{ url|replace({'__ID__': '<%- id %>'})|raw }}"
@@ -1162,8 +1166,8 @@
         </div>
       {% endif %}
       <div class="modal-footer {% if isSlim %}modal-slim-footer{% endif %}">
-        <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">{{ cancelButton }}</button>
-        <button type="submit" class="btn btn-primary">{{ submitButton }}</button>
+        <button type="button" class="btn {{ cancelStyle|default('btn-flat-secondary') }}" data-dismiss="modal">{{ cancelButton }}</button>
+        <button type="submit" class="btn {{ submitStyle|default('btn-primary') }}">{{ submitButton }}</button>
 
         {% if footer %}
           {{ footer|replace({'__ID__': '<%- id %>', '__NAME__': '<%- name %>'})|raw }}
