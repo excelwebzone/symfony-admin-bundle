@@ -496,6 +496,13 @@
   {%- if icon is not empty -%}
     {%- set element_class = (element_class ~ ' has-icon')|trim -%}
   {%- endif -%}
+  {%- if 'has-floating-label' in element_class -%}
+    {%- if placeholder is defined -%}
+      {%- set widget_attr = widget_attr|merge({placeholder: ' '}) -%}
+    {%- else -%}
+      {%- set widget_attr = widget_attr|merge({attr: {placeholder: ' '}}) -%}
+    {%- endif -%}
+  {%- endif -%}
   <{{ element|default('div') }} class="form-group {{ element_class }} {% if required %}is-required{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} {% if (not compound or force_error|default(false)) and not valid %}is-invalid{% endif %}">
     {%- if 'has-floating-label' not in element_class -%}
       {{- form_label(form) -}}
