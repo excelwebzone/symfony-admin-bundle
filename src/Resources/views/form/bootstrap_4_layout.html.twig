@@ -219,8 +219,8 @@
 {%- endblock textarea_widget %}
 
 {% block password_widget -%}
-  <div class="password-input">
-    {% if show_password|default(false) %}
+  {% if show_password|default(false) %}
+    <div class="password-input">
       <div class="checkbox">
         <label class="checkbox-label">
           <input type="checkbox" value="1" class="checkbox-input js-show-password" data-target="#{{ form.vars.id }}" />
@@ -230,10 +230,12 @@
           </span>
         </label>
       </div>
-    {% endif %}
+    </div>
 
-    {{- parent() -}}
-  </div>
+    {%- set attr = attr|merge({class: attr.class|default('') ~ ' pr-5'}) -%}
+  {% endif %}
+
+  {{- parent() -}}
 {%- endblock password_widget %}
 
 {% block checkbox_widget -%}
