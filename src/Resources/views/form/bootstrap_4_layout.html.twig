@@ -161,7 +161,7 @@
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
 
-  <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %} js-autocomplete-dropdown"
+  <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple dropdown-multiple{% endif %} js-autocomplete-dropdown"
     data-placeholder="{{ placeholder }}"
     {% if filter_url|default(null) %}
       data-endpoint="{{ filter_url }}"
@@ -331,7 +331,7 @@
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
 
-  <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple{% endif %}"
+  <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple dropdown-multiple{% endif %}"
     data-placeholder="{{ placeholder }}"
   >
     {% if multiple %}
