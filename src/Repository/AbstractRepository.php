@@ -323,7 +323,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             return null;
         }
 
-        return $items->getCurrentPageResults()[0];
+        return $items->getCurrentPageResults()[0] ?? null;
     }
 
     /**
