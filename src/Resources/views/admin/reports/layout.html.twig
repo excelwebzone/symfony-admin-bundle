@@ -15,26 +15,62 @@
       {{ LUI.navigation(reportsNavItems) }}
 
       <div class="list-page-header">
-        {# use to override default filter #}
-        {% if defaultFilter is not defined %}
-          {% set defaultFilter = {
-            createdAt: {
-              unit: 'this_month'
-            }
-          } %}
-        {% endif %}
+        <div class="list-filter-container">
+          {# use to override default filter #}
+          {% if defaultFilter is not defined %}
+            {% set defaultFilter = {
+              createdAt: {
+                unit: 'this_month'
+              }
+            } %}
+          {% endif %}
 
-        {# main filter #}
-        {% set publicFilters = [
-          {
-            id: 'all',
-            name: 'All Records',
-            params: defaultFilter,
-            isLocked: true,
-            isDefault: true
-          }
-        ] %}
-        {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
+          {# main filter #}
+          {% set publicFilters = [
+            {
+              id: 'all',
+              name: 'All Records',
+              params: defaultFilter,
+              isLocked: true,
+              isDefault: true
+            }
+          ] %}
+          {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
+        </div>
+
+        <div class="list-dropdown-container">
+          {% set elements = reportDropdown|default([]) %}
+
+          {% if reportExportPath is defined %}
+            {% set elements = reportDropdown|default([
+              {
+                label: 'Export Data',
+                iCss: 'zmdi zmdi-download js-print-list',
+                opData: {
+                  endpoint: reportExportPath
+                }
+              }
+            ]) %}
+          {% endif %}
+
+          {{ UI.dropdownButton({
+            label: false,
+            right: true,
+            aCss: 'button button-toggle popup-container popup-actions',
+            mCss: 'popup-content list-settings',
+            iCss: 'zmdi zmdi-more-vert',
+            elements: elements|merge([
+              {
+                label: 'Show Filters <span class="counter js-filter-counter"></span>',
+                iCss: 'zmdi zmdi-filter-list',
+                opData: {
+                  toggle: 'collapse',
+                  target: '.drawer-frame'
+                }
+              }
+            ])
+          }) }}
+        </div>
 
         {% if block('report_chart') is not empty %}
           <div class="toggle-button-group nav">
@@ -67,33 +103,29 @@
             </div>
           </div>
         {% elseif reportCardView is defined %}
-          {% if reportCardView %}
-            <div class="toggle-button js-toggle-card-view">
-              <i class="zmdi zmdi-view-list"></i>
-            </div>
+          <div class="toggle-button-group nav">
+            {% if reportCardView %}
+              <div class="toggle-button js-toggle-card-view">
+                <i class="zmdi zmdi-view-list"></i>
+              </div>
 
-            <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
-              <i class="zmdi zmdi-view-column"></i>
-            </div>
-          {% else %}
-            <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
-              <i class="zmdi zmdi-view-list"></i>
-            </div>
+              <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+                <i class="zmdi zmdi-view-column"></i>
+              </div>
+            {% else %}
+              <div class="toggle-button active" data-toggle="tab" data-target=".list-page-table">
+                <i class="zmdi zmdi-view-list"></i>
+              </div>
 
-            <div class="toggle-button js-toggle-card-view">
-              <i class="zmdi zmdi-view-column"></i>
-            </div>
-          {% endif %}
+              <div class="toggle-button js-toggle-card-view">
+                <i class="zmdi zmdi-view-column"></i>
+              </div>
+            {% endif %}
+          </div>
         {% endif %}
 
         {# tools/actions #}
-        {% if useToggleButtons|default(false) %}
-          <div class="list-buttons-container has-toggle js-toggle-container">
-            <span class="list-buttons-toggle-content js-toggle-content">
-        {% else %}
-          <div class="list-buttons-container">
-        {% endif %}
-
+        <div class="list-buttons-container">
           {% block report_actions %}{% endblock %}
 
           {% if reportExportPath is defined %}
@@ -106,19 +138,7 @@
             <i class="toggle-button zmdi zmdi-filter-list" data-toggle="collapse" data-target=".drawer-frame"></i>
             <span class="counter js-filter-counter"></span>
           </div>
-
-        {% if useToggleButtons|default(false) %}
-            </span>
-
-            <div class="list-buttons-toggle-button">
-              <div class="popup-container" data-toggle="tooltip" data-placement="bottom" title="Show Tools">
-                <i class="toggle-button zmdi zmdi-settings js-toggle-button" data-toggle-open-class="active"></i>
-              </div>
-            </div>
-          </div>
-        {% else %}
-          </div>
-        {% endif %}
+        </div>
       </div>
 
       <div class="tab-content h-100">
