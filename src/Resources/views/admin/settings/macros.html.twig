@@ -41,24 +41,24 @@
       data-{{ key }}="{{ value }}"
     {% endfor %}
     >
-    <div class="settings-content-table-block {% if isBordered %}is-bordered{% endif %}">
-      <div class="settings-content-table-header">
+    <table class="settings-content-table-block {% if isBordered %}is-bordered{% endif %}">
+      <thead class="settings-content-table-header">
         {% for title in titles %}
           {{ title|raw }}
         {% endfor %}
-      </div>
+      </thead>
 
-      <div class="settings-content-table-rows {{ rowsClass }}">
+      <tbody class="settings-content-table-rows {{ rowsClass }}">
         {% for row in rows %}
           {{ row|raw }}
         {% endfor %}
-      </div>
-    </div>
+      </tbody>
+    </table>
   </div>
 {% endmacro %}
 
 {% macro renderRow(items, data = {}, class = null) %}
-  <div class="settings-content-table-item {{ class }}"
+  <tr class="settings-content-table-item {{ class }}"
     {% for key, value in data %}
       data-{{ key }}="{{ value }}"
     {% endfor %}
@@ -66,43 +66,27 @@
     {% for item in items %}
       {{ item|raw }}
     {% endfor %}
-  </div>
+  </tr>
 {% endmacro %}
 
 {% macro renderDragIcon(isHeader = false) %}
-  <div class="settings-content-table-item-drag-icon">
+  <td class="settings-content-table-item-drag-icon">
     {% if not isHeader %}
       <i class="material-icons drag-handle">drag_handle</i>
     {% endif %}
-  </div>
+  </td>
 {% endmacro %}
 
-{% macro renderLabel(items, isHeader = false, isFixed = false, class = null) %}
-  <div class="settings-content-table-item-label {% if isHeader %}is-header{% endif %} {% if isFixed %}is-fixed{% endif %} {{ class }}">
+{% macro renderLabel(items, isHeader = false, class = null) %}
+  <{% if isHeader %}th{% else %}td{% endif %} class="settings-content-table-item-label {% if isHeader %}is-header{% endif %} {{ class }}">
     {% for item in items %}
       {{ item|raw }}
     {% endfor %}
-  </div>
-{% endmacro %}
-
-{% macro renderLabelFixed(items, isHeader = false, class = null) %}
-  {{ _self.renderLabel(items, isHeader, true, class) }}
+  </{% if isHeader %}th{% else %}td{% endif %}>
 {% endmacro %}
 
 {% macro addLabel(label, class = null) %}
   <div class="settings-content-table-item-label-content {{ class }}">{{ label|raw }}</div>
-{% endmacro %}
-
-{% macro addLabelSearch(placeholder = 'Search') %}
-  <div class="settings-content-table-item-label-content">
-    <div class="popup-container js-toggle-container" data-toggle="tooltip" data-placement="bottom" title="Search">
-      <i class="button button-toggle zmdi zmdi-search js-toggle-button" data-toggle-open-class="active" data-toggle-focus=".list-search>.input-text"></i>
-
-      <div class="popup-content list-search open-right bg-transparent js-toggle-content">
-        <input type="text" placeholder="{{ placeholder }}" class="search input-text pt-0" autocomplete="off" />
-      </div>
-    </div>
-  </div>
 {% endmacro %}
 
 {% macro addLabelIcon(icon, isHeader = false) %}
@@ -113,18 +97,22 @@
   </div>
 {% endmacro %}
 
-{% macro renderColumn(items, isHeader = false, isNarrow = false, class = null, ignore = false) %}
+{% macro renderColumn(items, isHeader = false, isClass = null, class = null, ignore = false) %}
   {% if not ignore %}
-    <div class="settings-content-table-item-column {% if isHeader %}is-header{% endif %} {% if isNarrow %}is-narrow{% endif %} {{ class }}">
+    <{% if isHeader %}th{% else %}td{% endif %} class="settings-content-table-item-column {% if isHeader %}is-header{% endif %} {{ isClass }} {{ class }}">
       {% for item in items %}
         {{ item|raw }}
       {% endfor %}
-    </div>
+    </{% if isHeader %}th{% else %}td{% endif %}>
   {% endif %}
 {% endmacro %}
 
 {% macro renderColumnNarrow(items, isHeader = false, class = null, ignore = false) %}
-  {{ _self.renderColumn(items, isHeader, true, class, ignore) }}
+  {{ _self.renderColumn(items, isHeader, 'is-narrow', class, ignore) }}
+{% endmacro %}
+
+{% macro renderColumnLong(items, isHeader = false, class = null, ignore = false) %}
+  {{ _self.renderColumn(items, isHeader, 'is-long', class, ignore) }}
 {% endmacro %}
 
 {% macro addColumnHtml(html) %}
@@ -138,11 +126,11 @@
 {% endmacro %}
 
 {% macro renderActions(actions = [], length = null, class = null) %}
-  <div class="settings-content-table-item-actions {{ class }}" data-colspan="{{ length|default(actions|length) }}">
+  <td class="settings-content-table-item-actions {{ class }}" data-colspan="{{ length|default(actions|length) }}">
     {% for action in actions %}
       {{ action|raw }}
     {% endfor %}
-  </div>
+  </td>
 {% endmacro %}
 
 {% macro addActionGroup(actions, hide = false, class = null) %}
