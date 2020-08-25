@@ -18,7 +18,7 @@
   <div class="settings-content-main">
     <section class="page-title">
       {% if settings_title_back is defined and settings_title_back %}
-        <div class="page-title-back-link">
+        <div class="page-title-back-link {{ settings_title_back.class|default(null) }}">
           <i class="zmdi zmdi-arrow-left"></i>
           <a href="{{ settings_title_back.link }}">{{ settings_title_back.title }}</a>
         </div>
