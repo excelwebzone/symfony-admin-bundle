@@ -5,7 +5,9 @@
 
 {% block title 'Report: ' ~ report %}
 
-{% set header_title = 'Report: ' ~ report %}
+{% if header_title is not defined %}
+  {% set header_title = 'Report: ' ~ report %}
+{% endif %}
 
 {% set application_content_class = 'has-navigation' %}
 

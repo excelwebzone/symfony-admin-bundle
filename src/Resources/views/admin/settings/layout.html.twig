@@ -4,7 +4,9 @@
 
 {% block title 'Settings' %}
 
-{% set header_title = 'Settings' %}
+{% if header_title is not defined %}
+  {% set header_title = 'Settings' %}
+{% endif %}
 
 {% set application_content_class = 'has-navigation' %}
 
