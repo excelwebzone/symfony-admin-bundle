@@ -707,7 +707,7 @@
           Are you sure you want to delete filter <%- name %>?
         </div>
         <div class="modal-footer modal-slim-footer">
-          <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-flat-default" data-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Ok</button>
         </div>
         <div class="modal-corner">
@@ -905,7 +905,7 @@
         </div>
 
         <div class="bulk-edit-drawer-footer">
-          <button type="button" class="btn btn-flat-secondary js-drawer-close">Cancel</button>
+          <button type="button" class="btn  btn-flat-default js-drawer-close">Cancel</button>
           <button type="submit" class="btn btn-primary">Update</button>
         </div>
 
@@ -936,7 +936,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-flat-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn  btn-flat-default" data-dismiss="modal">Cancel</button>
         <button type="submit" class="btn btn-primary">Delete</button>
       </div>
       <div class="modal-corner">
@@ -1138,7 +1138,7 @@
     }) %}
   {% endif %}
 
-  {{ UI.renderModalTemplate(id, deleteUrl, data, 'Are you sure you want to remove __NAME__?', null, null, true, true, 'Cancel', 'Delete', 'btn-flat-alert', 'btn-alert') }}
+  {{ UI.renderModalTemplate(id, deleteUrl, data, 'Are you sure you want to remove __NAME__?', null, null, true, true, 'Cancel', 'Delete', null, 'btn-alert') }}
 {% endmacro %}
 
 {% macro renderModalTemplate(id, url, data = {}, header = null, body = null, footer = null, isDelete = false, isSlim = false, cancelButton = 'Cancel', submitButton = 'Submit', cancelStyle = '', submitStyle = '') %}
@@ -1166,7 +1166,7 @@
         </div>
       {% endif %}
       <div class="modal-footer {% if isSlim %}modal-slim-footer{% endif %}">
-        <button type="button" class="btn {{ cancelStyle|default('btn-flat-secondary') }}" data-dismiss="modal">{{ cancelButton }}</button>
+        <button type="button" class="btn {{ cancelStyle|default('btn-flat-default') }}" data-dismiss="modal">{{ cancelButton }}</button>
         <button type="submit" class="btn {{ submitStyle|default('btn-primary') }}">{{ submitButton }}</button>
 
         {% if footer %}
