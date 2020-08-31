@@ -459,8 +459,8 @@
           {% endif %}
         />
         <span class="task-check-box-checkbox">
-          <i class="zmdi zmdi-square-o unchecked"></i>
-          <i class="zmdi zmdi-check-square checked"></i>
+          <i class="zmdi zmdi-check-circle checked"></i>
+          <i class="zmdi zmdi-circle-o unchecked"></i>
         </span>
         <div class="task-check-box-activity-icon">
           <i class="zmdi zmdi-check-circle"></i>
@@ -974,8 +974,8 @@
                 <label class="task-check-box-container <% if (isComplete) { %>is-completed<% } %>">
                   <input type="checkbox" value="<%- id %>" class="checkbox-input js-complete-item" <% if (isComplete) { %>checked="checked"<% } %> data-endpoint="{{ links.complete_toggle|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}" />
                   <span class="task-check-box-checkbox">
-                    <i class="zmdi zmdi-square-o unchecked"></i>
-                    <i class="zmdi zmdi-check-square checked"></i>
+                    <i class="zmdi zmdi-check-circle checked"></i>
+                    <i class="zmdi zmdi-circle-o unchecked"></i>
                   </span>
                   <div class="task-check-box-activity-icon">
                     <i class="zmdi zmdi-check-circle"></i>
