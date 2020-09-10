@@ -782,8 +782,8 @@
       {% set section = section|split('|')[0] %}
 
       <div class="filter-options-footer">
-        <button type="button" class="btn btn-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
         <button type="button" class="btn btn-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create') }}">Save Filter Set</button>
+        <button type="button" class="btn btn-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
       </div>
     {% endif %}
   </div>
