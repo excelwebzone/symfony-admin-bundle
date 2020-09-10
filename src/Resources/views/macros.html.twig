@@ -834,6 +834,7 @@
 
       {% if isText %}
         {{ form_row(form, prop|merge({
+          element_class: 'ignore-floating-label',
           label: false,
           attr: {
             placeholder: placeholder,
@@ -842,6 +843,7 @@
         })) }}
       {% else %}
         {{ form_row(form, prop|merge({
+          element_class: 'ignore-floating-label',
           label: false,
           placeholder: placeholder,
           attr: {
