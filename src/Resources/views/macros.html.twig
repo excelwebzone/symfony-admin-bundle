@@ -827,7 +827,7 @@
 {% macro entityField(form, placeholder, isText = false, prop = {}) %}
   <div class="entity-field">
     <div class="entity-field-label">
-      {{ form.vars.label|trans|default(form.vars.name|humanize)|title }} <i class="bulk-edit-drawer-dot zmdi zmdi-circle"></i>
+      {{ form.vars.label|trans|default(form.vars.name|humanize)|title }} <i class="entity-field-dot zmdi zmdi-circle"></i>
     </div>
     <div class="entity-field-value entity-field-smaller-width">
       <div class="entity-field-summary-value js-entity-field">Click to edit</div>
@@ -866,56 +866,40 @@
   </div>
 {% endmacro %}
 
-{% macro bulkEditDrawerTemplate(section, form, fields, editUrl, singular, plural, drawerId = null, title = 'Edit Details') %}
-  <script type="text/template" id="bulk{{ drawerId|capitalize|replace({' ': ''}) }}EditDrawerTemplate">
-    <div class="drawer-frame drawer-frame-list collapse">
-      <div class="bulk-edit-drawer-header {{ section }}">
-        <div class="bulk-edit-drawer-close drawer-frame-close js-drawer-close">
-          <div class="button button-icon">
-            <i class="zmdi zmdi-arrow-right"></i>
-          </div>
-        </div>
+{% macro bulkEditModalTemplate(form, htmlFields, editUrl, singular, plural, modalId = null, title = 'Edit Details') %}
+  <script type="text/template" id="bulk{{ modalId|capitalize|replace({' ': ''}) }}EditModalTemplate">
+    <form class="modal-form js-entity-form"
+      data-endpoint="{{ editUrl }}"
+      data-submit="true"
+      data-reload="true"
+    >
+      <% for (id of ids) { %>
+        <input type="hidden" name="ids[]" value="<%- id %>" />
+      <% } %>
 
-        <div class="bulk-edit-drawer-title">
-          {{ title }}<br/><span><%- ids.length %></span> <span data-singular="{{ singular }}" data-plural="{{ plural }}"><% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %></span> Selected
+      <div class="modal-header">
+        {{ title }}
+        <div class="sub-header">
+          <span><%- ids.length %></span> <span data-singular="{{ singular }}" data-plural="{{ plural }}"><% if (ids.length > 1) { %>{{ plural }}<% } else { %>{{ singular }}<% } %></span> Selected
+        </div>
+      </div>
+      <div class="modal-body">
+        {{ htmlFields|raw }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-flat-default" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+      <div class="modal-corner">
+        <div class="button-close" data-dismiss="modal">
+          <i class="zmdi zmdi-close"></i>
         </div>
       </div>
 
-      {{ form_start(form, {
-        attr: {
-          class: 'bulk-edit-drawer-wrapper bulk-edit-drawer-' ~ section ~ ' js-entity-form',
-          'data-endpoint': editUrl,
-          'data-submit': true,
-          'data-close-drawer': true
-        }
-      }) }}
-
-        <% for (id of ids) { %>
-          <input type="hidden" name="ids[]" value="<%- id %>" />
-        <% } %>
-
-        <div class="bulk-edit-drawer-form">
-          <div class="bulk-edit-drawer-loading">
-            <div class="bulk-edit-drawer-loading-text">Loading..</div>
-            <div class="bulk-edit-drawer-loading-icon">
-              <div class="circle-spinner"></div>
-            </div>
-          </div>
-          <div class="bulk-edit-drawer-fields">
-            {{ fields|raw }}
-          </div>
-        </div>
-
-        <div class="bulk-edit-drawer-footer">
-          <button type="button" class="btn  btn-flat-default js-drawer-close">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update</button>
-        </div>
-
-        <div class="d-none">
-          {{ form_rest(form) }}
-        </div>
-      {{ form_end(form) }}
-    </div>
+      <div class="d-none">
+        {{ form_rest(form) }}
+      </div>
+    {{ form_end(form) }}
   </script>
 {% endmacro %}
 
@@ -938,7 +922,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn  btn-flat-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-flat-default" data-dismiss="modal">Cancel</button>
         <button type="submit" class="btn btn-primary">Delete</button>
       </div>
       <div class="modal-corner">
