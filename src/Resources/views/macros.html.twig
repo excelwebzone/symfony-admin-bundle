@@ -866,12 +866,15 @@
   </div>
 {% endmacro %}
 
-{% macro bulkEditModalTemplate(form, htmlFields, editUrl, singular, plural, modalId = null, title = 'Edit Details') %}
+{% macro bulkEditModalTemplate(form, htmlFields, editUrl, singular, plural, modalId = null, modalClass = null, title = 'Edit Details') %}
   <script type="text/template" id="bulk{{ modalId|capitalize|replace({' ': ''}) }}EditModalTemplate">
     <form class="modal-form js-entity-form"
       data-endpoint="{{ editUrl }}"
       data-submit="true"
       data-reload="true"
+      {% if modalClass %}
+        data-modal-class="{{ modalClass }}"
+      {% endif %}
     >
       <% for (id of ids) { %>
         <input type="hidden" name="ids[]" value="<%- id %>" />
