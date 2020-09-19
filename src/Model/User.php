@@ -20,8 +20,8 @@ class User implements UserInterface
 
     const JS_DATE_FORMAT_US = 'MM/DD/YYYY';
     const JS_DATE_FORMAT_OTHER = 'DD/MM/YYYY';
-    const JS_TIME_FORMAT_12HOURS = 'hh/mm AA';
-    const JS_TIME_FORMAT_24HOURS = 'HH/mm/ss';
+    const JS_TIME_FORMAT_12HOURS = 'hh:mm A';
+    const JS_TIME_FORMAT_24HOURS = 'HH:mm:ss';
 
     const SETTINGS_KEY_TABLES = 'tables';
     const SETTINGS_KEY_FILTERS = 'filters';
