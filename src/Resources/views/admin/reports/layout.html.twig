@@ -147,10 +147,6 @@
         {% block report_chart %}
           <div class="tab-pane list-page-chart">
             <div class="list-chart-summary">
-              <div class="list-chart-summary-number-list">
-                {% block report_summary %}{% endblock %}
-              </div>
-
               {% block report_filter %}
                 <div class="list-chart-summary-control-rows">
                   <div class="list-chart-summary-control-row">
@@ -158,57 +154,43 @@
                       <div class="list-chart-summary-filter">
                         <div class="list-chart-summary-filter-label">Group By</div>
                         <div class="list-chart-summary-filter-content">
-                          <div class="radio-button-group">
-                            <div class="form-group is-inline">
-                              <span class="radio-button-group-item">
-                                <input id="groupingType_daily" name="groupingType" class="radio-input" value="daily" type="radio" />
-                                <label for="groupingType_daily" class="radio-button-inline radio-button">
-                                  <i class="zmdi zmdi-dot-circle checked"></i>
-                                  <i class="zmdi zmdi-circle-o unchecked"></i>
-                                  <span>Daily</span>
-                                </label>
-                              </span>
-                            </div>
-
-                            <div class="form-group is-inline">
-                              <span class="radio-button-group-item">
-                                <input id="groupingType_weekly" name="groupingType" class="radio-input" value="weekly" type="radio" />
-                                <label for="groupingType_weekly" class="radio-button-inline radio-button">
-                                  <i class="zmdi zmdi-dot-circle checked"></i>
-                                  <i class="zmdi zmdi-circle-o unchecked"></i>
-                                  <span>Weekly</span>
-                                </label>
-                              </span>
-                            </div>
-
-                            <div class="form-group is-inline">
-                              <span class="radio-button-group-item">
-                                <input id="groupingType_monthly" name="groupingType" class="radio-input" value="monthly" type="radio" checked="checked" />
-                                <label for="groupingType_monthly" class="radio-button-inline radio-button">
-                                  <i class="zmdi zmdi-dot-circle checked"></i>
-                                  <i class="zmdi zmdi-circle-o unchecked"></i>
-                                  <span>Monthly</span>
-                                </label>
-                              </span>
-                            </div>
-
-                            <div class="form-group is-inline">
-                              <span class="radio-button-group-item">
-                                <input id="groupingType_quarterly" name="groupingType" class="radio-input" value="quarterly" type="radio" />
-                                <label for="groupingType_quarterly" class="radio-button-inline radio-button">
-                                  <i class="zmdi zmdi-dot-circle checked"></i>
-                                  <i class="zmdi zmdi-circle-o unchecked"></i>
-                                  <span>Quarterly</span>
-                                </label>
-                              </span>
-                            </div>
-                          </div>
+                          {{ UI.dropdownButton({
+                            label: 'Daily',
+                            aCss: 'dropdown-flat',
+                            iCss: 'zmdi zmdi-caret-down',
+                            elements: [
+                              {
+                                label: 'Daily',
+                                opData: {value: 'daily'},
+                                opCss: 'is-selected is-highlighted js-grouping-type'
+                              },
+                              {
+                                label: 'Weekly',
+                                opData: {value: 'weekly'},
+                                opCss: 'js-grouping-type'
+                              },
+                              {
+                                label: 'Monthly',
+                                opData: {value: 'monthly'},
+                                opCss: 'js-grouping-type'
+                              },
+                              {
+                                label: 'Quarterly',
+                                opData: {value: 'quarterly'},
+                                opCss: 'js-grouping-type'
+                              }
+                            ]
+                          }) }}
                         </div>
                       </div>
                     {% endblock %}
                   </div>
                 </div>
               {% endblock %}
+
+              <div class="list-chart-summary-number-list">
+                {% block report_summary %}{% endblock %}
+              </div>
             </div>
 
             <div class="chart-container-chart"
