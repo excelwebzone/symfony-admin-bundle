@@ -1106,7 +1106,7 @@
                 </div>
               </div>
             {% else %}
-              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}">
+              <div class="tab-pane tab-entity-{{ tab }} h-100 {% if defaultActive == 'extra.' ~ tab %}active{% endif %} js-block-request" data-endpoint="{{ values.link|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}"></div>
             {% endif %}
           {% endfor %}
         {% endif %}
