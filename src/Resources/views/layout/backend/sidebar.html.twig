@@ -17,9 +17,7 @@
 
 <div class="sidebar">
   <div class="sidebar-toggle js-sidebar-toggle">
-    <div class="button button-icon">
-      <i class="ledger-icons ledger-icon-arrow-right"></i>
-    </div>
+    <i class="ledger-icons ledger-icon-more-vert"></i>
   </div>
 
   <div class="content">
@@ -27,6 +25,10 @@
       <div class="nav-icons">
         <div class="nav-drawer">
           {% block sidebar_nav_drawer %}{% endblock %}
+
+          <div class="sidebar-close js-sidebar-toggle">
+            <i class="ledger-icons ledger-icon-close"></i>
+          </div>
         </div>
       </div>
     </div>
