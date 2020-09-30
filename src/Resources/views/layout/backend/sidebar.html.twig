@@ -6,7 +6,7 @@
   {
     path: path('admin_homepage'),
     name: 'Dashboard',
-    icon: 'widgets',
+    icon: 'dashboard',
     active: 'homepage' == route
   }
 ] %}
@@ -18,7 +18,7 @@
 <div class="sidebar">
   <div class="sidebar-toggle js-sidebar-toggle">
     <div class="button button-icon">
-      <i class="zmdi zmdi-arrow-left"></i>
+      <i class="ledger-icons ledger-icon-arrow-right"></i>
     </div>
   </div>
 
@@ -45,7 +45,7 @@
           <div class="nav-icons icon-tooltip" data-original-title="{{ item.name }}">
             <div class="icon">
               {% if item.icon is defined and item.icon %}
-                <i class="zmdi zmdi-{{ item.icon }}"></i>
+                <i class="ledger-icons ledger-icon-{{ item.icon }}"></i>
               {% endif %}
               {% if item.image is defined and item.image %}
                 {{ item.image|raw }}

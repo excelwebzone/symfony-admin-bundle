@@ -19,7 +19,7 @@
     <section class="page-title">
       {% if settings_title_back is defined and settings_title_back %}
         <div class="page-title-back-link {{ settings_title_back.class|default(null) }}">
-          <i class="zmdi zmdi-arrow-left"></i>
+          <i class="ledger-icons ledger-icon-arrow-back"></i>
           <a href="{{ settings_title_back.link }}">{{ settings_title_back.title }}</a>
         </div>
       {% endif %}
@@ -37,7 +37,7 @@
 
         {% if section_help_link is defined and section_help_link %}
           <a href="{{ section_help_link.link }}" class="page-title-help-link media-right" target="_blank">
-            <i class="zmdi zmdi-help"></i> {{ section_help_link.title }}
+            <i class="ledger-icons ledger-icon-help"></i> {{ section_help_link.title }}
           </a>
         {% endif %}
 

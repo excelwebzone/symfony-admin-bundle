@@ -21,7 +21,7 @@
   <div class="container-block js-toggle-container {{ class }}" id="{{ id }}">
     <div class="container-block-header">
       <span class="container-block-title js-toggle-button">
-        <span class="zmdi zmdi-chevron-down"></span>
+        <span class="ledger-icons ledger-icon-chevron-down"></span>
         {{ title|title }}
       </span>
     </div>
@@ -72,7 +72,7 @@
 {% macro renderDragIcon(isHeader = false) %}
   <td class="settings-content-table-item-drag-icon">
     {% if not isHeader %}
-      <i class="material-icons drag-handle">drag_handle</i>
+      <i class="ledger-icons ledger-icon-drag-handle drag-handle"></i>
     {% endif %}
   </td>
 {% endmacro %}

@@ -65,7 +65,7 @@
 
         {% if not attr.readonly|default(false) %}
           <div class="dropdown-indicator">
-            <i class="zmdi zmdi-caret-down"></i>
+            <i class="ledger-icons ledger-icon-carat-down"></i>
           </div>
         {% endif %}
       </div>
@@ -181,14 +181,14 @@
 
       {% if not attr.readonly|default(false) %}
         <div class="dropdown-indicator">
-          <i class="zmdi zmdi-caret-down"></i>
+          <i class="ledger-icons ledger-icon-carat-down"></i>
         </div>
       {% endif %}
     </div>
 
     {% if not multiple and not disabled and not attr.readonly|default(false) %}
       <div class="dropdown-reset" {% if text is empty %}style="display: none"{% endif %}>
-        <i class="zmdi zmdi-close"></i>
+        <i class="ledger-icons ledger-icon-close"></i>
       </div>
     {% endif %}
 
@@ -225,8 +225,8 @@
         <label class="checkbox-label">
           <input type="checkbox" value="1" class="checkbox-input js-show-password" data-target="#{{ form.vars.id }}" />
           <span class="checkbox-display">
-            <i class="zmdi zmdi-eye checked"></i>
-            <i class="zmdi zmdi-eye-off unchecked"></i>
+            <i class="ledger-icons ledger-icon-eye checked"></i>
+            <i class="ledger-icons ledger-icon-eye-off unchecked"></i>
           </span>
         </label>
       </div>
@@ -265,8 +265,8 @@
       {% endif %}
       <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
       <span class="checkbox-display">
-        <i class="zmdi zmdi-{{ onIcon|default('check-square') }} checked"></i>
-        <i class="zmdi zmdi-{{ offIcon|default('square-o') }} unchecked"></i>
+        <i class="ledger-icons ledger-icon-{{ onIcon|default('check-square') }} checked"></i>
+        <i class="ledger-icons ledger-icon-{{ offIcon|default('square-o') }} unchecked"></i>
       </span>
       <span class="checkbox-text">
         {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
@@ -302,8 +302,8 @@
     {% set attr = attr|merge({class: (attr.class|default('') ~ ' radio-input')|trim}) %}
     <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
     <label {% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
-      <i class="zmdi zmdi-{{ onIcon|default('dot-circle') }} checked"></i>
-      <i class="zmdi zmdi-{{ offIcon|default('circle-o') }} unchecked"></i>
+      <i class="ledger-icons ledger-icon-{{ onIcon|default('dot-circle') }} checked"></i>
+      <i class="ledger-icons ledger-icon-{{ offIcon|default('circle-o') }} unchecked"></i>
       <span>
         {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
         {{- form_errors(form) -}}
@@ -347,14 +347,14 @@
 
       {% if not attr.readonly|default(false) %}
         <div class="dropdown-indicator">
-          <i class="zmdi zmdi-caret-down"></i>
+          <i class="ledger-icons ledger-icon-carat-down"></i>
         </div>
       {% endif %}
     </div>
 
     {% if not multiple and allow_reset|default(false) %}
       <div class="dropdown-reset" {% if form.vars.value is empty %}style="display: none"{% endif %}>
-        <i class="zmdi zmdi-close"></i>
+        <i class="ledger-icons ledger-icon-close"></i>
       </div>
     {% endif %}
 
@@ -545,7 +545,7 @@
       <div class="banner-block banner-block-is-urgent">
         <div class="banner-block-row media">
           <div class="media-left">
-            <i class="zmdi zmdi-info banner-block-icon"></i>
+            <i class="ledger-icons ledger-icon-info banner-block-icon"></i>
           </div>
           <div class="media-body">
             <div class="banner-block-title"></div>
