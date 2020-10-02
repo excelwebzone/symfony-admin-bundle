@@ -74,7 +74,9 @@
 
     <div class="nav-logo-option">
       <a href="{{ path('admin_homepage') }}">
-        <img src="{{ asset(sidebarBrandIcon|default('images/logo.svg')) }}" class="sidebar-brand-icon" />
+        {% block sidebar_brand_icon %}
+          <i class="ledger-icons ledger-icon-logo sidebar-brand-icon"></i>
+        {% endblock %}
       </a>
     </div>
   </div>
