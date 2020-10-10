@@ -574,11 +574,13 @@
         {% set defaultFilter = filter %}
       {% endif %}
     {% endfor %}
-    {% for filter in privateFilters %}
-      {% if defaultFilterId == filter.id %}
-        {% set defaultFilter = filter %}
-      {% endif %}
-    {% endfor %}
+    {% if privateFilters is iterable %}
+      {% for filter in privateFilters %}
+        {% if defaultFilterId == filter.id %}
+          {% set defaultFilter = filter %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
   {% endif %}
   {% if not defaultFilter %}
     {% for filter in publicFilters %}
@@ -597,11 +599,13 @@
         {% set defaultFilter = filter %}
       {% endif %}
     {% endfor %}
-    {% for filter in privateFilters %}
-      {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
-        {% set defaultFilter = filter %}
-      {% endif %}
-    {% endfor %}
+    {% if privateFilters is iterable %}
+      {% for filter in privateFilters %}
+        {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
+          {% set defaultFilter = filter %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
 
     {% if not defaultFilter %}
       {% set defaultFilter = {
@@ -640,26 +644,29 @@
       <hr />
       <div class="option-list js-filter-list">
         <ul>
-          <li class="option-list-label">
-            <div class="option-list-label-label">Private Filters</div>
-          </li>
-          <li class="option-list-label option-list-label-empty js-no-private-filters" {% if privateFilters|length %}style="display: none"{% endif %}>
-            <div class="option-list-label-label">No Private Filters</div>
-          </li>
-          {% for filter in privateFilters %}
-            {{ UI.filterDropdownItem(
-              sectionFilter,
-              filter.id,
-              filter.name|title,
-              filter.params,
-              false,
-              false,
-              defaultFilterId == filter.id,
-              defaultUrl,
-              editUrl,
-              deleteUrl
-            ) }}
-          {% endfor %}
+          {% if privateFilters is iterable %}
+            <li class="option-list-label">
+              <div class="option-list-label-label">Private Filters</div>
+            </li>
+            <li class="option-list-label option-list-label-empty js-no-private-filters" {% if privateFilters|length %}style="display: none"{% endif %}>
+              <div class="option-list-label-label">No Private Filters</div>
+            </li>
+            {% for filter in privateFilters %}
+              {{ UI.filterDropdownItem(
+                sectionFilter,
+                filter.id,
+                filter.name|title,
+                filter.params,
+                false,
+                false,
+                defaultFilterId == filter.id,
+                defaultUrl,
+                editUrl,
+                deleteUrl
+              ) }}
+            {% endfor %}
+          {% endif %}
+
           <li class="option-list-label js-public-filters">
             <div class="option-list-label-label">Public Filters</div>
           </li>
@@ -683,16 +690,19 @@
           {% endfor %}
         </ul>
       </div>
-      <hr />
-      <div class="option-list pt-0">
-        <ul>
-          <li class="option-list-item option-list-item-action-button" data-toggle="collapse" data-target=".drawer-frame">
-            <span class="option-list-item-text">
-              <button type="button" class="btn btn-primary btn-block">Create a Custom Filter</button>
-            </span>
-          </li>
-        </ul>
-      </div>
+
+      {% if privateFilters is iterable %}
+        <hr />
+        <div class="option-list pt-0">
+          <ul>
+            <li class="option-list-item option-list-item-action-button" data-toggle="collapse" data-target=".drawer-frame">
+              <span class="option-list-item-text">
+                <button type="button" class="btn btn-primary btn-block">Create a Custom Filter</button>
+              </span>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
     </div>
   </div>
 
