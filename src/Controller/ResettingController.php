@@ -98,7 +98,7 @@ class ResettingController extends AbstractController
             return $this->redirectToRoute('resetting_check_email', ['email' => $email]);
         }
 
-        $this->addFlash('error', 'resetting.wrong_username');
+        $this->addFlash('error', 'resetting.wrong_email');
 
         return $this->redirectToRoute('resetting_request');
     }
