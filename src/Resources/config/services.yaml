@@ -5,6 +5,13 @@ services:
         arguments:
             - '@security.encoder_factory'
 
+    EWZ\SymfonyAdminBundle\EventSubscriber\EmailSubscriber:
+        arguments:
+            - '@twig'
+            - '@mailer'
+            - '@router'
+            - '%env(APP_EMAIL)%'
+
     EWZ\SymfonyAdminBundle\EventSubscriber\TimezoneSubscriber:
         tags:
             - { name: kernel.event_listener, event: console.command }
@@ -40,6 +47,12 @@ services:
             - '@security.authentication_utils'
             - '@session'
             - '@twig'
+
+    EWZ\SymfonyAdminBundle\Controller\ResettingController:
+        public: true
+        arguments:
+            - '@event_dispatcher'
+            - '@symfony_admin.user_repository'
 
     #
     # Form

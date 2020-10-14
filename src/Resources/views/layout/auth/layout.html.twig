@@ -19,7 +19,7 @@
             {%- endif -%}
             {%- for type, messages in app.flashes -%}
               {%- for message in messages -%}
-                <div class="alert">
+                <div class="alert {% if type == 'success' %}alert-success{% endif %}">
                   {{ message|trans|raw }}
                 </div>
               {%- endfor -%}

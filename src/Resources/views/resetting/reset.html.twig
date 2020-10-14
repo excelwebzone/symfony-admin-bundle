@@ -1,0 +1,33 @@
+{% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
+
+{% block body %}
+  <div class="links-container">
+    <a href="{{ path('security_login') }}">Sign In</a>
+  </div>
+
+  <div class="title">Reset your password</div>
+
+  <p>Reset your password to continue.</p>
+
+  {{ form_start(form, {
+    action: path('resetting_reset', {token: token}),
+    attr: {
+      autocomplete: 'off'
+    }
+  }) }}
+
+    {{ form_row(form.plainPassword.first, {
+      attr: {
+        placeholder: 'Create a password'
+      }
+    }) }}
+
+    {{ form_row(form.plainPassword.second) }}
+
+    <button type="submit" class="btn btn-primary btn-block btn-large mt-4">Set Password</button>
+
+    <div class="d-none">
+      {{ form_rest(form) }}
+    </div>
+  {{ form_end(form) }}
+{% endblock %}

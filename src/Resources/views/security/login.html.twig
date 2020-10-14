@@ -13,11 +13,15 @@
       <label for="_username">Username</label>
     </div>
 
-    <div class="form-group has-icon has-floating-label">
+    <div class="form-group has-icon has-floating-label pb-0">
       <i class="ledger-icons ledger-icon-lock"></i>
       <input type="password" id="_password" name="_password" placeholder=" " class="form-control" />
       <label for="_password">Password</label>
     </div>
+
+    <small class="float-right font-weight-bold mt-2">
+      <a href="{{ path('resetting_request') }}">Forgot Password</a>
+    </small>
 
     {% if rememberMe|default(false) %}
       <div class="checkbox">

@@ -1,4 +1,6 @@
 error:
+    password:
+        mismatch: The entered passwords don't match.
     file:
         file_empty: This file is empty.
         too_big: Please upload a file smaller than %size% MB.
@@ -30,3 +32,11 @@ form:
         time: Time
     filter:
         name: Enter Filter Name
+    resetting:
+        new_password: New password
+        new_password_confirmation: Repeat new password
+
+resetting:
+    wrong_username: Can't find that username or email, sorry.
+    password_reset_successfully: The password has been reset successfully.
+    password_reset_sent: If the email address entered corresponds to an existing account, an email with reset instructions has been sent.

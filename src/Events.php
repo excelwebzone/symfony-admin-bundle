@@ -11,6 +11,20 @@ namespace EWZ\SymfonyAdminBundle;
 final class Events
 {
     /**
+     * @Event("EWZ\SymfonyAdminBundle\Event\UserEvent")
+     *
+     * @var string
+     */
+    public const RESETTING_PASSWORD_SENT = 'app.resetting.password_sent';
+
+    /**
+     * @Event("EWZ\SymfonyAdminBundle\Event\FilterUserResponseEvent")
+     *
+     * @var string
+     */
+    public const RESETTING_PASSWORD_CONFIRMED = 'app.resetting.password_confirmed';
+
+    /**
      * @Event("EWZ\SymfonyAdminBundle\Event\ObjectEvent")
      *
      * @var string

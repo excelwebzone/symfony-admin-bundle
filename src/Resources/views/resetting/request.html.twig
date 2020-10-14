@@ -1,0 +1,21 @@
+{% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
+
+{% block body %}
+  <div class="links-container">
+    <a href="{{ path('security_login') }}">Sign In</a>
+  </div>
+
+  <div class="title">Reset your password</div>
+
+  <p>Enter the email address you used when you joined and we'll send you instructions to reset your password.</p>
+
+  <form action="{{ path('resetting_send_email') }}" autocomplete="off" method="post">
+    <div class="form-group has-icon has-floating-label">
+      <i class="ledger-icons ledger-icon-messages"></i>
+      <input type="text" id="email" name="email" placeholder=" " class="form-control" autofocus />
+      <label for="_username">Email</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-large mt-4">Send Reset Instructions</button>
+  </form>
+{% endblock %}

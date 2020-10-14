@@ -1,0 +1,24 @@
+{% block subject %}
+{%- autoescape false -%}
+Password Reset
+{%- endautoescape -%}
+{% endblock %}
+
+{% block body_text %}
+{% autoescape false %}
+Dear {{ user }},
+
+We heard that you lost your Ledger password. Sorry about that!
+
+But don't worry! You can use the following link to reset your password:
+
+{{ confirmationUrl }}
+
+If you don't use this link within 3 hours, it will expire. To get a new password reset link, visit {{ path('resetting_request') }}
+
+Thanks,
+Your friends at Ledger
+{% endautoescape %}
+{% endblock %}
+
+{% block body_html %}{% endblock %}
