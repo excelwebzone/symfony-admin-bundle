@@ -21,12 +21,12 @@
               {% endfor %}
             {% endif %}
 
-            <li class="{% if isActive %}is-active{% endif %}">
-              <a href="#">
+            <li class="{% if isActive %}is-active{% endif %} {% if item.multiLevel is defined and item.multiLevel %}navigation-has-secondary{% endif %}">
+              <a href="#" class="navigation-item-button">
                 {{ item.name }}
 
                 {% if (item.multiLevel is defined and item.multiLevel|length) or item.items|length %}
-                  <span class="arrow"></span>
+                  <span class="navigation-arrow"></span>
                 {% endif %}
               </a>
 
@@ -42,15 +42,12 @@
                       {% endfor %}
 
                       <li class="{% if isActive %}is-active{% endif %}">
-                        <a>
+                        <a href="#" class="navigation-item-button">
                           {{ category.name }}
-
-                          {% if category.items|length %}
-                            <span class="arrow"></span>
-                          {% endif %}
+                          <span class="navigation-arrow"></span>
                         </a>
 
-                        <ul class="sub-menu">
+                        <ul class="navigation-subnav">
                           {% for menu in category.items %}
                             {% if menu.hide is not defined or not menu.hide %}
                               <li class="{% if menu.active|default(false) %}is-active{% endif %}">
