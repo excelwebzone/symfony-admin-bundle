@@ -103,6 +103,13 @@ services:
         arguments:
             - '@twig'
 
+    symfony_admin.twig.extension.filter_extension:
+        class: EWZ\SymfonyAdminBundle\Twig\Extension\FilterExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            - '@twig'
+
     #
     # Cron-Schedule Repository
     #

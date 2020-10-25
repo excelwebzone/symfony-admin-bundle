@@ -592,16 +592,17 @@
   {% endif %}
 
   {% if preloadFilters %}
+    {% set preloadFilters = filter_preload_json(preloadFilters) %}
     {% set defaultFilter = null %}
 
     {% for filter in publicFilters %}
-      {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
+      {% if not defaultFilter and preloadFilters == filter.params|default({})|filter_json_encode %}
         {% set defaultFilter = filter %}
       {% endif %}
     {% endfor %}
     {% if privateFilters is iterable %}
       {% for filter in privateFilters %}
-        {% if not defaultFilter and preloadFilters == filter.params|default({})|json_encode %}
+        {% if not defaultFilter and preloadFilters == filter.params|default({})|filter_json_encode %}
           {% set defaultFilter = filter %}
         {% endif %}
       {% endfor %}
@@ -656,7 +657,7 @@
                 sectionFilter,
                 filter.id,
                 filter.name|title,
-                filter.params,
+                filter.params|default({}),
                 false,
                 false,
                 defaultFilterId == filter.id,
@@ -733,7 +734,7 @@
 {%- endmacro -%}
 
 {% macro filterDropdownItem(section, id, title, filters = null, isActive = false, isLocked = false, isDefault = false, defaultUrl = null, editUrl = null, deleteUrl = null, isPublicDefault = false) %}
-  <li class="option-list-item option-list-item-filter option-list-item-has-overflow {% if isActive %}option-list-item-active{% endif %} {% if isLocked %}is-locked{% endif %} {% if isDefault %}is-default{% endif %} {% if isPublicDefault %}is-public-default{% endif %} js-filter-item" data-id="{{ id }}" data-filter="{% if filters %}{% if filters is iterable %}{{ filters|json_encode }}{% else %}{{ filters }}{% endif %}{% else %}{}{% endif %}">
+  <li class="option-list-item option-list-item-filter option-list-item-has-overflow {% if isActive %}option-list-item-active{% endif %} {% if isLocked %}is-locked{% endif %} {% if isDefault %}is-default{% endif %} {% if isPublicDefault %}is-public-default{% endif %} js-filter-item" data-id="{{ id }}" data-filter="{% if filters %}{% if filters is iterable %}{{ filters|filter_json_encode }}{% else %}{{ filters }}{% endif %}{% else %}{}{% endif %}">
     <div class="option-list-item-right-content">
       {% if isDefault %}
         <i class="ledger-icons ledger-icon-star js-default-item-icon"></i>
