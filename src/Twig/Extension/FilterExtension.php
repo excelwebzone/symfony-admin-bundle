@@ -2,7 +2,6 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
-use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -30,12 +29,16 @@ final class FilterExtension extends AbstractExtension
     }
 
     /**
-     * @param string $json
+     * @param string|array $json
      *
      * @return string
      */
-    public function preloadJson(string $json): string
+    public function preloadJson($json): string
     {
+        if (is_array($json)) {
+            return $this->jsonEncode($json);
+        }
+
         try {
             $array = json_decode($json, true);
         } catch (\Exception $e) {
