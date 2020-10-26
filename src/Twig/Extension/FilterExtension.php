@@ -30,17 +30,24 @@ final class FilterExtension extends AbstractExtension
 
     /**
      * @param string|array $json
+     * @param array        $ignoreFields
      *
      * @return string
      */
-    public function preloadJson($json): string
+    public function preloadJson($json, array $ignoreFields = []): string
     {
         if (is_array($json)) {
-            return $this->jsonEncode($json);
+            $json = json_encode($json);
         }
 
         try {
             $array = json_decode($json, true);
+
+            foreach ($ignoreFields as $field) {
+                if (isset($array[$field])) {
+                    unset($array[$field]);
+                }
+            }
         } catch (\Exception $e) {
             $array = [];
         }

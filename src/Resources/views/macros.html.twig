@@ -558,7 +558,7 @@
   </div>
 {% endmacro %}
 
-{% macro filterDropdown(sectionFilter, publicFilters, privateFilters = [], preloadFilters = null, defaultUrl = null, editUrl = null, deleteUrl = null) %}
+{% macro filterDropdown(sectionFilter, publicFilters, privateFilters = [], preloadFilters = null, defaultUrl = null, editUrl = null, deleteUrl = null, ignoreFields = []) %}
   {% import _self as UI %}
 
   {% set defaultFilterId = null %}
@@ -594,7 +594,9 @@
   {% endif %}
 
   {% if preloadFilters %}
-    {% set preloadFilters = filter_preload_json(preloadFilters) %}
+    {% set preloadFilters = filter_preload_json(preloadFilters, ignoreFields) %}
+  {% endif %}
+  {% if preloadFilters and preloadFilters != '[]' %}
     {% set defaultFilter = null %}
     {% set defaultIsLocked = true %}
 
