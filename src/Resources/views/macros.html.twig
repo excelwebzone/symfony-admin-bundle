@@ -567,6 +567,7 @@
   {% endif %}
 
   {% set defaultFilter = null %}
+  {% set defaultIsLocked = true %}
 
   {% if defaultFilterId %}
     {% for filter in publicFilters %}
@@ -578,6 +579,7 @@
       {% for filter in privateFilters %}
         {% if defaultFilterId == filter.id %}
           {% set defaultFilter = filter %}
+          {% set defaultIsLocked = false %}
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -594,6 +596,7 @@
   {% if preloadFilters %}
     {% set preloadFilters = filter_preload_json(preloadFilters) %}
     {% set defaultFilter = null %}
+    {% set defaultIsLocked = true %}
 
     {% for filter in publicFilters %}
       {% if not defaultFilter and preloadFilters == filter.params|default({})|filter_json_encode %}
@@ -604,6 +607,7 @@
       {% for filter in privateFilters %}
         {% if not defaultFilter and preloadFilters == filter.params|default({})|filter_json_encode %}
           {% set defaultFilter = filter %}
+          {% set defaultIsLocked = false %}
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -634,7 +638,7 @@
             defaultFilter.name|title,
             defaultFilter.params|default({}),
             true,
-            true,
+            defaultIsLocked,
             defaultFilterId == defaultFilter.id,
             defaultUrl,
             editUrl,
