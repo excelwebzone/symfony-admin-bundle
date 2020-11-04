@@ -92,9 +92,9 @@ class Report
     }
 
     /**
-     * @param bool $boolean
+     * @param bool|null $boolean
      */
-    public function setEnabled(bool $boolean): void
+    public function setEnabled(bool $boolean = null): void
     {
         $this->enabled = (bool) $boolean;
     }

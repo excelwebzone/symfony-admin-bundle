@@ -188,9 +188,9 @@ class User implements UserInterface
     }
 
     /**
-     * @param bool $boolean
+     * @param bool|null $boolean
      */
-    public function setAllowSystemAdmin(bool $boolean): void
+    public function setAllowSystemAdmin(bool $boolean = null): void
     {
         $this->allowSystemAdmin = (bool) $boolean;
     }
@@ -399,9 +399,9 @@ class User implements UserInterface
     }
 
     /**
-     * @param bool $boolean
+     * @param bool|null $boolean
      */
-    public function setEnabled(bool $boolean): void
+    public function setEnabled(bool $boolean = null): void
     {
         $this->enabled = (bool) $boolean;
     }
