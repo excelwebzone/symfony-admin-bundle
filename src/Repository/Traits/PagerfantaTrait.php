@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Repository\Traits;
 
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 
 trait PagerfantaTrait
@@ -17,7 +17,7 @@ trait PagerfantaTrait
      */
     protected function createPaginator(QueryBuilder $queryBuilder, int $page, int $limit): Pagerfanta
     {
-        $paginator = new Pagerfanta(new DoctrineORMAdapter($queryBuilder, false));
+        $paginator = new Pagerfanta(new QueryAdapter($queryBuilder, false));
         $paginator->setMaxPerPage($limit);
         $paginator->setCurrentPage($page);
 
