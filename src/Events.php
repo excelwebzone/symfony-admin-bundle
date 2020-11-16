@@ -15,6 +15,13 @@ final class Events
      *
      * @var string
      */
+    public const SECURITY_IMPLICIT_LOGIN = 'app.security.implicit_login';
+
+    /**
+     * @Event("EWZ\SymfonyAdminBundle\Event\UserEvent")
+     *
+     * @var string
+     */
     public const RESETTING_PASSWORD_SENT = 'app.resetting.password_sent';
 
     /**

@@ -21,6 +21,7 @@ final class SymfonyAdminExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('symfony_admin.firewall_name', $config['firewall_name']);
         $container->setParameter('symfony_admin.upload_url', $config['upload_url']);
 
         $container->setAlias('symfony_admin.cron_schedule_repository', new Alias($config['services']['cron_schedule_repository'], true));

@@ -17,6 +17,10 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('firewall_name')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
                 ->scalarNode('upload_url')->defaultValue('uploads')->end()
                 ->arrayNode('services')
                     ->addDefaultsIfNotSet()

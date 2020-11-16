@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\SecurityEvents;
 class LastLoginSubscriber implements EventSubscriberInterface
 {
     /** @var UserRepository */
-    protected $userRepository;
+    private $userRepository;
 
     /**
      * @param UserRepository $userRepository

@@ -1,9 +1,51 @@
 services:
+    symfony_admin.file_uploader.default:
+        class: EWZ\SymfonyAdminBundle\FileUploader\FileUploader
+        arguments:
+            - '@kernel'
+            - '@validator'
+            - '@translator'
+            - '%symfony_admin.mime_types.extensions%'
+            - '%symfony_admin.mime_types.types%'
+            - '%symfony_admin.max_filesize%'
+
+    EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface:
+        alias: 'symfony_admin.file_uploader'
+
+    #
+    # Doctrine
+    #
+
     EWZ\SymfonyAdminBundle\Doctrine\UserSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
         arguments:
             - '@security.encoder_factory'
+
+    #
+    # Security
+    #
+
+    symfony_admin.security.login_manager:
+        class: EWZ\SymfonyAdminBundle\Security\LoginManager
+        arguments:
+            - '@security.token_storage'
+            - '@security.user_checker'
+            - '@security.authentication.session_strategy'
+            - '@request_stack'
+            - null # remember_me service
+
+    EWZ\SymfonyAdminBundle\Security\LoginManager:
+        alias: 'symfony_admin.security.login_manager'
+
+    #
+    # EventSubscriber
+    #
+
+    EWZ\SymfonyAdminBundle\EventSubscriber\AuthenticateSubscriber:
+        arguments:
+            - '@symfony_admin.security.login_manager'
+            - '%symfony_admin.firewall_name%'
 
     EWZ\SymfonyAdminBundle\EventSubscriber\EmailSubscriber:
         arguments:
@@ -23,19 +65,6 @@ services:
             - '@twig'
             - '%symfony_admin.timezone.database%'
             - '%symfony_admin.timezone.client%'
-
-    symfony_admin.file_uploader.default:
-        class: EWZ\SymfonyAdminBundle\FileUploader\FileUploader
-        arguments:
-            - '@kernel'
-            - '@validator'
-            - '@translator'
-            - '%symfony_admin.mime_types.extensions%'
-            - '%symfony_admin.mime_types.types%'
-            - '%symfony_admin.max_filesize%'
-
-    EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface:
-        alias: 'symfony_admin.file_uploader'
 
     #
     # Controller
