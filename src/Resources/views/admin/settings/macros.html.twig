@@ -212,15 +212,24 @@
   {% endif %}
 {% endmacro %}
 
-{% macro renderUserLabel(user, includeEmail = true) %}
+{% macro renderUserLabel(user, includeEmail = true, userUrl = null) %}
   {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if userUrl is null %}
+    {% set userUrl = path('admin_settings_users_profile_edit', {id: user.id}) %}
+  {% endif %}
 
   <div class="settings-content-company-user-list-item-thumbnail media">
     <span class="settings-content-company-user-picture media-left">
       {{ UI.profileImageComponentEntity(user) }}
     </span>
     <div class="settings-content-main-content media-body">
-      <a href="{{ path('admin_settings_users_profile_edit', {id: user.id}) }}" class="settings-content-company-user-text name">{{ user }}</a>
+      {% if userUrl is not empty %}
+        <a href="{{ path(userRoute, {id: user.id}) }}" class="settings-content-company-user-text name">{{ user }}</a>
+      {% else %}
+        <div class="settings-content-company-user-text name">{{ user }}</div>
+      {% endif %}
+
       {% if includeEmail %}
         <div class="settings-content-secondary-content email">{{ user.email }}</div>
       {% endif %}
