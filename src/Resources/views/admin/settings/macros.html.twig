@@ -225,7 +225,7 @@
     </span>
     <div class="settings-content-main-content media-body">
       {% if userUrl is not empty %}
-        <a href="{{ path(userRoute, {id: user.id}) }}" class="settings-content-company-user-text name">{{ user }}</a>
+        <a href="{{ userUrl }}" class="settings-content-company-user-text name">{{ user }}</a>
       {% else %}
         <div class="settings-content-company-user-text name">{{ user }}</div>
       {% endif %}
