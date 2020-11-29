@@ -304,7 +304,7 @@
     {% if data.layoutTableName|default(false) %}
       data-resizable="true"
       data-sortable="true"
-      data-settings-endpoint="{{ path('admin_api_user_settings_table', {id: app.user.id, table: data.layoutTableName}) }}"
+      data-update-columns-endpoint="{{ path('admin_api_user_update_columns', {table: data.layoutTableName}) }}"
     {% endif %}
   >
     <div class="datagrid-table-container datagrid-fixed-table-container datagrid-header-container js-datagrid-header-height js-datagrid-width">
