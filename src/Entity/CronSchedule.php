@@ -46,4 +46,31 @@ class CronSchedule extends BaseCronSchedule
      * @ORM\Column(type="boolean")
      */
     protected $enabled = true;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $modifiedAt;
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        $this->createdAt = new \DateTime();
+        $this->modifiedAt = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function preUpdate()
+    {
+        $this->modifiedAt = new \DateTime();
+    }
 }

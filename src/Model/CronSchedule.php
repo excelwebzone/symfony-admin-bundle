@@ -22,6 +22,12 @@ class CronSchedule
     /** @var bool */
     protected $enabled = true;
 
+    /** @var \DateTime */
+    protected $createdAt;
+
+    /** @var \DateTime */
+    protected $modifiedAt;
+
     /**
      * @return string
      */
@@ -134,5 +140,37 @@ class CronSchedule
     public function setEnabled(bool $boolean = null): void
     {
         $this->enabled = (bool) $boolean;
+    }
+
+    /**
+     * @return \DateTimeInterface
+     */
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTimeInterface $createdAt
+     */
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return \DateTimeInterface
+     */
+    public function getModifiedAt(): \DateTimeInterface
+    {
+        return $this->modifiedAt;
+    }
+
+    /**
+     * @param \DateTimeInterface $modifiedAt
+     */
+    public function setModifiedAt(\DateTimeInterface $modifiedAt): void
+    {
+        $this->modifiedAt = $modifiedAt;
     }
 }
