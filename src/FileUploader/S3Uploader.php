@@ -16,13 +16,9 @@ final class S3Uploader extends AbstractFileUploader
     /** @var string */
     private $s3Bucket;
 
-    /** @var string */
-    private $baseUrl;
-
     /**
      * @param S3Client            $s3Client
      * @param string              $s3Bucket
-     * @param string              $baseUrl
      * @param ValidatorInterface  $validator
      * @param TranslatorInterface $translator
      * @param string              $mimeTypesExtensions
@@ -33,7 +29,6 @@ final class S3Uploader extends AbstractFileUploader
     public function __construct(
         S3Client $s3Client,
         string $s3Bucket,
-        string $baseUrl,
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         string $mimeTypesExtensions,
@@ -43,7 +38,6 @@ final class S3Uploader extends AbstractFileUploader
     ) {
         $this->s3Client = $s3Client;
         $this->s3Bucket = $s3Bucket;
-        $this->baseUrl = $baseUrl;
 
         parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
     }
@@ -203,6 +197,12 @@ final class S3Uploader extends AbstractFileUploader
      */
     private function cleanFileName(string $fileName): string
     {
-        return substr($fileName, strpos($fileName, $this->baseUrl));
+        $fileName = parse_url($fileName, PHP_URL_PATH);
+
+        if ('/' === substr($fileName, 0, 1)) {
+            $fileName = substr($fileName, 1);
+        }
+
+        return $fileName;
     }
 }
