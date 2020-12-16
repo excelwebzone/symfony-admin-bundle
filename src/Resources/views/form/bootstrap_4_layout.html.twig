@@ -131,22 +131,27 @@
   {%- else -%}
     <div class="row datatime">
       <div class="col-md-6">
+        {% set dateAttr = attr %}
+        {%- if dateAttr.placeholder|default('') is empty -%}
+          {%- set dateAttr = dateAttr|merge({placeholder: 'Add Date'}) -%}
+        {%- endif -%}
+
         {{- form_row(form.date, {
-          attr: {
-            placeholder: 'Add Date'
-          }
+          disabled: disabled,
+          attr: dateAttr
         }) -}}
       </div>
       <div class="col-md-6">
-        {%- if attr.placeholder|default('') is empty -%}
-          {%- set attr = attr|merge({placeholder: 'Add Time'}) -%}
+        {% set timeAttr = attr %}
+        {%- if timeAttr.placeholder|default('') is empty -%}
+          {%- set timeAttr = timeAttr|merge({placeholder: 'Add Time'}) -%}
         {%- endif -%}
 
         {{- form_row(form.time, {
           time_interval: time_interval,
           time_24hour: time_24hour,
           disabled: disabled,
-          attr: attr
+          attr: timeAttr
         }) -}}
       </div>
     </div>
