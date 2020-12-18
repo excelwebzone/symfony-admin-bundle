@@ -137,7 +137,7 @@
         {%- endif -%}
 
         {{- form_row(form.date, {
-          disabled: disabled,
+          disabled: disabled or date_disabled|default(false),
           attr: dateAttr
         }) -}}
       </div>
@@ -150,7 +150,7 @@
         {{- form_row(form.time, {
           time_interval: time_interval,
           time_24hour: time_24hour,
-          disabled: disabled,
+          disabled: disabled or time_disabled|default(false),
           attr: timeAttr
         }) -}}
       </div>
