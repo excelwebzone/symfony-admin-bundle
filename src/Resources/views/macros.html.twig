@@ -774,7 +774,7 @@
   </li>
 {%- endmacro -%}
 
-{% macro filterDrawer(section, title, filterForm, allowSaving = true) %}
+{% macro filterDrawer(section, title, filterForm, allowSaving = true, createUrlParams = {}) %}
   <div class="filter-options drawer-frame drawer-frame-list collapse">
     <div class="filter-options-header">
       <div class="filter-options-close-button" data-toggle="collapse" data-target=".drawer-frame">
@@ -799,7 +799,7 @@
       {% set section = section|split('|')[0] %}
 
       <div class="filter-options-footer">
-        <button type="button" class="btn btn-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create') }}">Save Filter Set</button>
+        <button type="button" class="btn btn-primary js-filter-save-button js-entity-modal" data-section="{{ section }}" {% if report %}data-report="{{ report }}"{% endif %} data-endpoint="{{ path('admin_api_filter_create', createUrlParams) }}">Save Filter Set</button>
         <button type="button" class="btn btn-primary js-filter-update-button" data-endpoint="{{ path('admin_api_filter_update_fields', {id: '__ID__'}) }}">Update Filter</button>
       </div>
     {% endif %}
