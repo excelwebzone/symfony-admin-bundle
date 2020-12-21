@@ -5,7 +5,7 @@ namespace EWZ\SymfonyAdminBundle\Form;
 use EWZ\SymfonyAdminBundle\Entity\Filter;
 use EWZ\SymfonyAdminBundle\Form\DataTransformer\ObjectToIdTransformer;
 use EWZ\SymfonyAdminBundle\Form\DataTransformer\StringToJsonTransformer;
-use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
+use EWZ\SymfonyAdminBundle\Repository\ReportRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -17,14 +17,14 @@ class FilterFormType extends AbstractType
     /** @var RegistryInterface */
     protected $registry;
 
-    /** @var AbstractRepository */
+    /** @var ReportRepository */
     protected $reportRepository;
 
     /**
-     * @param RegistryInterface  $registry
-     * @param AbstractRepository $reportClass
+     * @param RegistryInterface $registry
+     * @param ReportRepository  $reportRepository
      */
-    public function __construct(RegistryInterface $registry, AbstractRepository $reportRepository)
+    public function __construct(RegistryInterface $registry, ReportRepository $reportRepository)
     {
         $this->registry = $registry;
         $this->reportRepository = $reportRepository;
