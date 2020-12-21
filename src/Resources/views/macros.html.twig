@@ -573,6 +573,7 @@
     {% for filter in publicFilters %}
       {% if defaultFilterId == filter.id %}
         {% set defaultFilter = filter %}
+        {% set defaultIsLocked = app.user.id != filter.user|default({id: null}).id %}
       {% endif %}
     {% endfor %}
     {% if privateFilters is iterable %}
@@ -589,6 +590,7 @@
       {% if filter.isDefault|default(false) %}
         {% set defaultFilterId = filter.id %}
         {% set defaultFilter = filter %}
+        {% set defaultIsLocked = app.user.id != filter.user|default({id: null}).id %}
       {% endif %}
     {% endfor %}
   {% endif %}
@@ -603,6 +605,7 @@
     {% for filter in publicFilters %}
       {% if not defaultFilter and preloadFilters == filter.params|default({})|filter_json_encode %}
         {% set defaultFilter = filter %}
+        {% set defaultIsLocked = app.user.id != filter.user|default({id: null}).id %}
       {% endif %}
     {% endfor %}
     {% if privateFilters is iterable %}
@@ -687,11 +690,11 @@
               filter.name|title,
               filter.params|default({}),
               false,
-              true,
+              app.user.id != filter.user|default({id: null}).id,
               defaultFilterId == filter.id,
               defaultUrl,
-              null,
-              null,
+              editUrl,
+              deleteUrl,
               filter.isDefault|default(false)
             ) }}
           {% endfor %}

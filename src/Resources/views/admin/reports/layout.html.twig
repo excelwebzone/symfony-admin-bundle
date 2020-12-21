@@ -28,16 +28,22 @@
           {% endif %}
 
           {# main filter #}
-          {% set publicFilters = [
-            {
-              id: 'all',
-              name: 'All Records',
-              params: defaultFilter,
-              isLocked: true,
-              isDefault: true
-            }
-          ] %}
-          {{ UI.filterDropdown(sectionFilter, publicFilters, filters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
+          {% if publicFilters is not defined %}
+            {% set publicFilters = [
+              {
+                id: 'all',
+                name: 'All Records',
+                params: defaultFilter,
+                isDefault: true
+              }
+            ] %}
+          {% endif %}
+
+          {% if privateFilters is not defined %}
+            {% set privateFilters = filters %}
+          {% endif %}
+
+          {{ UI.filterDropdown(sectionFilter, publicFilters, privateFilters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
         </div>
 
         {# tools/actions #}
