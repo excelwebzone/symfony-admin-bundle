@@ -129,7 +129,7 @@
   {%- if attr.original|default(false) -%}
     {{ form_widget(form) }}
   {%- else -%}
-    <div class="row datatime">
+    <div class="row datetime">
       <div class="col-md-6">
         {% set dateAttr = attr %}
         {%- if dateAttr.placeholder|default('') is empty -%}
