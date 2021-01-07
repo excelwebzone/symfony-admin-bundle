@@ -131,7 +131,7 @@
   {%- else -%}
     <div class="row datetime">
       <div class="col-md-6">
-        {% set dateAttr = attr %}
+        {% set dateAttr = attr|merge(date_attr|default({})) %}
         {%- if dateAttr.placeholder|default('') is empty -%}
           {%- set dateAttr = dateAttr|merge({placeholder: 'Add Date'}) -%}
         {%- endif -%}
@@ -145,7 +145,7 @@
         }) -}}
       </div>
       <div class="col-md-6">
-        {% set timeAttr = attr %}
+        {% set timeAttr = attr|merge(time_attr|default({})) %}
         {%- if timeAttr.placeholder|default('') is empty -%}
           {%- set timeAttr = timeAttr|merge({placeholder: 'Add Time'}) -%}
         {%- endif -%}
