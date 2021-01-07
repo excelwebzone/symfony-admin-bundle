@@ -135,9 +135,12 @@
         {%- if dateAttr.placeholder|default('') is empty -%}
           {%- set dateAttr = dateAttr|merge({placeholder: 'Add Date'}) -%}
         {%- endif -%}
+        {%- if date_disabled|default(false) -%}
+          {%- set dateAttr = dateAttr|merge({readonly: true}) -%}
+        {%- endif -%}
 
         {{- form_row(form.date, {
-          disabled: disabled or date_disabled|default(false),
+          disabled: disabled,
           attr: dateAttr
         }) -}}
       </div>
@@ -146,11 +149,14 @@
         {%- if timeAttr.placeholder|default('') is empty -%}
           {%- set timeAttr = timeAttr|merge({placeholder: 'Add Time'}) -%}
         {%- endif -%}
+        {%- if time_disabled|default(false) -%}
+          {%- set timeAttr = timeAttr|merge({readonly: true}) -%}
+        {%- endif -%}
 
         {{- form_row(form.time, {
           time_interval: time_interval,
           time_24hour: time_24hour,
-          disabled: disabled or time_disabled|default(false),
+          disabled: disabled,
           attr: timeAttr
         }) -}}
       </div>
