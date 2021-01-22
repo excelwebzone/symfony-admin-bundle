@@ -171,6 +171,9 @@
   {%- if placeholder is not none -%}
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
+  {%- if filter_placeholder is defined -%}
+    {% set filter_placeholder = filter_placeholder != '' ? (translation_domain is same as(false) ? filter_placeholder : filter_placeholder|trans({}, translation_domain)) %}
+  {%- endif -%}
 
   <div class="dropdown {{ dropdown_class|default('') }} has-filter {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple dropdown-multiple{% endif %} js-autocomplete-dropdown"
     data-placeholder="{{ placeholder }}"
@@ -205,7 +208,7 @@
 
     <div class="dropdown-menu dropdown-options {{ dropdown_options_class|default('') }}">
       <div class="dropdown-filter">
-        <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+        <input type="text" placeholder="{{ filter_placeholder|default('Search') }}" class="input-text ignore-input" autocomplete="off" />
       </div>
       <div class="option-list">
         <ul>
@@ -343,6 +346,9 @@
   {%- if placeholder is not none -%}
     {% set placeholder = placeholder != '' ? (translation_domain is same as(false) ? placeholder : placeholder|trans({}, translation_domain)) %}
   {%- endif -%}
+  {%- if filter_placeholder is defined -%}
+    {% set filter_placeholder = filter_placeholder != '' ? (translation_domain is same as(false) ? filter_placeholder : filter_placeholder|trans({}, translation_domain)) %}
+  {%- endif -%}
 
   <div class="dropdown {{ dropdown_class|default('') }} {% if filtered|default(false) %}has-filter{% endif %} {% if disabled or attr.readonly|default(false) %}is-disabled{% endif %} js-select-dropdown{% if multiple %}-multiple dropdown-multiple{% endif %}"
     data-placeholder="{{ placeholder }}"
@@ -372,7 +378,7 @@
     <div class="dropdown-menu dropdown-options {{ dropdown_options_class|default('') }}">
       {%- if filtered|default(false) -%}
         <div class="dropdown-filter">
-          <input type="text" placeholder="Search" class="input-text ignore-input" autocomplete="off" />
+          <input type="text" placeholder="{{ filter_placeholder|default('Search') }}" class="input-text ignore-input" autocomplete="off" />
         </div>
       {%- endif -%}
       <div class="option-list">
