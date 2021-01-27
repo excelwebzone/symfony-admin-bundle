@@ -17,6 +17,7 @@ class TimePickerType extends AbstractType
     {
         $view->vars['time_interval'] = intval($options['interval']);
         $view->vars['time_24hour'] = intval($options['24hour']);
+        $view->vars['time_hours'] = (array) $options['hours'];
     }
 
     /**
@@ -29,6 +30,7 @@ class TimePickerType extends AbstractType
             'widget' => 'single_text',
             'interval' => 30,
             '24hour' => false,
+            'hours' => [],
         ]);
     }
 

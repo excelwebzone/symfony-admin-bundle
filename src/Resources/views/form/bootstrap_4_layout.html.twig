@@ -76,8 +76,13 @@
         </div>
         <div class="option-list">
           <ul>
+            {% if time_hours is empty %}
+              {% for hour in 0..23 %}
+                {% set time_hours = time_hours|merge([hour]) %}
+              {% endfor %}
+            {% endif %}
             {% set choices = [] %}
-            {% for hour in 0..23 %}
+            {% for hour in time_hours %}
               {% for m in 0..(60/time_interval)|round-1 %}
                 {% set minute = m * time_interval %}
 
@@ -156,6 +161,7 @@
         {{- form_row(form.time, {
           time_interval: time_interval,
           time_24hour: time_24hour,
+          time_hours: time_hours,
           disabled: disabled,
           attr: timeAttr
         }) -}}

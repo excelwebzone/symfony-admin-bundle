@@ -30,6 +30,7 @@ class DateTimePickerType extends AbstractType
     {
         $view->vars['time_interval'] = intval($options['time_interval']);
         $view->vars['time_24hour'] = intval($options['time_24hour']);
+        $view->vars['time_hours'] = (array) $options['time_hours'];
     }
 
     /**
@@ -45,6 +46,7 @@ class DateTimePickerType extends AbstractType
             'time_label' => 'form.datetime.time',
             'time_interval' => 30,
             'time_24hour' => false,
+            'time_hours' => [],
         ];
 
         /** @var TokenInterface $token */
