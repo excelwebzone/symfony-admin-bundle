@@ -245,6 +245,12 @@ final class DateTimeUtil
 
             case 'monthly':
             default:
+                $from->modify('first day of this month');
+
+                if (intval($to->format('d')) > 1) {
+                    $to->modify('first day of next month');
+                }
+
                 $period = new \DatePeriod($from, new \DateInterval('P1M'), $to);
                 foreach ($period as $day) {
                     $start = $day->modify('first day of this month');
