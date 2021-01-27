@@ -195,6 +195,23 @@ abstract class AbstractReportController extends AbstractController
 
     /**
      * @param Report $report
+     * @param bool   $cardView
+     *
+     * @return string
+     */
+    protected function getReportTemplate(Report $report, bool $cardView = false): string
+    {
+        list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
+
+        return sprintf('admin/partial/report/%s/%s%s.html.twig',
+            strtolower(StringUtil::tableize($category)),
+            strtolower(StringUtil::tableize($name)),
+            $cardView ? '_card' : null
+        );
+    }
+
+    /**
+     * @param Report $report
      *
      * @return AbstractReport
      */
@@ -208,22 +225,5 @@ abstract class AbstractReportController extends AbstractController
         );
 
         return new $class($this->objectManager, $this->getUser());
-    }
-
-    /**
-     * @param Report $report
-     * @param bool   $cardView
-     *
-     * @return string
-     */
-    private function getReportTemplate(Report $report, bool $cardView = false): string
-    {
-        list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
-
-        return sprintf('admin/partial/report/%s/%s%s.html.twig',
-            strtolower(StringUtil::tableize($category)),
-            strtolower(StringUtil::tableize($name)),
-            $cardView ? '_card' : null
-        );
     }
 }
