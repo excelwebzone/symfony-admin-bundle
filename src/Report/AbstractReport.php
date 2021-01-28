@@ -383,7 +383,7 @@ abstract class AbstractReport
      */
     public function export(): array
     {
-        if (!$this->getRepository() || 0 === count($this->getExportColumns())) {
+        if (0 === count($this->getExportColumns())) {
             return [];
         }
 
