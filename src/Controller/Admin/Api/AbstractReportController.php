@@ -61,6 +61,7 @@ abstract class AbstractReportController extends AbstractController
     public function export(Request $request, Packages $assetsManager, Report $report): JsonResponse
     {
         // get consts
+        $groupingType = $request->query->get('groupingType', 'monthly');
         $sort = $request->query->get('sort');
 
         // convert request filters into query
@@ -75,6 +76,7 @@ abstract class AbstractReportController extends AbstractController
         }
 
         $report->setCriteria($criteria);
+        $report->setGroupingType($groupingType);
         $report->setSort($sort);
 
         /** @var array $items */
