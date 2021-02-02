@@ -41,6 +41,10 @@ trait UpdateFieldsTrait
                     switch ($fieldMapping['type']) {
                         case ClassMetadataInfo::ONE_TO_MANY:
                         case ClassMetadataInfo::MANY_TO_MANY:
+                            if ($value instanceof Collection) {
+                                break;
+                            }
+
                             $value = $value
                                 ? new ArrayCollection(
                                     $this->objectManager
