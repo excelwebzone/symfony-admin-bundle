@@ -717,8 +717,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
                         ->setParameter(sprintf('%s_to', $name), $value['to'])
                     ;
                 }
-            } elseif (isset($value['MemberOf'])) {
-                unset($value['MemberOf']);
+            } elseif (isset($value['memberOf'])) {
+                unset($value['memberOf']);
 
                 /** @var Expr\OrX $orX */
                 $orX = $queryBuilder->expr()->orX();
