@@ -3,6 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\NoResultException;
@@ -741,6 +742,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
                     ->setParameter($name, $value)
                 ;
             }
+        } elseif ($value instanceof Collection) {
+            $queryBuilder
+                ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
+                ->setParameter($name, $value)
+            ;
         } elseif (is_null($value)) {
             $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
         } elseif (!is_string($value)
