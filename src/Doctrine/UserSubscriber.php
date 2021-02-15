@@ -56,7 +56,11 @@ class UserSubscriber implements EventSubscriber
     {
         $object = $args->getObject();
         if ($object instanceof User) {
-            $this->updateUserFields($object);
+            $usernameChanged = $args->hasChangedField('username');
+            $emailChanged = $args->hasChangedField('email');
+            $passwordChanged = $args->hasChangedField('plainPassword');
+
+            $this->updateUserFields($object, $usernameChanged || $emailChanged, $passwordChanged);
             $this->recomputeChangeSet($args->getObjectManager(), $object);
         }
     }
@@ -65,11 +69,18 @@ class UserSubscriber implements EventSubscriber
      * Updates the user properties.
      *
      * @param User $user
+     * @param bool $updateCanonicalFields
+     * @param bool $updatePassword
      */
-    private function updateUserFields(User $user): void
+    private function updateUserFields(User $user, bool $updateCanonicalFields = true, bool $updatePassword = true): void
     {
-        $user->updateCanonicalFields();
-        $user->hashPassword($this->encoderFactory);
+        if ($updateCanonicalFields) {
+            $user->updateCanonicalFields();
+        }
+
+        if ($updatePassword) {
+            $user->hashPassword($this->encoderFactory);
+        }
     }
 
     /**

@@ -4,61 +4,9 @@ namespace EWZ\SymfonyAdminBundle\Repository;
 
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Symfony\Bridge\Doctrine\RegistryInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 abstract class UserRepository extends AbstractRepository
 {
-    /** @var EncoderFactoryInterface */
-    protected $encoderFactory;
-
-    /**
-     * @param RegistryInterface       $registry
-     * @param TokenStorageInterface   $tokenStorage
-     * @param EncoderFactoryInterface $encoderFactory
-     */
-    public function __construct(
-        RegistryInterface $registry,
-        TokenStorageInterface $tokenStorage,
-        EncoderFactoryInterface $encoderFactory
-    ) {
-        parent::__construct($registry, $tokenStorage);
-
-        $this->encoderFactory = $encoderFactory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function update($object, $andFlush = true): void
-    {
-        $this->updateCanonicalFields($object);
-        $this->updatePassword($object);
-
-        parent::update($object, $andFlush);
-    }
-
-    /**
-     * Updates a user password if a plain password is set.
-     *
-     * @param User $user
-     */
-    public function updatePassword(User $user): void
-    {
-        $user->hashPassword($this->encoderFactory);
-    }
-
-    /**
-     * Updates the canonical username and email fields for a user.
-     *
-     * @param User $user
-     */
-    public function updateCanonicalFields(User $user): void
-    {
-        $user->updateCanonicalFields();
-    }
-
     /**
      * Returns a collection with all user instances.
      *
