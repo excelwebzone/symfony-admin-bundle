@@ -1,9 +1,11 @@
 {% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
 
 {% block body %}
-  <div class="links-container">
-    <a href="{{ path('security_login') }}">Sign In</a>
-  </div>
+  {% if not app.user %}
+    <div class="links-container">
+      <a href="{{ path('security_login') }}">Sign In</a>
+    </div>
+  {% endif %}
 
   <div class="title">Reset your password</div>
 
