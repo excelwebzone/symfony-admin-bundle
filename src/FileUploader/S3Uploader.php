@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\FileUploader;
 
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -161,10 +162,14 @@ final class S3Uploader extends AbstractFileUploader
     {
         $fileName = $this->cleanFileName($fileName);
 
-        $result = $this->s3Client->getObject([
-            'Bucket' => $this->s3Bucket,
-            'Key' => $fileName,
-        ]);
+        try {
+            $result = $this->s3Client->getObject([
+                'Bucket' => $this->s3Bucket,
+                'Key' => $fileName,
+            ]);
+        } catch (S3Exception $e) {
+            return null;
+        }
 
         if (isset($result['NoSuchKey'])) {
             return null;
@@ -180,10 +185,14 @@ final class S3Uploader extends AbstractFileUploader
     {
         $fileName = $this->cleanFileName($fileName);
 
-        $result = $this->s3Client->getObject([
-            'Bucket' => $this->s3Bucket,
-            'Key' => $fileName,
-        ]);
+        try {
+            $result = $this->s3Client->getObject([
+                'Bucket' => $this->s3Bucket,
+                'Key' => $fileName,
+            ]);
+        } catch (S3Exception $e) {
+            return null;
+        }
 
         if (isset($result['NoSuchKey'])) {
             return null;
