@@ -2,6 +2,8 @@
 
 namespace EWZ\SymfonyAdminBundle\EventSubscriber;
 
+use EWZ\SymfonyAdminBundle\Event\UserEvent;
+use EWZ\SymfonyAdminBundle\Events;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,8 +32,20 @@ class LastLoginSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            Events::SECURITY_IMPLICIT_LOGIN => 'onSecurityImplicitLogin',
             SecurityEvents::INTERACTIVE_LOGIN => 'onSecurityInteractiveLogin',
         ];
+    }
+
+    /**
+     * @param UserEvent $event
+     */
+    public function onSecurityImplicitLogin(UserEvent $event): void
+    {
+        $user = $event->getUser();
+
+        $user->setLastLogin(new \DateTime());
+        $this->userRepository->update($user);
     }
 
     /**
