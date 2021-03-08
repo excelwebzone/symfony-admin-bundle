@@ -26,6 +26,11 @@ services:
     # Security
     #
 
+    symfony_admin.security.user_provider:
+        class: EWZ\SymfonyAdminBundle\Security\UserProvider
+        arguments:
+            - '@symfony_admin.user_repository'
+
     symfony_admin.security.login_manager:
         class: EWZ\SymfonyAdminBundle\Security\LoginManager
         arguments:
@@ -47,6 +52,12 @@ services:
             - '@symfony_admin.security.login_manager'
             - '%symfony_admin.firewall_name%'
 
+    EWZ\SymfonyAdminBundle\EventSubscriber\LastLoginSubscriber:
+        tags:
+            - kernel.event_subscriber
+        arguments:
+            - '@symfony_admin.user_repository'
+
     EWZ\SymfonyAdminBundle\EventSubscriber\EmailSubscriber:
         arguments:
             - '@twig'
@@ -57,7 +68,7 @@ services:
     EWZ\SymfonyAdminBundle\EventSubscriber\TimezoneSubscriber:
         tags:
             - { name: kernel.event_listener, event: console.command }
-            - { name: kernel.event_listener, event: kernel.request }
+            - { name: kernel.event_listener, event: kernel.request, priority: 7 }
         arguments:
             - '@kernel'
             - '@request_stack'
@@ -65,6 +76,24 @@ services:
             - '@twig'
             - '%symfony_admin.timezone.database%'
             - '%symfony_admin.timezone.client%'
+
+    #
+    # Command
+    #
+
+    symfony_admin.command.cron_command:
+        class: EWZ\SymfonyAdminBundle\Command\CronCommand
+        tags:
+            - { name: console.command, command: "admin:cron" }
+        arguments:
+            - '@symfony_admin.cron_schedule_repository'
+
+    symfony_admin.command.cron_definitions_load_command:
+        class: EWZ\SymfonyAdminBundle\Command\CronDefinitionsLoadCommand
+        tags:
+            - { name: console.command, command: "admin:cron:definitions:load" }
+        arguments:
+            - '@symfony_admin.cron_schedule_repository'
 
     #
     # Controller
@@ -143,20 +172,6 @@ services:
     # Cron-Schedule Repository
     #
 
-    symfony_admin.command.cron_command:
-        class: EWZ\SymfonyAdminBundle\Command\CronCommand
-        tags:
-            - { name: console.command, command: "admin:cron" }
-        arguments:
-            - '@symfony_admin.cron_schedule_repository'
-
-    symfony_admin.command.cron_definitions_load_command:
-        class: EWZ\SymfonyAdminBundle\Command\CronDefinitionsLoadCommand
-        tags:
-            - { name: console.command, command: "admin:cron:definitions:load" }
-        arguments:
-            - '@symfony_admin.cron_schedule_repository'
-
     symfony_admin.cron_schedule_repository.default:
         class: EWZ\SymfonyAdminBundle\Repository\CronScheduleRepository
         arguments:
@@ -169,18 +184,6 @@ services:
     #
     # User Repository
     #
-
-    symfony_admin.security.user_provider:
-        class: EWZ\SymfonyAdminBundle\Security\UserProvider
-        arguments:
-            - '@symfony_admin.user_repository'
-
-    symfony_admin.event_subscriber.last_login_subscriber:
-        class: EWZ\SymfonyAdminBundle\EventSubscriber\LastLoginSubscriber
-        tags:
-            - kernel.event_subscriber
-        arguments:
-            - '@symfony_admin.user_repository'
 
     symfony_admin.user_repository.default:
         class: EWZ\SymfonyAdminBundle\Repository\UserRepository
