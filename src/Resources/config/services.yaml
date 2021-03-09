@@ -68,7 +68,7 @@ services:
     EWZ\SymfonyAdminBundle\EventSubscriber\TimezoneSubscriber:
         tags:
             - { name: kernel.event_listener, event: console.command }
-            - { name: kernel.event_listener, event: kernel.request, priority: 7 }
+            - { name: kernel.event_listener, event: kernel.request, priority: 64 }
         arguments:
             - '@kernel'
             - '@request_stack'
