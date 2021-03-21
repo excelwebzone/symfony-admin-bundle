@@ -16,26 +16,46 @@
 {% endif %}
 
 <div class="sidebar">
-  <div class="sidebar-toggle js-sidebar-toggle">
-    <i class="ledger-icons ledger-icon-more-vert"></i>
-  </div>
-
   <div class="content">
     <div class="nav-header">
       <div class="nav-icons">
-        <div class="nav-drawer">
-          {% block sidebar_nav_drawer %}{% endblock %}
+        <div class="sidebar-open js-sidebar-toggle" data-toggle="tooltip" data-placement="right" title="Show navigation">
+          <i class="ledger-icons ledger-icon-menu"></i>
+        </div>
 
-          <div class="sidebar-close js-sidebar-toggle">
-            <i class="ledger-icons ledger-icon-close"></i>
-          </div>
+        <div class="logo-icon">
+          <a href="{{ path('admin_homepage') }}">
+            <div class="image">
+              {% block sidebar_brand_icon %}
+                <i class="ledger-icons ledger-icon-logo sidebar-brand-icon"></i>
+              {% endblock %}
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-text">
+        <div class="option-text">
+          <a href="{{ path('admin_homepage') }}">
+            <div class="text">
+              <div class="name">
+                {% block sidebar_brand_logo %}
+                  <div class="sidebar-brand-logo">Ledger<small>&copy;</small></div>
+                {% endblock %}
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-action">
+        <div class="sidebar-close js-sidebar-toggle" data-toggle="tooltip" data-placement="right" title="Hide navigation">
+          <i class="ledger-icons ledger-icon-close"></i>
         </div>
       </div>
     </div>
 
-    <div class="nav-drawer-icons">
-      {% block sidebar_nav_drawer_icons %}{% endblock %}
-    </div>
+    {% block sidebar_nav %}{% endblock %}
 
     {% for item in items %}
       {% if item.spacer is defined and item.spacer %}
@@ -72,28 +92,8 @@
       </div>
     {% endfor %}
 
-    <div class="nav-logo-option">
-      <a href="{{ path('admin_homepage') }}">
-        <div class="nav-icons">
-          <div class="icon">
-            {% block sidebar_brand_icon %}
-              <i class="ledger-icons ledger-icon-logo sidebar-brand-icon"></i>
-            {% endblock %}
-          </div>
-        </div>
-
-        <div class="nav-text">
-          <div class="option-text">
-            <div class="text">
-              <div class="name">
-                {% block sidebar_brand_logo %}
-                  <div class="sidebar-brand-logo">Ledger<small>&copy;</small></div>
-                {% endblock %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </a>
+    <div class="nav-footer">
+      {% block sidebar_footer %}{% endblock %}
     </div>
   </div>
 </div>
