@@ -43,7 +43,7 @@ class Configuration implements ConfigurationInterface
                     ->info('mime-types configuration')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('extensions')->defaultValue('PNG, GIF, JPG, PDF, CSV, XLS, or XLSX')->end()
+                        ->scalarNode('extensions')->defaultValue('PNG, GIF, JPG, PDF, CSV, RTF, DOC, DOCX, XLS, or XLSX')->end()
                         ->scalarNode('types')
                             ->defaultValue([
                                 'image/png',
@@ -53,6 +53,9 @@ class Configuration implements ConfigurationInterface
                                 'application/pdf',
                                 'text/plain',
                                 'text/csv',
+                                'application/rtf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                                 'application/vnd.ms-excel',
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             ])
