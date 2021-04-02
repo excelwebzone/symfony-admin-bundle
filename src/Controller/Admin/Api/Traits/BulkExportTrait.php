@@ -193,7 +193,7 @@ trait BulkExportTrait
 
         // generate filename
         $writer = new Xlsx($spreadsheet);
-        $writer->save($fileName = sprintf('/tmp/%s.xlsx', Uuid::uuid4()));
+        $writer->save($fileName = sprintf('%s/%s.xlsx', ini_get('upload_tmp_dir') ?: sys_get_temp_dir(), Uuid::uuid4()));
 
         $fileName = $this->fileUploader->create($fileName, $this->getParameter('symfony_admin.upload_url'));
 
