@@ -39,13 +39,17 @@ final class FileUploader extends AbstractFileUploader
     /**
      * {@inheritdoc}
      */
-    public function create(string $fileName, string $directory): ?string
+    public function create(string $fileName, string $directory, string $fileContent = null): ?string
     {
-        if (!file_exists($fileName)) {
+        // local file missing and no content provided
+        if (!file_exists($fileName) && empty($fileContent)) {
             return null;
         }
 
-        $content = file_get_contents($fileName);
+        // write content to local file (override if exists)
+        if ($fileContent) {
+            file_put_contents($fileName, $fileContent);
+        }
 
         // create folder if doesn't exists
         if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {

@@ -7,12 +7,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 interface FileUploaderInterface
 {
     /**
-     * @param string $fileName
-     * @param string $directory
+     * @param string      $fileName
+     * @param string      $directory
+     * @param string|null $fileContent
      *
      * @return string|null
      */
-    public function create(string $fileName, string $directory): ?string;
+    public function create(string $fileName, string $directory, string $fileContent = null): ?string;
 
     /**
      * @param UploadedFile $file
