@@ -131,9 +131,22 @@ final class FileUploader extends AbstractFileUploader
     public function delete(string $fileName): void
     {
         $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+
         if (file_exists($filePath)) {
             unlink($filePath);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContent(string $fileName): ?string
+    {
+        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+
+        return file_exists($filePath)
+            ? file_get_contents($filePath)
+            : null;
     }
 
     /**

@@ -181,6 +181,29 @@ final class S3Uploader extends AbstractFileUploader
     /**
      * {@inheritdoc}
      */
+    public function getContent(string $fileName): ?string
+    {
+        $fileName = $this->cleanFileName($fileName);
+
+        try {
+            $result = $this->s3Client->getObject([
+                'Bucket' => $this->s3Bucket,
+                'Key' => $fileName,
+            ]);
+        } catch (S3Exception $e) {
+            return null;
+        }
+
+        if (isset($result['NoSuchKey'])) {
+            return null;
+        }
+
+        return $result['Body'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getFileSize(string $fileName): ?int
     {
         $fileName = $this->cleanFileName($fileName);

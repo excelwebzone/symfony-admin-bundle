@@ -45,6 +45,13 @@ interface FileUploaderInterface
      *
      * @return string|null
      */
+    public function getContent(string $fileName): ?string;
+
+    /**
+     * @param string $fileName
+     *
+     * @return string|null
+     */
     public function getMimeType(string $fileName): ?string;
 
     /**
