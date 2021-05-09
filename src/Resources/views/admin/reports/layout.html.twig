@@ -14,7 +14,7 @@
 {% block body %}
   <div class="reports-page">
     <div class="list-page-container single-line-header">
-      {{ LUI.navigation(reportsNavItems) }}
+      {{ LUI.navigation(reportsNavItems|default([])) }}
 
       <div class="list-page-header">
         <div class="list-filter-container">
