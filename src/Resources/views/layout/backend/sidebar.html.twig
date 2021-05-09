@@ -2,14 +2,18 @@
 
 {% set route = app.request.attributes.get('_route')|slice(6) %}
 
-{% set items = [
-  {
-    path: path('admin_homepage'),
-    name: 'Dashboard',
-    icon: 'dashboard',
-    active: 'homepage' == route
-  }
-] %}
+{% set items = [] %}
+
+{% if ignoreDashboardItem is not defined or not ignoreDashboardItem %}
+  {% set items = [
+    {
+      path: path('admin_homepage'),
+      name: 'Dashboard',
+      icon: 'dashboard',
+      active: 'homepage' == route
+    }
+  ] %}
+{% endif %}
 
 {% if sidebarNavItems is defined %}
   {% set items = items|merge(sidebarNavItems) %}
