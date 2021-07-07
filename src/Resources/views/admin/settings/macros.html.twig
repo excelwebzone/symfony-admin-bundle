@@ -69,12 +69,20 @@
   </tr>
 {% endmacro %}
 
-{% macro renderDragIcon(isHeader = false) %}
-  <td class="settings-content-table-item-drag-icon">
+{% macro renderDragIcon(isHeader = false, class = null) %}
+  <{% if isHeader %}th{% else %}td{% endif %} class="settings-content-table-item-drag-icon {% if isHeader %}is-header{% endif %} {{ class }}">
     {% if not isHeader %}
       <i class="ledger-icons ledger-icon-drag-handle drag-handle"></i>
     {% endif %}
-  </td>
+  </{% if isHeader %}th{% else %}td{% endif %}>
+{% endmacro %}
+
+{% macro renderColumnCustom(items, isHeader = false, class = null) %}
+  <{% if isHeader %}th{% else %}td{% endif %} class="settings-content-table-item-custom {% if isHeader %}is-header{% endif %} {{ class }}">
+    {% for item in items %}
+      {{ item|raw }}
+    {% endfor %}
+  </{% if isHeader %}th{% else %}td{% endif %}>
 {% endmacro %}
 
 {% macro renderLabel(items, isHeader = false, class = null) %}
@@ -139,6 +147,22 @@
       {{ action|raw }}
     {% endfor %}
   </div>
+{% endmacro %}
+
+{% macro addActionRedirect(title, icon, endpoint, class = null, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    {{ UI.link({
+      iCss: icon,
+      iTooltip: {
+        title: title
+      },
+      class: 'settings-content-table-item-action-icon',
+      aCss: class,
+      path: endpoint
+    }) }}
+  {% endif %}
 {% endmacro %}
 
 {% macro addActionLink(title, icon, endpoint, data = {}, class = null, ignore = false) %}
