@@ -286,7 +286,7 @@
       <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
       <span class="checkbox-display">
         <i class="ledger-icons ledger-icon-{{ onIcon|default('check-square') }} checked"></i>
-        <i class="ledger-icons ledger-icon-{{ offIcon|default('square-o') }} unchecked"></i>
+        <i class="ledger-icons ledger-icon-{{ offIcon|default('square-outline') }} unchecked"></i>
       </span>
       <span class="checkbox-text">
         {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
@@ -323,7 +323,7 @@
     <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
     <label {% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>
       <i class="ledger-icons ledger-icon-{{ onIcon|default('dot-circle') }} checked"></i>
-      <i class="ledger-icons ledger-icon-{{ offIcon|default('circle-o') }} unchecked"></i>
+      <i class="ledger-icons ledger-icon-{{ offIcon|default('circle-outline') }} unchecked"></i>
       <span>
         {{- label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain))|raw -}}
         {{- form_errors(form) -}}

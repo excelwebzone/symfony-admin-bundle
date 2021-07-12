@@ -167,7 +167,7 @@
         <input name="{{ parameters.name }}" type="checkbox" value="{{ parameters.value }}" class="checkbox-input" {% if parameters.isChecked is defined and parameters.isChecked %}checked="checked"{% endif %} />
         <span class="checkbox-display">
           <i class="ledger-icons ledger-icon-check-square checked"></i>
-          <i class="ledger-icons ledger-icon-square-o unchecked"></i>
+          <i class="ledger-icons ledger-icon-square-outline unchecked"></i>
         </span>
         <span class="checkbox-text">{{ parameters.label }}</span>
       </label>
@@ -352,7 +352,7 @@
 
 {% macro listPageEmptyContent(icon, hide = true, relative = false) %}
   <div class="list-page-empty-content {% if relative %}is-relative{% endif %}" {% if hide %}style="display: none"{% endif %}>
-    <div class="empty-icon"><i class="ledger-icons ledger-icon-{{ icon|default('alert-circle-o') }}"></i></div>
+    <div class="empty-icon"><i class="ledger-icons ledger-icon-{{ icon|default('info') }}"></i></div>
     <div class="empty-title">No Results Found</div>
     <div class="empty-message">Search for something new or clear your filters</div>
   </div>
@@ -382,7 +382,7 @@
           <input type="checkbox" value="1" class="checkbox-input {{ jsClass }}" />
           <span class="checkbox-display">
             <i class="ledger-icons ledger-icon-check-square checked"></i>
-            <i class="ledger-icons ledger-icon-square-o unchecked"></i>
+            <i class="ledger-icons ledger-icon-square-outline unchecked"></i>
           </span>
           <span class="checkbox-text"></span>
         </label>
@@ -410,7 +410,7 @@
         <input  type="checkbox" value="{{ id }}" class="checkbox-input {{ jsClass }}" />
         <span class="checkbox-display">
           <i class="ledger-icons ledger-icon-check-square checked"></i>
-          <i class="ledger-icons ledger-icon-square-o unchecked"></i>
+          <i class="ledger-icons ledger-icon-square-outline unchecked"></i>
         </span>
         <span class="checkbox-text"></span>
       </label>
@@ -460,7 +460,7 @@
         />
         <span class="task-check-box-checkbox">
           <i class="ledger-icons ledger-icon-check-circle checked"></i>
-          <i class="ledger-icons ledger-icon-circle-o unchecked"></i>
+          <i class="ledger-icons ledger-icon-circle-outline unchecked"></i>
         </span>
         <div class="task-check-box-activity-icon">
           <i class="ledger-icons ledger-icon-check-circle"></i>
@@ -987,7 +987,7 @@
                     <input type="checkbox" value="<%- id %>" class="checkbox-input js-complete-item" <% if (isComplete) { %>checked="checked"<% } %> data-endpoint="{{ links.complete_toggle|replace({'__ID__': '<%- id %>', '__RID__': '<%- relatedId %>'})|raw }}" />
                     <span class="task-check-box-checkbox">
                       <i class="ledger-icons ledger-icon-check-circle checked"></i>
-                      <i class="ledger-icons ledger-icon-circle-o unchecked"></i>
+                      <i class="ledger-icons ledger-icon-circle-outline unchecked"></i>
                     </span>
                     <div class="task-check-box-activity-icon">
                       <i class="ledger-icons ledger-icon-check-circle"></i>
