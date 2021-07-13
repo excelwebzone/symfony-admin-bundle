@@ -492,16 +492,6 @@
   </li>
 {% endblock key_value_widget_prototype %}
 
-{% block icon_choice_widget %}
-  <div class="icon-selector-component">
-    {% for child in form %}
-      <div class="icon-selector-component-option">
-        {{- form_widget(child) -}}
-      </div>
-    {% endfor %}
-  </div>
-{% endblock icon_choice_widget %}
-
 {# Rows #}
 
 {% block form_row -%}
