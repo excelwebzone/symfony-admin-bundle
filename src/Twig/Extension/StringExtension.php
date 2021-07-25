@@ -3,9 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Html2Text\Html2Text;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 final class StringExtension extends AbstractExtension
@@ -19,16 +17,6 @@ final class StringExtension extends AbstractExtension
             new TwigFunction('preg_match', [$this, 'pregMatch']),
             new TwigFunction('preg_replace', [$this, 'pregReplace']),
             new TwigFunction('serialize', [$this, 'serialize']),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFilters()
-    {
-        return [
-            new TwigFilter('html2text', [$this, 'html2Text']),
         ];
     }
 
@@ -85,15 +73,5 @@ final class StringExtension extends AbstractExtension
         } catch (\Exception $e) {
             return null;
         }
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
-    public function html2Text(string $string): string
-    {
-        return (new Html2Text($string))->getText();
     }
 }

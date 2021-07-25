@@ -3,10 +3,6 @@
 namespace EWZ\SymfonyAdminBundle\Util;
 
 use Doctrine\Common\Inflector\Inflector;
-use libphonenumber\NumberParseException;
-use libphonenumber\PhoneNumber;
-use libphonenumber\PhoneNumberFormat;
-use libphonenumber\PhoneNumberUtil;
 
 final class StringUtil extends Inflector
 {
@@ -94,55 +90,6 @@ final class StringUtil extends Inflector
         }
 
         return $password;
-    }
-
-    /**
-     * @param string|null $string
-     * @param bool        $invalid Reset value if invalid
-     *
-     * @return string|null
-     */
-    public static function formatPhoneNumber(string $string = null, bool $invalid = false): ?string
-    {
-        if (empty($string)) {
-            return null;
-        }
-
-        $orgString = !$invalid ? $string : null;
-
-        // remove all non-numeric characters
-        $string = preg_replace('~\D~', '', $string);
-
-        if (empty($string)) {
-            return $orgString;
-        }
-
-        try {
-            $phoneUtil = PhoneNumberUtil::getInstance();
-
-            /** @var PhoneNumber $phoneNumber */
-            $phoneNumber = $phoneUtil->parse($string, 'US');
-
-            // add "+" for international number
-            if (!$phoneUtil->isValidNumber($phoneNumber)) {
-                $phoneNumber = $phoneUtil->parse('+'.$string, 'US');
-            }
-
-            if ($phoneUtil->isValidNumber($phoneNumber)) {
-                $string = 1 === $phoneNumber->getCountryCode()
-                    ? $phoneUtil->format($phoneNumber, PhoneNumberFormat::NATIONAL)
-                    : $phoneUtil->format($phoneNumber, PhoneNumberFormat::INTERNATIONAL);
-            }
-        } catch (NumberParseException $e) {
-            // do nothing
-        }
-
-        // recheck phone number
-        if (!preg_match('/^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{1,3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/', $string)) {
-            return $orgString;
-        }
-
-        return $string;
     }
 
     /**
