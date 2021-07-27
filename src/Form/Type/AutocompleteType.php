@@ -2,8 +2,8 @@
 
 namespace EWZ\SymfonyAdminBundle\Form\Type;
 
+use Doctrine\Persistence\ManagerRegistry;
 use EWZ\SymfonyAdminBundle\Form\DataTransformer\ObjectToIdTransformer;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,15 +11,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AutocompleteType extends AbstractType
 {
-    /** @var RegistryInterface */
-    protected $registry;
+    /** @var ManagerRegistry */
+    protected $managerRegistry;
 
     /**
-     * @param RegistryInterface $registry
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->registry = $registry;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -27,7 +27,7 @@ class AutocompleteType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $transformer = new ObjectToIdTransformer($this->registry, $options['class']);
+        $transformer = new ObjectToIdTransformer($this->managerRegistry, $options['class']);
 
         $builder->addModelTransformer($transformer);
     }

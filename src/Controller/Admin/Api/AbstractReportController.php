@@ -83,7 +83,7 @@ abstract class AbstractReportController extends AbstractController
         $items = $report->export();
 
         // empty or header only
-        if (1 >= count($items)) {
+        if (1 >= \count($items)) {
             return $this->json([
                 'ok' => true,
                 'message' => $this->translator->trans('alert.no_results_found'),
@@ -142,12 +142,12 @@ abstract class AbstractReportController extends AbstractController
         }
 
         // convert to Pagerfanta
-        if (is_array($items)) {
+        if (\is_array($items)) {
             $adapter = new ArrayAdapter($items);
             $pagerfanta = new Pagerfanta($adapter);
 
-            if (count($items)) {
-                $pagerfanta->setMaxPerPage(count($items));
+            if (\count($items)) {
+                $pagerfanta->setMaxPerPage(\count($items));
             }
 
             $items = $pagerfanta;
@@ -166,7 +166,7 @@ abstract class AbstractReportController extends AbstractController
         $data = [
             'html' => $html,
             'page' => $page,
-            'count' => $items ? count($items->getCurrentPageResults()) : 0,
+            'count' => $items ? \count($items->getCurrentPageResults()) : 0,
             'total' => $items ? $items->getNbResults() : 0,
         ];
 
@@ -177,7 +177,7 @@ abstract class AbstractReportController extends AbstractController
         if (isset($columns)) {
             $data['count'] = 0;
             foreach ($items as $item) {
-                $data['count'] += count($item);
+                $data['count'] += \count($item);
             }
 
             $data['total'] = 0;
@@ -226,6 +226,6 @@ abstract class AbstractReportController extends AbstractController
             StringUtil::classify($name)
         );
 
-        return new $class($this->objectManager, $this->getUser());
+        return new $class($this->managerRegistry, $this->getUser());
     }
 }

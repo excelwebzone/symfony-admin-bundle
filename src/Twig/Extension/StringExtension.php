@@ -2,7 +2,6 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
-use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -53,7 +52,7 @@ final class StringExtension extends AbstractExtension
     {
         try {
             $data = unserialize($string);
-            if (!is_array($data)) {
+            if (!\is_array($data)) {
                 $data = [$data];
             }
 
@@ -65,7 +64,7 @@ final class StringExtension extends AbstractExtension
                 }
             } else {
                 foreach ($data as $key => $value) {
-                    $data[$key] = StringUtil::ucwords($value);
+                    $data[$key] = ucwords($value);
                 }
             }
 

@@ -3,28 +3,29 @@
 namespace EWZ\SymfonyAdminBundle\Doctrine;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\ObjectManager;
 use EWZ\SymfonyAdminBundle\Model\User;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 /**
  * Doctrine listener updating the canonical username and password fields.
  */
 class UserSubscriber implements EventSubscriber
 {
-    /** @var EncoderFactoryInterface */
-    private $encoderFactory;
+    /** @var PasswordHasherFactoryInterface */
+    private $hasherFactory;
 
     /**
-     * @param EncoderFactoryInterface $encoderFactory
+     * @param PasswordHasherFactoryInterface $hasherFactory
      */
-    public function __construct(EncoderFactoryInterface $encoderFactory)
+    public function __construct(PasswordHasherFactoryInterface $hasherFactory)
     {
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
     }
 
     /**
@@ -50,9 +51,9 @@ class UserSubscriber implements EventSubscriber
     }
 
     /**
-     * @param LifecycleEventArgs $args
+     * @param PreUpdateEventArgs $args
      */
-    public function preUpdate(LifecycleEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
         $object = $args->getObject();
         if ($object instanceof User) {
@@ -79,7 +80,7 @@ class UserSubscriber implements EventSubscriber
         }
 
         if ($updatePassword) {
-            $user->hashPassword($this->encoderFactory);
+            $user->hashPassword($this->hasherFactory);
         }
     }
 
@@ -91,7 +92,7 @@ class UserSubscriber implements EventSubscriber
      */
     private function recomputeChangeSet(ObjectManager $om, User $user): void
     {
-        $meta = $om->getClassMetadata(get_class($user));
+        $meta = $om->getClassMetadata(\get_class($user));
 
         if ($om instanceof EntityManager) {
             $om->getUnitOfWork()->recomputeSingleEntityChangeSet($meta, $user);

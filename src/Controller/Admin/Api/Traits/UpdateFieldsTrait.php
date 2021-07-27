@@ -26,7 +26,7 @@ trait UpdateFieldsTrait
         $fields = [];
         $data = json_decode($request->getContent(), true);
         foreach ($data as $key => $value) {
-            if (empty($value) || (is_string($value) && 0 === strlen($value))) {
+            if (empty($value) || (\is_string($value) && 0 === \strlen($value))) {
                 $value = null;
             }
 
@@ -47,7 +47,7 @@ trait UpdateFieldsTrait
 
                             $value = $value
                                 ? new ArrayCollection(
-                                    $this->objectManager
+                                    $this->managerRegistry
                                         ->getRepository($fieldMapping['targetEntity'])
                                         ->searchAll(['id' => $value])
                                 )
@@ -59,7 +59,7 @@ trait UpdateFieldsTrait
                         case ClassMetadataInfo::MANY_TO_ONE:
                         default:
                             $value = $value
-                                ? $this->objectManager
+                                ? $this->managerRegistry
                                     ->getRepository($fieldMapping['targetEntity'])
                                     ->find($value)
                                 : null;
@@ -67,17 +67,17 @@ trait UpdateFieldsTrait
                 } elseif (isset($fieldMapping['type'])) {
                     switch ($fieldMapping['type']) {
                         case Type::BOOLEAN:
-                            $value = $value ? boolval($value) : false;
+                            $value = $value ? (bool) $value : false;
                             break;
 
                         case Type::SMALLINT:
                         case Type::INTEGER:
-                            $value = $value ? intval($value) : null;
+                            $value = $value ? (int) $value : null;
                             break;
 
                         case Type::DECIMAL:
                         case Type::FLOAT:
-                            $value = $value ? floatval($value) : null;
+                            $value = $value ? (float) $value : null;
                             break;
 
                         case Type::DATETIME:
@@ -102,7 +102,7 @@ trait UpdateFieldsTrait
                         case Type::SIMPLE_ARRAY:
                         case Type::JSON_ARRAY:
                         case Type::JSON:
-                            if ($value && !is_array($value)) {
+                            if ($value && !\is_array($value)) {
                                 $value = [$value];
                             }
                             break;
@@ -113,7 +113,7 @@ trait UpdateFieldsTrait
             }
 
             $errors = $this->validator->validate($object);
-            if (count($errors) > 0) {
+            if (\count($errors) > 0) {
                 return $this->json([
                     'ok' => false,
                     'error' => [
@@ -150,7 +150,7 @@ trait UpdateFieldsTrait
                         $values[] = (string) $v;
                     }
                     $value = $values;
-                } elseif (is_string($value) || is_object($value)) {
+                } elseif (\is_string($value) || \is_object($value)) {
                     $value = (string) $value;
                 }
 

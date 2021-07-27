@@ -26,11 +26,11 @@ class AllowedTags
             $this->tags = $data['tags'];
         }
 
-        if (!is_array($this->tags)) {
+        if (!\is_array($this->tags)) {
             throw new AnnotationException(
                 sprintf(
                     'Annotation "Config" parameter "tags" expect "array" but "%s" given',
-                    gettype($this->tags)
+                    \gettype($this->tags)
                 )
             );
         }

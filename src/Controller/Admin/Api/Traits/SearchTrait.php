@@ -28,7 +28,7 @@ trait SearchTrait
         $data = [
             'html' => $html,
             'page' => $page,
-            'count' => $items ? count($items->getCurrentPageResults()) : 0,
+            'count' => $items ? \count($items->getCurrentPageResults()) : 0,
             'total' => $items ? $items->getNbResults() : 0,
         ];
 
@@ -64,7 +64,7 @@ trait SearchTrait
         return $this->json([
             'ok' => true,
             'options' => $options,
-            'count' => $objects ? count($objects->getCurrentPageResults()) : 0,
+            'count' => $objects ? \count($objects->getCurrentPageResults()) : 0,
             'total' => $objects ? $objects->getNbResults() : 0,
         ]);
     }

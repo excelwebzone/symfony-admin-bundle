@@ -38,7 +38,7 @@ trait BulkEditTrait
                 }
 
                 $errors = $this->validator->validate($object);
-                if (count($errors) > 0) {
+                if (\count($errors) > 0) {
                     return $this->json([
                         'ok' => false,
                         'error' => [
@@ -48,7 +48,7 @@ trait BulkEditTrait
                 }
             }
 
-            $this->getRepository()->update($object, $index + 1 == count($objects));
+            $this->getRepository()->update($object, $index + 1 == \count($objects));
 
             if ($postEdit instanceof \Closure) {
                 $postEdit->bindTo($this)($object);
@@ -57,8 +57,8 @@ trait BulkEditTrait
 
         return $this->json([
             'ok' => true,
-            'total' => count($objects),
-            'message' => $this->translator->trans('alert.bulk_edit', ['%total%' => count($objects)]),
+            'total' => \count($objects),
+            'message' => $this->translator->trans('alert.bulk_edit', ['%total%' => \count($objects)]),
         ]);
     }
 }

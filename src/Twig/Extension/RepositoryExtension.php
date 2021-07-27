@@ -2,23 +2,23 @@
 
 namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
+use Doctrine\Persistence\ManagerRegistry;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
 use Pagerfanta\Pagerfanta;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 final class RepositoryExtension extends AbstractExtension
 {
-    /** @var RegistryInterface */
-    private $registry;
+    /** @var ManagerRegistry */
+    private $managerRegistry;
 
     /**
-     * @param RegistryInterface $registry
+     * @param ManagerRegistry $managerRegistry
      */
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        $this->registry = $registry;
+        $this->managerRegistry = $managerRegistry;
     }
 
     /**
@@ -45,7 +45,7 @@ final class RepositoryExtension extends AbstractExtension
      */
     public function getRepository(string $class): ?AbstractRepository
     {
-        return $this->registry
+        return $this->managerRegistry
             ->getManagerForClass($class)
             ->getRepository($class);
     }

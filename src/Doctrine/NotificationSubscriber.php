@@ -115,7 +115,7 @@ class NotificationSubscriber implements EventSubscriber
 
         foreach ($em->getUnitOfWork()->getEntityChangeSet($entity) as $propertyName => $propertyChangeSet) {
             if (isset($fieldMappings[$propertyName]['type'])
-                && in_array($fieldMappings[$propertyName]['type'], ['string', 'text'])
+                && \in_array($fieldMappings[$propertyName]['type'], ['string', 'text'])
             ) {
                 $reflectionProperty = new \ReflectionProperty(
                     $fieldMappings[$propertyName]['inherited'] ?? $entityClass,

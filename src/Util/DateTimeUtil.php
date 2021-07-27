@@ -247,7 +247,7 @@ final class DateTimeUtil
             default:
                 $from->modify('first day of this month');
 
-                if (intval($to->format('d')) > 1) {
+                if ((int) ($to->format('d')) > 1) {
                     $to->modify('first day of next month');
                 }
 

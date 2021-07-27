@@ -6,17 +6,20 @@ use EWZ\SymfonyAdminBundle\Event\UserEvent;
 use EWZ\SymfonyAdminBundle\Events;
 use EWZ\SymfonyAdminBundle\Model\User;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Environment as TwigEnvironment;
 
 /**
  * Emails events.
  */
 class EmailSubscriber implements EventSubscriberInterface
 {
-    /** @var \Twig_Environment */
+    /** @var TwigEnvironment */
     protected $twig;
 
-    /** @var \Swift_Mailer */
+    /** @var MailerInterface */
     protected $mailer;
 
     /** @var UrlGeneratorInterface */
@@ -26,14 +29,14 @@ class EmailSubscriber implements EventSubscriberInterface
     protected $sender;
 
     /**
-     * @param \Twig_Environment     $twig
-     * @param \Swift_Mailer         $mailer
+     * @param TwigEnvironment       $twig
+     * @param MailerInterface       $mailer
      * @param UrlGeneratorInterface $urlGenerator
      * @param string                $sender
      */
     public function __construct(
-        \Twig_Environment $twig,
-        \Swift_Mailer $mailer,
+        TwigEnvironment $twig,
+        MailerInterface $mailer,
         UrlGeneratorInterface $urlGenerator,
         string $sender
     ) {
@@ -82,7 +85,7 @@ class EmailSubscriber implements EventSubscriberInterface
     {
         if (empty($toEmail)) {
             return;
-        } elseif (!is_array($toEmail)) {
+        } elseif (!\is_array($toEmail)) {
             $toEmail = [$toEmail];
         }
 
@@ -96,19 +99,16 @@ class EmailSubscriber implements EventSubscriberInterface
             $htmlBody = $template->renderBlock('body_html', $context);
         }
 
-        $message = (new \Swift_Message())
-            ->setSubject($subject)
-            ->setFrom($this->sender)
-            ->setTo(array_filter($toEmail));
+        $email = (new Email())
+            ->from($this->sender)
+            ->to(...array_filter($toEmail))
+            ->subject($subject)
+            ->text($textBody);
 
         if (!empty($htmlBody)) {
-            $message
-                ->setBody($htmlBody, 'text/html')
-                ->addPart($textBody, 'text/plain');
-        } else {
-            $message->setBody($textBody);
+            $email->html($htmlBody);
         }
 
-        $this->mailer->send($message);
+        $this->mailer->send($email);
     }
 }

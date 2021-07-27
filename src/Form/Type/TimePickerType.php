@@ -15,8 +15,8 @@ class TimePickerType extends AbstractType
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        $view->vars['time_interval'] = intval($options['interval']);
-        $view->vars['time_24hour'] = intval($options['24hour']);
+        $view->vars['time_interval'] = (int) ($options['interval']);
+        $view->vars['time_24hour'] = (int) ($options['24hour']);
         $view->vars['time_hours'] = (array) $options['hours'];
     }
 

@@ -2,26 +2,26 @@
 
 namespace EWZ\SymfonyAdminBundle\Form\DataTransformer;
 
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 
 class ObjectToIdTransformer implements DataTransformerInterface
 {
-    /** @var RegistryInterface */
-    protected $registry;
+    /** @var ManagerRegistry */
+    protected $managerRegistry;
 
     /** @var string */
     protected $class;
 
     /**
-     * @param RegistryInterface $registry
-     * @param string            $class
+     * @param ManagerRegistry $managerRegistry
+     * @param string          $class
      */
-    public function __construct(RegistryInterface $registry, string $class)
+    public function __construct(ManagerRegistry $managerRegistry, string $class)
     {
-        $this->registry = $registry;
+        $this->managerRegistry = $managerRegistry;
         $this->class = $class;
     }
 
@@ -50,11 +50,11 @@ class ObjectToIdTransformer implements DataTransformerInterface
             return;
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $object = $this->registry
+        $object = $this->managerRegistry
                     ->getManagerForClass($this->class)
                     ->getRepository($this->class)
                     ->find($value);

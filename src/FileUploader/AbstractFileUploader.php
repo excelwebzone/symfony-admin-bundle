@@ -4,14 +4,14 @@ namespace EWZ\SymfonyAdminBundle\FileUploader;
 
 use Intervention\Image\ImageManagerStatic;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractFileUploader implements FileUploaderInterface
 {
-    const IMAGE_DRIVER_GD = 'gd';
-    const IMAGE_DRIVER_IMAGICK = 'imagick';
+    public const IMAGE_DRIVER_GD = 'gd';
+    public const IMAGE_DRIVER_IMAGICK = 'imagick';
 
     /** @var ValidatorInterface */
     protected $validator;
@@ -62,7 +62,7 @@ abstract class AbstractFileUploader implements FileUploaderInterface
         $this->maxFilesize = $maxFilesize;
         $this->imageDriver = $imageDriver;
 
-        if (!in_array($this->imageDriver, [self::IMAGE_DRIVER_GD, self::IMAGE_DRIVER_IMAGICK])) {
+        if (!\in_array($this->imageDriver, [self::IMAGE_DRIVER_GD, self::IMAGE_DRIVER_IMAGICK])) {
             $this->imageDriver = self::IMAGE_DRIVER_GD;
         }
     }
@@ -103,7 +103,7 @@ abstract class AbstractFileUploader implements FileUploaderInterface
 
         $errors = $this->validator->validate($file, $constraints);
 
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             return $errors[0]->getMessage();
         }
 

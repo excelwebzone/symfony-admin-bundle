@@ -20,7 +20,7 @@ services:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
         arguments:
-            - '@security.encoder_factory'
+            - '@security.password_hasher_factory'
 
     #
     # Security
@@ -71,8 +71,8 @@ services:
             - { name: kernel.event_listener, event: kernel.request, priority: 64 }
         arguments:
             - '@kernel'
-            - '@request_stack'
             - '@security.token_storage'
+            - '@request_stack'
             - '@twig'
             - '%symfony_admin.timezone.database%'
             - '%symfony_admin.timezone.client%'
@@ -103,7 +103,6 @@ services:
         public: true
         arguments:
             - '@security.authentication_utils'
-            - '@session'
             - '@twig'
 
     EWZ\SymfonyAdminBundle\Controller\ResettingController:
@@ -190,7 +189,7 @@ services:
         arguments:
             - '@doctrine'
             - '@security.token_storage'
-            - '@security.encoder_factory'
+            - '@security.password_hasher_factory'
 
     EWZ\SymfonyAdminBundle\Repository\UserRepository:
         alias: 'symfony_admin.user_repository'

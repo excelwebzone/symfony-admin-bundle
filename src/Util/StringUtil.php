@@ -2,14 +2,84 @@
 
 namespace EWZ\SymfonyAdminBundle\Util;
 
-use Doctrine\Common\Inflector\Inflector;
-
-final class StringUtil extends Inflector
+final class StringUtil
 {
-    const PASSWORD_UPPER_CASE = 'UPPERCASE';
-    const PASSWORD_LOWER_CASE = 'LOWERCASE';
-    const PASSWORD_NUMBERS = 'NUMBERS';
-    const PASSWORD_SYMBOLS = 'SYMBOLS';
+    public const PASSWORD_UPPER_CASE = 'UPPERCASE';
+    public const PASSWORD_LOWER_CASE = 'LOWERCASE';
+    public const PASSWORD_NUMBERS = 'NUMBERS';
+    public const PASSWORD_SYMBOLS = 'SYMBOLS';
+
+    /**
+     * @see DoctrineInflector::tableize
+     */
+    public static function tableize(string $word): string
+    {
+        return Inflector::getInstance()->tableize($word);
+    }
+
+    /**
+     * @see DoctrineInflector::classify
+     */
+    public static function classify(string $word): string
+    {
+        return Inflector::getInstance()->classify($word);
+    }
+
+    /**
+     * @see DoctrineInflector::camelize
+     */
+    public static function camelize(string $word): string
+    {
+        return Inflector::getInstance()->camelize($word);
+    }
+
+    /**
+     * @see DoctrineInflector::capitalize
+     */
+    public static function capitalize(string $string, string $delimiters = " \n\t\r\0\x0B-"): string
+    {
+        return Inflector::getInstance()->capitalize($word);
+    }
+
+    /**
+     * @see DoctrineInflector::seemsUtf8
+     */
+    public static function seemsUtf8(string $string): bool
+    {
+        return Inflector::getInstance()->seemsUtf8($word);
+    }
+
+    /**
+     * @see DoctrineInflector::unaccent
+     */
+    public static function unaccent(string $string): string
+    {
+        return Inflector::getInstance()->unaccent($word);
+    }
+
+    /**
+     * @see DoctrineInflector::urlize
+     */
+    public static function urlize(string $string): string
+    {
+        return Inflector::getInstance()->urlize($word);
+    }
+
+    /**
+     * @see DoctrineInflector::singularize
+     */
+    public static function singularize(string $word): string
+    {
+        return Inflector::getInstance()->singularize($word);
+    }
+
+    /**
+     * @see DoctrineInflector::pluralize
+     */
+    public static function pluralize(string $word): string
+    {
+        return Inflector::getInstance()->pluralize($word);
+    }
 
     /**
      * @param string $string
@@ -24,8 +94,8 @@ final class StringUtil extends Inflector
 
         $encoding = mb_detect_encoding($string);
         $result = $encoding
-            ? mb_convert_case($string, MB_CASE_LOWER, $encoding)
-            : mb_convert_case($string, MB_CASE_LOWER);
+            ? mb_convert_case($string, \MB_CASE_LOWER, $encoding)
+            : mb_convert_case($string, \MB_CASE_LOWER);
 
         return $result;
     }
@@ -61,19 +131,19 @@ final class StringUtil extends Inflector
 
         $characters = '';
 
-        if (in_array(self::PASSWORD_UPPER_CASE, $options)) {
+        if (\in_array(self::PASSWORD_UPPER_CASE, $options)) {
             $characters .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         }
 
-        if (in_array(self::PASSWORD_LOWER_CASE, $options)) {
+        if (\in_array(self::PASSWORD_LOWER_CASE, $options)) {
             $characters .= 'abcdefghijklmnopqrstuvwxyz';
         }
 
-        if (in_array(self::PASSWORD_NUMBERS, $options)) {
+        if (\in_array(self::PASSWORD_NUMBERS, $options)) {
             $characters .= '0123456789';
         }
 
-        if (in_array(self::PASSWORD_SYMBOLS, $options)) {
+        if (\in_array(self::PASSWORD_SYMBOLS, $options)) {
             $characters .= '!@$%^&*()<>,.?/[]{}-=_+';
         }
 
@@ -82,7 +152,7 @@ final class StringUtil extends Inflector
         }
 
         $characterList = $characters;
-        $characters = strlen($characterList);
+        $characters = \strlen($characterList);
         $password = '';
 
         for ($i = 0; $i < $length; ++$i) {

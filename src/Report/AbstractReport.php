@@ -3,7 +3,7 @@
 namespace EWZ\SymfonyAdminBundle\Report;
 
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ManagerRegistry;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
 use EWZ\SymfonyAdminBundle\Util\DateTimeUtil;
@@ -12,8 +12,8 @@ use Pagerfanta\Pagerfanta;
 
 abstract class AbstractReport
 {
-    /** @var ObjectManager */
-    protected $objectManager;
+    /** @var ManagerRegistry */
+    protected $managerRegistry;
 
     /** @var User */
     protected $user;
@@ -46,12 +46,12 @@ abstract class AbstractReport
     protected $groupingType = 'monthly';
 
     /**
-     * @param ObjectManager $objectManager
-     * @param User          $user
+     * @param ManagerRegistry $managerRegistry
+     * @param User            $user
      */
-    public function __construct(ObjectManager $objectManager, User $user)
+    public function __construct(ManagerRegistry $managerRegistry, User $user)
     {
-        $this->objectManager = $objectManager;
+        $this->managerRegistry = $managerRegistry;
         $this->user = $user;
     }
 
@@ -71,7 +71,7 @@ abstract class AbstractReport
         // holds the overall total
         $totals = [];
         foreach ($this->getChartTotals() as $key) {
-            $totals[$key] = in_array($key, $this->getChartAvg()) ? [] : 0;
+            $totals[$key] = \in_array($key, $this->getChartAvg()) ? [] : 0;
         }
 
         $items = $this->getChartColumns();
@@ -83,7 +83,7 @@ abstract class AbstractReport
         }
 
         $labels = $this->getChartLabels();
-        if (is_null($labels) && $result = $this->getChartMinMaxDates()) {
+        if (null === $labels && $result = $this->getChartMinMaxDates()) {
             $items = DateTimeUtil::getDatePeriodItems(
                 $this->getGroupingType(),
                 new \DateTime($result['min']),
@@ -92,7 +92,7 @@ abstract class AbstractReport
             foreach ($items as $label => $item) {
                 $items[$label]['data'] = [];
                 foreach (array_keys($this->getChartColumns()) as $key) {
-                    $items[$label]['data'][$key] = in_array($key, $this->getChartAvg()) ? [] : 0;
+                    $items[$label]['data'][$key] = \in_array($key, $this->getChartAvg()) ? [] : 0;
                 }
             }
         }
@@ -103,13 +103,13 @@ abstract class AbstractReport
 
             foreach ($matches[0] as $column) {
                 if (isset($totals[$key]) && !isset($totals[$column])) {
-                    $totals[$column] = in_array($column, $this->getChartAvg()) ? [] : 0;
+                    $totals[$column] = \in_array($column, $this->getChartAvg()) ? [] : 0;
                 }
 
-                if (is_null($labels)) {
+                if (null === $labels) {
                     foreach ($items as $label => $item) {
                         if (isset($item['data'][$key]) && !isset($item['data'][$column])) {
-                            $items[$label]['data'][$column] = in_array($column, $this->getChartAvg()) ? [] : 0;
+                            $items[$label]['data'][$column] = \in_array($column, $this->getChartAvg()) ? [] : 0;
                         }
                     }
                 }
@@ -127,7 +127,7 @@ abstract class AbstractReport
                 break;
             }
 
-            if (is_null($labels)) {
+            if (null === $labels) {
                 foreach ($items as $label => $item) {
                     // skip if out of date range
                     if (new \DateTime($row[$this->getChartGroupByField()]) < new \DateTime($item['start'])
@@ -137,8 +137,8 @@ abstract class AbstractReport
                     }
 
                     foreach (array_keys($item['data']) as $key) {
-                        if (!array_key_exists($key, $this->getChartComplexColumns())) {
-                            if (in_array($key, $this->getChartAvg())) {
+                        if (!\array_key_exists($key, $this->getChartComplexColumns())) {
+                            if (\in_array($key, $this->getChartAvg())) {
                                 $items[$label]['data'][$key][] = $this->getChartConvertCallback()($this->getColumnValue($key, $row));
                             } else {
                                 $items[$label]['data'][$key] += $this->getChartConvertCallback()($this->getColumnValue($key, $row));
@@ -146,9 +146,9 @@ abstract class AbstractReport
                         }
                     }
                 }
-            } elseif (in_array($row[$this->getChartGroupByField()], array_keys($labels))) {
+            } elseif (\in_array($row[$this->getChartGroupByField()], array_keys($labels))) {
                 foreach (array_keys($items) as $key) {
-                    if (in_array($key, $this->getChartAvg())) {
+                    if (\in_array($key, $this->getChartAvg())) {
                         if (!isset($items[$key]['data'][$row[$this->getChartGroupByField()]])) {
                             $items[$key]['data'][$row[$this->getChartGroupByField()]] = [];
                         }
@@ -165,12 +165,12 @@ abstract class AbstractReport
             }
 
             foreach (array_keys($totals) as $key) {
-                if (!array_key_exists($key, $this->getChartComplexColumns())
-                    && (is_null($labels)
-                        || in_array($row[$this->getChartGroupByField()], array_keys($labels))
+                if (!\array_key_exists($key, $this->getChartComplexColumns())
+                    && (null === $labels
+                        || \in_array($row[$this->getChartGroupByField()], array_keys($labels))
                     )
                 ) {
-                    if (in_array($key, $this->getChartAvg())) {
+                    if (\in_array($key, $this->getChartAvg())) {
                         $totals[$key][] = $this->getChartConvertCallback()($this->getColumnValue($key, $row));
                     } else {
                         $totals[$key] += $this->getChartConvertCallback()($this->getColumnValue($key, $row));
@@ -179,27 +179,27 @@ abstract class AbstractReport
             }
         }
 
-        if (is_null($labels)) {
+        if (null === $labels) {
             foreach ($items as $label => $item) {
                 // calculate avg column
                 foreach ($item['data'] as $key => $value) {
-                    if (is_array($value)) {
-                        $item['data'][$key] = count($value)
-                            ? array_sum($value) / count($value)
+                    if (\is_array($value)) {
+                        $item['data'][$key] = \count($value)
+                            ? array_sum($value) / \count($value)
                             : 0;
                     }
                 }
 
                 // calculate complex column
                 foreach (array_keys($item['data']) as $key) {
-                    if (array_key_exists($key, $this->getChartComplexColumns())) {
+                    if (\array_key_exists($key, $this->getChartComplexColumns())) {
                         $items[$label]['data'][$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $item['data'], $this->getChartComplexColumns()));
                     }
                 }
 
                 // remove extra columns
                 foreach (array_keys($item['data']) as $key) {
-                    if (!array_key_exists($key, $this->getChartColumns())) {
+                    if (!\array_key_exists($key, $this->getChartColumns())) {
                         unset($items[$label]['data'][$key]);
                     }
                 }
@@ -208,9 +208,9 @@ abstract class AbstractReport
             // calculate avg column
             foreach ($items as $key => $item) {
                 foreach ($item['data'] as $k => $v) {
-                    if (is_array($v)) {
-                        $items[$key]['data'][$k] = count($v)
-                            ? array_sum($v) / count($v)
+                    if (\is_array($v)) {
+                        $items[$key]['data'][$k] = \count($v)
+                            ? array_sum($v) / \count($v)
                             : 0;
                     }
                 }
@@ -232,26 +232,26 @@ abstract class AbstractReport
 
         // calculate avg column
         foreach ($totals as $key => $value) {
-            if (is_array($value)) {
-                $totals[$key] = count($value)
-                    ? array_sum($value) / count($value)
+            if (\is_array($value)) {
+                $totals[$key] = \count($value)
+                    ? array_sum($value) / \count($value)
                     : 0;
             }
         }
         // calculate complex totals
         foreach ($totals as $key => $value) {
-            if (array_key_exists($key, $this->getChartComplexColumns())) {
+            if (\array_key_exists($key, $this->getChartComplexColumns())) {
                 $totals[$key] = $this->getChartConvertCallback()($this->calcComplexColumn($key, $totals, $this->getChartComplexColumns()));
             }
         }
         // remove extra columns
         foreach ($totals as $key => $value) {
-            if (!in_array($key, $this->getChartTotals())) {
+            if (!\in_array($key, $this->getChartTotals())) {
                 unset($totals[$key]);
             }
         }
 
-        if (is_null($labels)) {
+        if (null === $labels) {
             // prepare data
             $tmp = [];
             foreach (array_values($this->getChartColumns()) as $value) {
@@ -363,7 +363,7 @@ abstract class AbstractReport
      */
     public function getChartGroupByField(): ?string
     {
-        if ($this->getRepository() && in_array('createdAt', $this->getRepository()->getFieldNames())) {
+        if ($this->getRepository() && \in_array('createdAt', $this->getRepository()->getFieldNames())) {
             return 'createdAt';
         }
 
@@ -383,7 +383,7 @@ abstract class AbstractReport
      */
     public function export(): array
     {
-        if (0 === count($this->getExportColumns())) {
+        if (0 === \count($this->getExportColumns())) {
             return [];
         }
 
@@ -431,12 +431,12 @@ abstract class AbstractReport
                         array_shift($split);
                     }
 
-                    for ($i = 0; $i < count($split) - 1; ++$i) {
+                    for ($i = 0; $i < \count($split) - 1; ++$i) {
                         $parentColumn = $split[$i];
                         $item = $this->getColumnValue($parentColumn, $item);
 
                         // skip empty parent
-                        if (!is_object($item)
+                        if (!\is_object($item)
                             || ($item instanceof Collection
                                 && 0 === $item->count()
                             )
@@ -452,7 +452,7 @@ abstract class AbstractReport
 
                 $value = $this->getColumnValue($column, $item);
 
-                if (!in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
+                if (!\in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
                     $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
                 }
 
@@ -493,7 +493,7 @@ abstract class AbstractReport
                     case 'serialize':
                         try {
                             $tmp = $value ? unserialize($value) : [];
-                            if (!is_array($tmp)) {
+                            if (!\is_array($tmp)) {
                                 $tmp = [$tmp];
                             }
 
@@ -505,7 +505,7 @@ abstract class AbstractReport
                                 }
                             } else {
                                 foreach ($tmp as $k => $v) {
-                                    $tmp[$k] = StringUtil::ucwords($v);
+                                    $tmp[$k] = ucwords($v);
                                 }
                             }
 
@@ -517,7 +517,7 @@ abstract class AbstractReport
 
                 if ($value instanceof \DateTimeInterface) {
                     $value = $value->format($this->getUser()->getDateFormat());
-                } elseif (is_array($value) || $value instanceof Collection) {
+                } elseif (\is_array($value) || $value instanceof Collection) {
                     $values = [];
                     foreach ($value as $v) {
                         $values[] = (string) $v;
@@ -525,7 +525,7 @@ abstract class AbstractReport
                     $value = implode(', ', $values);
                 } elseif (is_numeric($value)) {
                     $value = number_format($value, 2);
-                } elseif (is_string($value) || is_object($value)) {
+                } elseif (\is_string($value) || \is_object($value)) {
                     $value = (string) $value;
                 }
 
@@ -606,7 +606,7 @@ abstract class AbstractReport
             $items = $items->getCurrentPageResults();
         }
 
-        $count = count($items);
+        $count = \count($items);
 
         if ($this->getRepository() && $count) {
             $criteria = $orgCriteria = $this->getCriteria();
@@ -661,7 +661,7 @@ abstract class AbstractReport
         }
         foreach ($columns as $groupBy => $values) {
             foreach (array_keys($items) as $key) {
-                if (!array_key_exists($groupBy, $items[$key])) {
+                if (!\array_key_exists($groupBy, $items[$key])) {
                     $items[$key][$groupBy] = null;
                 }
 
@@ -669,7 +669,7 @@ abstract class AbstractReport
             }
 
             // set count - used in view (JS)
-            $columns[$groupBy] = $values ? count($values) : 0;
+            $columns[$groupBy] = $values ? \count($values) : 0;
         }
 
         return [$items, $columns];
@@ -718,7 +718,7 @@ abstract class AbstractReport
      */
     public function searchTotals($items): array
     {
-        if (0 === count($this->getTotalColumns())) {
+        if (0 === \count($this->getTotalColumns())) {
             return [];
         }
 
@@ -734,14 +734,14 @@ abstract class AbstractReport
         }
 
         $columns = [];
-        if (is_array($items)) {
+        if (\is_array($items)) {
             foreach ($items as $item) {
                 foreach ($item as $key => $value) {
-                    if (!array_key_exists($key, $this->getTotalColumns())) {
+                    if (!\array_key_exists($key, $this->getTotalColumns())) {
                         continue;
                     }
 
-                    if (!array_key_exists($key, $columns)) {
+                    if (!\array_key_exists($key, $columns)) {
                         $columns[$key] = 0;
                     }
 
@@ -765,7 +765,7 @@ abstract class AbstractReport
         }
 
         foreach ($this->getTotalColumns() as $key => $value) {
-            if (array_key_exists($key, $columns)) {
+            if (\array_key_exists($key, $columns)) {
                 switch ($value['format']) {
                     case 'time':
                         $hours = floor($columns[$key] / 3600);
@@ -955,7 +955,7 @@ abstract class AbstractReport
     {
         $value = null;
 
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $value = $data[$column] ?? null;
         } else {
             $method = lcfirst(StringUtil::classify($column));
@@ -983,16 +983,16 @@ abstract class AbstractReport
     {
         $value = $this->getColumnValue($column, $data);
 
-        if (array_key_exists($column, $complexColumns)) {
+        if (\array_key_exists($column, $complexColumns)) {
             $formula = $complexColumns[$column];
 
             foreach ($data as $key => $value) {
-                $formula = preg_replace(sprintf('/\b%s\b/', $key), floatval($value), $formula);
+                $formula = preg_replace(sprintf('/\b%s\b/', $key), (float) $value, $formula);
             }
 
             $value = 0 + create_function('', sprintf('return (%s);', $formula))();
         }
 
-        return floatval($value);
+        return (float) $value;
     }
 }

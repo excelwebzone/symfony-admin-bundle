@@ -22,11 +22,11 @@ class ConfigField
             $this->defaultValues = $data['defaultValues'];
         }
 
-        if (!is_array($this->defaultValues)) {
+        if (!\is_array($this->defaultValues)) {
             throw new AnnotationException(
                 sprintf(
                     'Annotation "Config" parameter "defaultValues" expect "array" but "%s" given',
-                    gettype($this->defaultValues)
+                    \gettype($this->defaultValues)
                 )
             );
         }

@@ -3,28 +3,29 @@
 namespace EWZ\SymfonyAdminBundle\Model;
 
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
-use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
+use Symfony\Component\PasswordHasher\Hasher\NativePasswordHasher;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    const ROLE_DEFAULT = 'ROLE_USER';
-    const ROLE_ADMIN = 'ROLE_ADMIN';
-    const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+    public const ROLE_DEFAULT = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
-    const PHP_DATE_FORMAT_US = 'm/d/Y';
-    const PHP_DATE_FORMAT_OTHER = 'd/m/Y';
-    const PHP_TIME_FORMAT_12HOURS = 'h:i A';
-    const PHP_TIME_FORMAT_24HOURS = 'H:i:s';
+    public const PHP_DATE_FORMAT_US = 'm/d/Y';
+    public const PHP_DATE_FORMAT_OTHER = 'd/m/Y';
+    public const PHP_TIME_FORMAT_12HOURS = 'h:i A';
+    public const PHP_TIME_FORMAT_24HOURS = 'H:i:s';
 
-    const JS_DATE_FORMAT_US = 'MM/DD/YYYY';
-    const JS_DATE_FORMAT_OTHER = 'DD/MM/YYYY';
-    const JS_TIME_FORMAT_12HOURS = 'hh:mm A';
-    const JS_TIME_FORMAT_24HOURS = 'HH:mm:ss';
+    public const JS_DATE_FORMAT_US = 'MM/DD/YYYY';
+    public const JS_DATE_FORMAT_OTHER = 'DD/MM/YYYY';
+    public const JS_TIME_FORMAT_12HOURS = 'hh:mm A';
+    public const JS_TIME_FORMAT_24HOURS = 'HH:mm:ss';
 
-    const SETTINGS_KEY_TABLES = 'tables';
-    const SETTINGS_KEY_FILTERS = 'filters';
+    public const SETTINGS_KEY_TABLES = 'tables';
+    public const SETTINGS_KEY_FILTERS = 'filters';
 
     /** @var int */
     protected $id;
@@ -105,6 +106,16 @@ class User implements UserInterface
     public function __toString(): string
     {
         return (string) ($this->getName() ?: $this->getUsername());
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): ?string
+    {
+        return $this->getUsername();
     }
 
     /**
@@ -331,26 +342,26 @@ class User implements UserInterface
      * The implement should be a no-op in case there is no new password (it should not erase the
      * existing hash with a wrong one).
      *
-     * @param EncoderFactoryInterface $encoderFactory
+     * @param PasswordHasherFactoryInterface $hasherFactory
      */
-    public function hashPassword(EncoderFactoryInterface $encoderFactory): void
+    public function hashPassword(PasswordHasherFactoryInterface $hasherFactory): void
     {
         $plainPassword = $this->getPlainPassword();
 
-        if (0 === strlen($plainPassword)) {
+        if (0 === \strlen($plainPassword)) {
             return;
         }
 
-        $encoder = $encoderFactory->getEncoder($this);
+        $hasher = $hasherFactory->getPasswordHasher($this);
 
-        if ($encoder instanceof NativePasswordEncoder) {
+        if ($hasher instanceof NativePasswordHasher) {
             $this->setSalt(null);
         } else {
             $salt = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
             $this->setSalt($salt);
         }
 
-        $hashedPassword = $encoder->encodePassword($plainPassword, $this->getSalt());
+        $hashedPassword = $hasher->hash($plainPassword, $this->getSalt());
         $this->setPassword($hashedPassword);
         $this->eraseCredentials();
     }
@@ -391,7 +402,7 @@ class User implements UserInterface
     /**
      * {@inheritdoc}
      *
-     * @see AdvancedUserInterface
+     * @see UserInterface
      */
     public function isEnabled()
     {
@@ -497,7 +508,7 @@ class User implements UserInterface
      */
     public function hasRole(string $role): bool
     {
-        return in_array(strtoupper($role), $this->getRoles(), true);
+        return \in_array(strtoupper($role), $this->getRoles(), true);
     }
 
     /**
@@ -510,7 +521,7 @@ class User implements UserInterface
             return;
         }
 
-        if (!in_array($role, $this->roles, true)) {
+        if (!\in_array($role, $this->roles, true)) {
             $this->roles[] = $role;
         }
     }

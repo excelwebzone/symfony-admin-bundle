@@ -28,7 +28,7 @@ class StringToJsonTransformer implements DataTransformerInterface
             return;
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw new UnexpectedTypeException($value, 'string');
         }
 

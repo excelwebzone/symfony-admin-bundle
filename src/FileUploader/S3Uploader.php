@@ -4,10 +4,10 @@ namespace EWZ\SymfonyAdminBundle\FileUploader;
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class S3Uploader extends AbstractFileUploader
 {
@@ -97,7 +97,7 @@ final class S3Uploader extends AbstractFileUploader
         }
 
         // generate filename
-        $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::uuid4(), $file->guessExtension());
+        $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::v4(), $file->guessExtension());
 
         // upload file to S3
         $result = $this->s3Client->putObject([
@@ -234,7 +234,7 @@ final class S3Uploader extends AbstractFileUploader
      */
     private function cleanFileName(string $fileName): string
     {
-        $fileName = parse_url($fileName, PHP_URL_PATH);
+        $fileName = parse_url($fileName, \PHP_URL_PATH);
 
         if ('/' === substr($fileName, 0, 1)) {
             $fileName = substr($fileName, 1);

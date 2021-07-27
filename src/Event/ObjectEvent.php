@@ -108,7 +108,7 @@ class ObjectEvent extends Event
             throw new \InvalidArgumentException(sprintf(
                 'Field "%s" is not a valid field of the entity "%s" in PreUpdateEventArgs.',
                 $field,
-                get_class($this->getObject())
+                \get_class($this->getObject())
             ));
         }
     }

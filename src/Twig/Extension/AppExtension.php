@@ -4,23 +4,24 @@ namespace EWZ\SymfonyAdminBundle\Twig\Extension;
 
 use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
+use Twig\Environment as TwigEnvironment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 final class AppExtension extends AbstractExtension
 {
-    /** @var \Twig_Environment */
+    /** @var TwigEnvironment */
     protected $twig;
 
     /** @var FileUploaderInterface */
     protected $fileUploader;
 
     /**
-     * @param \Twig_Environment     $twig
+     * @param TwigEnvironment       $twig
      * @param FileUploaderInterface $fileUploader
      */
-    public function __construct(\Twig_Environment $twig, FileUploaderInterface $fileUploader)
+    public function __construct(TwigEnvironment $twig, FileUploaderInterface $fileUploader)
     {
         $this->twig = $twig;
         $this->fileUploader = $fileUploader;
@@ -100,10 +101,10 @@ final class AppExtension extends AbstractExtension
 
         $size = $this->fileUploader->getFileSize($file);
         $base = log($size) / log(1024);
-        $suffix = array('', 'KB', 'MB', 'GB', 'TB');
+        $suffix = ['', 'KB', 'MB', 'GB', 'TB'];
         $f_base = floor($base);
 
-        return sprintf('%s%s', round(pow(1024, $base - floor($base)), 1), $suffix[$f_base]);
+        return sprintf('%s%s', round(1024 ** ($base - floor($base)), 1), $suffix[$f_base]);
     }
 
     /**

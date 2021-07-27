@@ -118,7 +118,7 @@ class CronCommand extends Command
         $options = [];
         foreach ($commandOptions as $key => $option) {
             $params = explode('=', $option, 2);
-            if (is_array($params) && 2 === count($params)) {
+            if (\is_array($params) && 2 === \count($params)) {
                 $options[$params[0]] = $params[1];
             } else {
                 $options[$key] = $option;

@@ -2,35 +2,32 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Twig\Environment as TwigEnvironment;
 
 /**
  * Controller used to manage the application security.
- * See https://symfony.com/doc/current/cookbook/security/form_login_setup.html.
+ * See https://symfony.com/doc/current/security/form_login_setup.html.
  */
 class SecurityController
 {
     /** @var AuthenticationUtils */
     private $helper;
 
-    /** @var Session */
-    private $session;
-
-    /** @var \Twig_Environment */
+    /** @var TwigEnvironment */
     private $twig;
 
     /**
      * @param AuthenticationUtils $helper
-     * @param Session             $session
-     * @param \Twig_Environment   $twig
+     * @param TwigEnvironment     $twig
      */
-    public function __construct(AuthenticationUtils $helper, Session $session, \Twig_Environment $twig)
+    public function __construct(AuthenticationUtils $helper, TwigEnvironment $twig)
     {
         $this->helper = $helper;
-        $this->session = $session;
         $this->twig = $twig;
     }
 
@@ -39,11 +36,11 @@ class SecurityController
      *
      * @return Response
      */
-    public function login(): Response
+    public function login(Request $request): Response
     {
         // last authentication error (if any)
         if ($error = $this->helper->getLastAuthenticationError()) {
-            $this->session->getFlashBag()->add('error', $error->getMessage());
+            $request->getSession()->getFlashBag()->add('error', $error->getMessage());
         }
 
         $content = $this->twig->render('@SymfonyAdmin/security/login.html.twig', [

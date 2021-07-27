@@ -38,7 +38,7 @@ abstract class UserRepository extends AbstractRepository
                 return 2 <= mb_strlen($term);
             });
 
-            if (0 === count($searchTerms)) {
+            if (0 === \count($searchTerms)) {
                 continue;
             }
 

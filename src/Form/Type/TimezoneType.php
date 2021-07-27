@@ -42,7 +42,7 @@ class TimezoneType extends AbstractType
                 $dateTime = new \DateTime('now', $dateTimeZone);
                 $offset = sprintf('GMT%s', $dateTime->format('P'));
 
-                if (count($parts) > 1) {
+                if (\count($parts) > 1) {
                     $name = sprintf('(%s) %s', $offset, $timezone);
                 } else {
                     $name = sprintf('(%s) %s', $offset, 'Other');

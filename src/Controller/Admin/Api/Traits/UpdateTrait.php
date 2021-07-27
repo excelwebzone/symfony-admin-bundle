@@ -44,7 +44,7 @@ trait UpdateTrait
         }
 
         if ('GET' === $request->getMethod()) {
-            $objectName = join('', array_slice(explode('\\', get_class($object)), -1));
+            $objectName = implode('', \array_slice(explode('\\', \get_class($object)), -1));
 
             $html = $this->renderView($template, [
                 'form' => $form->createView(),

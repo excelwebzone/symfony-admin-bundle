@@ -2,11 +2,11 @@
 
 namespace EWZ\SymfonyAdminBundle\FileUploader;
 
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class FileUploader extends AbstractFileUploader
 {
@@ -93,7 +93,7 @@ final class FileUploader extends AbstractFileUploader
         }
 
         // generate filename
-        $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::uuid4(), $file->guessExtension());
+        $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::v4(), $file->guessExtension());
 
         // move file to ..
         rename($file->getPathname(), sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));

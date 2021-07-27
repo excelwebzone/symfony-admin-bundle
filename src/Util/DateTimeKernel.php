@@ -24,11 +24,11 @@ final class DateTimeKernel
         $serverTimeZone = self::getTimeZoneServer();
         $timezoneKey = crc32($serverTimeZone->getName());
 
-        if (array_key_exists($timezoneKey, self::$dateTimeServer)) {
+        if (\array_key_exists($timezoneKey, self::$dateTimeServer)) {
             return self::$dateTimeServer[$timezoneKey];
         }
 
-        $dateTimeImmutable = array_slice(self::$dateTimeServer, 0, 1)[0];
+        $dateTimeImmutable = \array_slice(self::$dateTimeServer, 0, 1)[0];
 
         self::$dateTimeServer[$timezoneKey] = $dateTimeImmutable->setTimezone($serverTimeZone);
 
@@ -52,7 +52,7 @@ final class DateTimeKernel
     {
         $timezoneKey = crc32(date_default_timezone_get());
 
-        if (array_key_exists($timezoneKey, self::$timeZonesServer)) {
+        if (\array_key_exists($timezoneKey, self::$timeZonesServer)) {
             return self::$timeZonesServer[$timezoneKey];
         }
 

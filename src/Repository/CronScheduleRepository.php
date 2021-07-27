@@ -41,7 +41,7 @@ abstract class CronScheduleRepository extends AbstractRepository
 
         $schedules = $this->filterByArguments($schedules, $arguments);
 
-        return count($schedules) > 0;
+        return \count($schedules) > 0;
     }
 
     /**

@@ -28,8 +28,8 @@ class DateTimePickerType extends AbstractType
      */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        $view->vars['time_interval'] = intval($options['time_interval']);
-        $view->vars['time_24hour'] = intval($options['time_24hour']);
+        $view->vars['time_interval'] = (int) ($options['time_interval']);
+        $view->vars['time_24hour'] = (int) ($options['time_24hour']);
         $view->vars['time_hours'] = (array) $options['time_hours'];
     }
 

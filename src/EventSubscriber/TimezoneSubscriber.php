@@ -26,11 +26,11 @@ class TimezoneSubscriber implements EventSubscriberInterface
     /** @var KernelInterface */
     private $kernel;
 
-    /** @var RequestStack */
-    private $requestStack;
-
     /** @var TokenStorageInterface */
     private $tokenStorage;
+
+    /** @var RequestStack */
+    private $requestStack;
 
     /** @var Environment */
     private $twig;
@@ -43,23 +43,23 @@ class TimezoneSubscriber implements EventSubscriberInterface
 
     /**
      * @param KernelInterface       $kernel
-     * @param RequestStack          $requestStack
      * @param TokenStorageInterface $tokenStorage
+     * @param RequestStack          $requestStack
      * @param Environment           $twig
      * @param string|null           $timeZoneDatabase
      * @param string|null           $timeZoneClient
      */
     public function __construct(
         KernelInterface $kernel,
-        RequestStack $requestStack,
         TokenStorageInterface $tokenStorage,
+        RequestStack $requestStack,
         Environment $twig,
         string $timeZoneDatabase = null,
         string $timeZoneClient = null
     ) {
         $this->kernel = $kernel;
-        $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
+        $this->requestStack = $requestStack;
         $this->twig = $twig;
         $this->timeZoneDatabase = $timeZoneDatabase;
         $this->timeZoneClient = $timeZoneClient;
@@ -162,11 +162,11 @@ class TimezoneSubscriber implements EventSubscriberInterface
      */
     private function updateKernelDateTimeByRequestTime(): bool
     {
-        if (is_null($this->requestStack) || is_null($this->requestStack->getMasterRequest())) {
+        if (null === $this->requestStack || null === $this->requestStack->getMainRequest()) {
             return false;
         }
 
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
 
         if (is_numeric($request->server->get('REQUEST_TIME_FLOAT'))) {
             $datetime = \DateTimeImmutable::createFromFormat('U.u', $request->server->get('REQUEST_TIME_FLOAT'));
@@ -186,7 +186,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
      */
     private function updateKernelDateTimeByKernelStartTime(): bool
     {
-        if (is_null($this->kernel) || !is_numeric($this->kernel->getStartTime())) {
+        if (null === $this->kernel || !is_numeric($this->kernel->getStartTime())) {
             return false;
         }
 

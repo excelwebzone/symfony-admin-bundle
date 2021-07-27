@@ -29,7 +29,7 @@ trait BulkDeleteTrait
                 $preDelete->bindTo($this)($object);
             }
 
-            $this->getRepository()->remove($object, $index + 1 == count($objects));
+            $this->getRepository()->remove($object, $index + 1 == \count($objects));
 
             if ($postDelete instanceof \Closure) {
                 $postDelete->bindTo($this)($object);
@@ -38,8 +38,8 @@ trait BulkDeleteTrait
 
         return $this->json([
             'ok' => true,
-            'total' => count($objects),
-            'message' => $this->translator->trans('alert.bulk_delete', ['%total%' => count($objects)]),
+            'total' => \count($objects),
+            'message' => $this->translator->trans('alert.bulk_delete', ['%total%' => \count($objects)]),
         ]);
     }
 }

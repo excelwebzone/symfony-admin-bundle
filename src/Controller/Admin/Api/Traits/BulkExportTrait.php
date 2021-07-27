@@ -8,9 +8,9 @@ use EWZ\SymfonyAdminBundle\Annotation\ConfigField;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Uid\Uuid;
 
 trait BulkExportTrait
 {
@@ -129,7 +129,7 @@ trait BulkExportTrait
         foreach ($items as $item) {
             $row = [];
             foreach (array_keys($columns) as $column) {
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $data = $item[$column];
                 } else {
                     $method = sprintf('get%s', StringUtil::classify($column));
@@ -177,7 +177,7 @@ trait BulkExportTrait
                     } else {
                         $row[$column] = $enumColumns[$column]['choices'][$data] ?? null;
                     }
-                } elseif (is_numeric($data) || is_bool($data)) {
+                } elseif (is_numeric($data) || \is_bool($data)) {
                     $row[$column] = $data;
                 } else {
                     $row[$column] = (string) $data ?: null;
@@ -193,7 +193,7 @@ trait BulkExportTrait
 
         // generate filename
         $writer = new Xlsx($spreadsheet);
-        $writer->save($excelName = sprintf('%s/%s.xlsx', ini_get('upload_tmp_dir') ?: sys_get_temp_dir(), Uuid::uuid4()));
+        $writer->save($excelName = sprintf('%s/%s.xlsx', ini_get('upload_tmp_dir') ?: sys_get_temp_dir(), Uuid::v4()));
 
         // upload file
         $fileName = $this->fileUploader->create($excelName, $this->getParameter('symfony_admin.upload_url'));

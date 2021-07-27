@@ -2,19 +2,19 @@
 
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ManagerRegistry;
 use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
 use EWZ\SymfonyAdminBundle\Repository\AbstractRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as BaseAbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractController extends BaseAbstractController
 {
-    /** @var ObjectManager */
-    protected $objectManager;
+    /** @var ManagerRegistry */
+    protected $managerRegistry;
 
     /** @var ValidatorInterface */
     protected $validator;
@@ -29,20 +29,20 @@ abstract class AbstractController extends BaseAbstractController
     protected $fileUploader;
 
     /**
-     * @param ObjectManager            $objectManager
+     * @param ManagerRegistry          $managerRegistry
      * @param ValidatorInterface       $validator
      * @param TranslatorInterface      $translator
      * @param EventDispatcherInterface $eventDispatcher
      * @param FileUploaderInterface    $fileUploader
      */
     public function __construct(
-        ObjectManager $objectManager,
+        ManagerRegistry $managerRegistry,
         ValidatorInterface $validator,
         TranslatorInterface $translator,
         EventDispatcherInterface $eventDispatcher,
         FileUploaderInterface $fileUploader
     ) {
-        $this->objectManager = $objectManager;
+        $this->managerRegistry = $managerRegistry;
         $this->validator = $validator;
         $this->translator = $translator;
         $this->eventDispatcher = $eventDispatcher;

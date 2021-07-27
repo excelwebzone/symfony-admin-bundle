@@ -47,7 +47,7 @@ final class CommandRunner
         );
 
         // workaround for Windows
-        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
+        if (\defined('PHP_WINDOWS_VERSION_BUILD')) {
             $wsh = new \COM('WScript.shell');
             $wsh->Run($runCommand, 0, false);
 

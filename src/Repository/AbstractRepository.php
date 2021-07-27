@@ -12,6 +12,7 @@ use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\Query\ParserResult;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use EWZ\SymfonyAdminBundle\Model\User;
 use EWZ\SymfonyAdminBundle\Pagerfanta\Adapter\FixedAdapter;
 use EWZ\SymfonyAdminBundle\Repository\Traits\PagerfantaTrait;
@@ -19,7 +20,6 @@ use EWZ\SymfonyAdminBundle\Util\DateTimeUtil;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
@@ -32,8 +32,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
 {
     use PagerfantaTrait;
 
-    const DEFAULT_LIMIT = 20;
-    const SPLIT_DELIMITER = '|';
+    public const DEFAULT_LIMIT = 20;
+    public const SPLIT_DELIMITER = '|';
 
     /** @var string */
     protected $className = null;
@@ -42,16 +42,16 @@ abstract class AbstractRepository extends ServiceEntityRepository
     protected $tokenStorage;
 
     /**
-     * @param RegistryInterface     $registry
+     * @param ManagerRegistry       $managerRegistry
      * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(RegistryInterface $registry, TokenStorageInterface $tokenStorage)
+    public function __construct(ManagerRegistry $managerRegistry, TokenStorageInterface $tokenStorage)
     {
         if (empty($this->className) || !class_exists($this->className)) {
             throw new \LogicException(sprintf('$className for "%s" is not defined or not exists.', $this));
         }
 
-        parent::__construct($registry, $this->className);
+        parent::__construct($managerRegistry, $this->className);
 
         $this->tokenStorage = $tokenStorage;
     }
@@ -148,7 +148,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         static $joinNames = [];
 
-        if (empty($joinNames) && count($classMetadata->getAssociationMappings())) {
+        if (empty($joinNames) && \count($classMetadata->getAssociationMappings())) {
             $joinNames = [];
 
             foreach ($classMetadata->getAssociationMappings() as $assocMapping) {
@@ -242,7 +242,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         // fixed string rules
         foreach ($criteria as $key => $value) {
-            if (is_string($value)) {
+            if (\is_string($value)) {
                 $criteria[$key] = [$value];
             }
         }
@@ -257,22 +257,22 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         // fixed string rules
         foreach ($criteria as $key => $value) {
-            if (is_string($value)) {
+            if (\is_string($value)) {
                 $criteria[$key] = [$value];
             }
         }
 
-        if (is_null($limit)) {
+        if (null === $limit) {
             $limit = self::DEFAULT_LIMIT;
         }
 
-        $page = !is_null($offset)
-            ? intval(($offset / $limit) + 1)
+        $page = null !== $offset
+            ? (int) (($offset / $limit) + 1)
             : -1;
 
         $result = $this->search($criteria, $page, $limit, $orderBy);
 
-        if (is_array($result)) {
+        if (\is_array($result)) {
             return $result;
         }
 
@@ -294,7 +294,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         // fixed string rules
         foreach ($criteria as $key => $value) {
-            if (is_string($value)) {
+            if (\is_string($value)) {
                 $criteria[$key] = [$value];
             }
         }
@@ -363,7 +363,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         // handle multi sorting
-        if (is_array($sort) && count($sort)) {
+        if (\is_array($sort) && \count($sort)) {
             foreach ($sort as $key => $value) {
                 $sort[$key] = sprintf('%s-%s', $key, $value);
             }
@@ -399,7 +399,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             return $queryBuilder->getQuery()->getResult();
         }
 
-        if (is_null($limit)) {
+        if (null === $limit) {
             $limit = self::DEFAULT_LIMIT;
         }
 
@@ -420,7 +420,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         // mock parse function on $query to retrive SQL column names
         $reflectionClass = new \ReflectionClass(Query::class);
-        $reflectionMethod = $reflectionClass->getMethod('_parse');
+        $reflectionMethod = $reflectionClass->getMethod('parse');
         $reflectionMethod->setAccessible(true);
 
         /** @var ParserResult $parser */
@@ -585,7 +585,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
         // mock parse function on $query to retrive SQL column names
         $reflectionClass = new \ReflectionClass(Query::class);
-        $reflectionMethod = $reflectionClass->getMethod('_parse');
+        $reflectionMethod = $reflectionClass->getMethod('parse');
         $reflectionMethod->setAccessible(true);
 
         /** @var ParserResult $parser */
@@ -613,7 +613,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
         }
 
         $limitOffset = null;
-        if (is_null($limit)) {
+        if (null === $limit) {
             $limit = self::DEFAULT_LIMIT;
         }
         if (-1 !== $page) {
@@ -683,17 +683,17 @@ abstract class AbstractRepository extends ServiceEntityRepository
     protected function applyValue(QueryBuilder $queryBuilder, string $name, string $key, $value, bool $split = false, string $alias = 'q'): void
     {
         if ($split) {
-            if (is_string($value)) {
+            if (\is_string($value)) {
                 $value = explode(self::SPLIT_DELIMITER, $value);
             }
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 $value = [$value];
             }
         }
 
         list($alias, $key) = $this->guessAliasAndField($queryBuilder, $key, $alias);
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             if (isset($value['unit'])) {
                 if ($dateRange = DateTimeUtil::getDateRange($value['unit'])) {
                     $value = [
@@ -747,11 +747,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
                 ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
                 ->setParameter($name, $value)
             ;
-        } elseif (is_null($value)) {
+        } elseif (null === $value) {
             $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
-        } elseif (!is_string($value)
+        } elseif (!\is_string($value)
             || is_numeric($value)
-            || in_array($key, $this->getAssociationNames())
+            || \in_array($key, $this->getAssociationNames())
         ) {
             $queryBuilder
                 ->andWhere(sprintf('%s.%s = :%s', $alias, $key, $name))
@@ -807,16 +807,16 @@ abstract class AbstractRepository extends ServiceEntityRepository
             foreach ($this->getAssociationNames() as $assocName) {
                 $aliases[$assocName] = $alias = $this->getJoinName($assocName);
 
-                if (strlen($sortBy) > strlen($assocName)
-                    && $assocName === substr($sortBy, 0, strlen($assocName))
-                    && !in_array($sortBy, $fieldNames)
+                if (\strlen($sortBy) > \strlen($assocName)
+                    && $assocName === substr($sortBy, 0, \strlen($assocName))
+                    && !\in_array($sortBy, $fieldNames)
                 ) {
                     $parentAlias = $alias;
-                    if (!in_array($parentAlias, $queryBuilder->getAllAliases())) {
+                    if (!\in_array($parentAlias, $queryBuilder->getAllAliases())) {
                         $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $parentAlias);
                     }
 
-                    $sortBy = lcfirst(substr($sortBy, strlen($assocName)));
+                    $sortBy = lcfirst(substr($sortBy, \strlen($assocName)));
                     $aliases[$sortBy] = $this->getJoinName($assocName, $sortBy);
                 }
             }
@@ -824,7 +824,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
             if (isset($aliases[$sortBy])) {
                 $alias = $aliases[$sortBy];
 
-                if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                if (!\in_array($alias, $queryBuilder->getAllAliases())) {
                     $queryBuilder->leftJoin(sprintf('%s.%s', $parentAlias ?? 'q', $sortBy), $alias);
                 }
 
@@ -865,25 +865,25 @@ abstract class AbstractRepository extends ServiceEntityRepository
         $fieldNames = $this->getFieldNames(false);
 
         foreach ($this->getAssociationNames(true) as $assocName) {
-            if (strlen($fieldName) > strlen($assocName)
-                && $assocName === substr($fieldName, 0, strlen($assocName))
-                && !in_array($fieldName, $fieldNames)
+            if (\strlen($fieldName) > \strlen($assocName)
+                && $assocName === substr($fieldName, 0, \strlen($assocName))
+                && !\in_array($fieldName, $fieldNames)
             ) {
-                $fieldName = lcfirst(substr($fieldName, strlen($assocName)));
+                $fieldName = lcfirst(substr($fieldName, \strlen($assocName)));
                 $alias = $this->getJoinName($assocName);
 
-                if (!in_array($alias, $queryBuilder->getAllAliases())) {
+                if (!\in_array($alias, $queryBuilder->getAllAliases())) {
                     $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $alias);
                 }
 
                 if (isset($this->getJoinNames()[$assocName])) {
                     foreach ($this->getJoinNames()[$assocName] as $subAssocName => $subAlias) {
-                        if (strlen($fieldName) > strlen($subAssocName)
-                            && $subAssocName === substr($fieldName, 0, strlen($subAssocName))
+                        if (\strlen($fieldName) > \strlen($subAssocName)
+                            && $subAssocName === substr($fieldName, 0, \strlen($subAssocName))
                         ) {
-                            $fieldName = lcfirst(substr($fieldName, strlen($subAssocName)));
+                            $fieldName = lcfirst(substr($fieldName, \strlen($subAssocName)));
 
-                            if (!in_array($subAlias, $queryBuilder->getAllAliases())) {
+                            if (!\in_array($subAlias, $queryBuilder->getAllAliases())) {
                                 $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $subAssocName), $subAlias);
                             }
 

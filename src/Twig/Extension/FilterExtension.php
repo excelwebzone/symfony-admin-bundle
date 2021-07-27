@@ -36,7 +36,7 @@ final class FilterExtension extends AbstractExtension
      */
     public function preloadJson($json, array $ignoreFields = []): string
     {
-        if (is_array($json)) {
+        if (\is_array($json)) {
             $json = json_encode($json);
         }
 
@@ -63,7 +63,7 @@ final class FilterExtension extends AbstractExtension
     public function jsonEncode(array $array): string
     {
         foreach ($array as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 foreach ($value as $k => $v) {
                     $array[$key][$k] = (string) $v;
                 }
