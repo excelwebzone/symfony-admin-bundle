@@ -48,22 +48,22 @@ class ExceptionSubscriber implements EventSubscriberInterface
      */
     public function onKernelException(ExceptionEvent $event): void
     {
-        $exception = $event->getException();
+        $throwable = $event->getThrowable();
 
         if (!$this->kernel->isDebug() && $event->getRequest()->isXmlHttpRequest()) {
             $response = new JsonResponse([
                 'ok' => false,
                 'error' => [
-                    'message' => $exception->getMessage(),
+                    'message' => $throwable->getMessage(),
                 ],
             ]);
 
             $event->setResponse($response);
         }
 
-        if ($exception instanceof AccessDeniedHttpException) {
-            if (preg_match('/Access Denied by controller annotation @IsGranted\("(.+)"\)/', $exception->getMessage(), $matches)
-                || preg_match('/Access Denied by controller annotation @IsGranted\("(.+)", (.+)\)/', $exception->getMessage(), $matches)
+        if ($throwable instanceof AccessDeniedHttpException) {
+            if (preg_match('/Access Denied by controller annotation @IsGranted\("(.+)"\)/', $throwable->getMessage(), $matches)
+                || preg_match('/Access Denied by controller annotation @IsGranted\("(.+)", (.+)\)/', $throwable->getMessage(), $matches)
             ) {
                 $redirectUrl = $this->urlGenerator->generate('admin_access_denied', [
                     'rule' => strtolower(explode('|', $matches[1])[0]),
@@ -73,8 +73,8 @@ class ExceptionSubscriber implements EventSubscriberInterface
             }
         }
 
-        if ($exception instanceof NotFoundHttpException) {
-            if (preg_match('/App:(\w+) object not found by the @ParamConverter annotation/', $exception->getMessage(), $matches)) {
+        if ($throwable instanceof NotFoundHttpException) {
+            if (preg_match('/App:(\w+) object not found by the @ParamConverter annotation/', $throwable->getMessage(), $matches)) {
                 $redirectUrl = $this->urlGenerator->generate('admin_missing_entity', [
                     'object' => strtolower($matches[1]),
                 ]);
