@@ -110,6 +110,9 @@ services:
         arguments:
             - '@event_dispatcher'
             - '@symfony_admin.user_repository'
+        calls:
+            - method: setContainer
+              arguments: ['@service_container']
 
     #
     # Form
