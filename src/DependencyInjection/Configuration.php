@@ -44,7 +44,8 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('extensions')->defaultValue('PNG, GIF, JPG, PDF, CSV, RTF, DOC, DOCX, XLS, or XLSX')->end()
-                        ->scalarNode('types')
+                        ->arrayNode('types')
+                            ->prototype('scalar')->end()
                             ->defaultValue([
                                 'image/png',
                                 'image/jpeg',
@@ -60,7 +61,6 @@ class Configuration implements ConfigurationInterface
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             ])
                         ->end()
-
                     ->end()
                 ->end()
             ->end()
