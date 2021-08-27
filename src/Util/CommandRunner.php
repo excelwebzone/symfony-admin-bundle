@@ -26,7 +26,7 @@ final class CommandRunner
         // convert command arguments to the string
         $parametersString = '';
         foreach ($params as $name => $value) {
-            if ($name && '-' === $name[0]) {
+            if (\is_string($name) && '-' === $name[0]) {
                 if (true === $value) {
                     $parametersString .= ' '.$name;
                 } elseif (false !== $value) {
