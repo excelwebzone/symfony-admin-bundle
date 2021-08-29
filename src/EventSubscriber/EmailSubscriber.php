@@ -7,6 +7,7 @@ use EWZ\SymfonyAdminBundle\Events;
 use EWZ\SymfonyAdminBundle\Model\User;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment as TwigEnvironment;
@@ -77,11 +78,12 @@ class EmailSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param string       $templateName
-     * @param array        $context
-     * @param string|array $toEmail
+     * @param string              $templateName
+     * @param array               $context
+     * @param string|array        $toEmail
+     * @param string|Address|null $sender
      */
-    protected function sendMessage(string $templateName, array $context, $toEmail): void
+    protected function sendMessage(string $templateName, array $context, $toEmail, $sender = null): void
     {
         if (empty($toEmail)) {
             return;
@@ -100,7 +102,7 @@ class EmailSubscriber implements EventSubscriberInterface
         }
 
         $email = (new Email())
-            ->from($this->sender)
+            ->from($sender ?: $this->sender)
             ->to(...array_filter($toEmail))
             ->subject($subject)
             ->text($textBody);
