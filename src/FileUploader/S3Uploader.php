@@ -17,6 +17,9 @@ final class S3Uploader extends AbstractFileUploader
     /** @var string */
     private $s3Bucket;
 
+    /** @var string */
+    private $baseUrl;
+
     /**
      * @param S3Client            $s3Client
      * @param string              $s3Bucket
@@ -26,6 +29,7 @@ final class S3Uploader extends AbstractFileUploader
      * @param array               $mimeTypesTypes
      * @param int                 $maxFilesize
      * @param string|null         $imageDriver
+     * @param string|null         $baseUrl
      */
     public function __construct(
         S3Client $s3Client,
@@ -35,10 +39,12 @@ final class S3Uploader extends AbstractFileUploader
         string $mimeTypesExtensions,
         array $mimeTypesTypes,
         int $maxFilesize,
-        string $imageDriver = null
+        string $imageDriver = null,
+        string $baseUrl = null
     ) {
         $this->s3Client = $s3Client;
         $this->s3Bucket = $s3Bucket;
+        $this->baseUrl = $baseUrl;
 
         parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
     }
@@ -71,7 +77,9 @@ final class S3Uploader extends AbstractFileUploader
             'ContentType' => mime_content_type($fileName),
         ]);
 
-        return $result['ObjectURL'];
+        return $this->baseUrl
+            ? sprintf('%s/%s', $this->baseUrl, $this->cleanFileName($newFileName))
+            : $result['ObjectURL'];
     }
 
     /**
@@ -114,7 +122,9 @@ final class S3Uploader extends AbstractFileUploader
             $this->delete($oldFileName);
         }
 
-        return $result['ObjectURL'];
+        return $this->baseUrl
+            ? sprintf('%s/%s', $this->baseUrl, $this->cleanFileName($fileName))
+            : $result['ObjectURL'];
     }
 
     /**
@@ -144,7 +154,9 @@ final class S3Uploader extends AbstractFileUploader
         // delete old file (if exists)
         $this->delete($sourceKey);
 
-        return $result['ObjectURL'];
+        return $this->baseUrl
+            ? sprintf('%s/%s', $this->baseUrl, $this->cleanFileName($fileName))
+            : $result['ObjectURL'];
     }
 
     /**
