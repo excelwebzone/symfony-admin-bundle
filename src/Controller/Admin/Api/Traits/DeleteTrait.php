@@ -16,6 +16,8 @@ trait DeleteTrait
      */
     private function doDelete($object, $preDelete = null, $postDelete = null, $onCompleted = null): JsonResponse
     {
+        $objectId = $object->getId();
+
         if ($preDelete instanceof \Closure) {
             $preDelete->bindTo($this)($object);
         }
@@ -27,7 +29,7 @@ trait DeleteTrait
         }
 
         $data = [
-            'id' => $object->getId(),
+            'id' => $objectId,
             'label' => (string) $object,
         ];
         if ($onCompleted instanceof \Closure) {
