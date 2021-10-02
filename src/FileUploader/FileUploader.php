@@ -14,6 +14,12 @@ final class FileUploader extends AbstractFileUploader
     /** @var KernelInterface */
     private $kernel;
 
+    /** @var int */
+    private $folderPermissions;
+
+    /** @var int */
+    private $filePermissions;
+
     /**
      * @param KernelInterface     $kernel
      * @param ValidatorInterface  $validator
@@ -22,6 +28,8 @@ final class FileUploader extends AbstractFileUploader
      * @param array               $mimeTypesTypes
      * @param int                 $maxFilesize
      * @param string|null         $imageDriver
+     * @param int|null            $folderPermissions
+     * @param int|null            $filePermissions
      */
     public function __construct(
         KernelInterface $kernel,
@@ -30,11 +38,15 @@ final class FileUploader extends AbstractFileUploader
         string $mimeTypesExtensions,
         array $mimeTypesTypes,
         int $maxFilesize,
-        string $imageDriver = null
+        string $imageDriver = null,
+        int $folderPermissions = 0755,
+        int $filePermissions = 0644
     ) {
         parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
 
         $this->kernel = $kernel;
+        $this->folderPermissions = $folderPermissions;
+        $this->filePermissions = $filePermissions;
     }
 
     /**
@@ -188,7 +200,7 @@ final class FileUploader extends AbstractFileUploader
     {
         // create folder if doesn't exists
         if (!is_dir($path = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $dirName))) {
-            mkdir($path, 0777, true);
+            mkdir($path, $this->folderPermissions, true);
         }
     }
 
@@ -220,7 +232,7 @@ final class FileUploader extends AbstractFileUploader
             }
 
             if (file_exists($filePath) && $userOwner && $groupOwner) {
-                chmod($filePath, 0644);
+                chmod($filePath, $this->filePermissions);
                 chown($filePath, $userOwner);
                 chgrp($filePath, $groupOwner);
             }
