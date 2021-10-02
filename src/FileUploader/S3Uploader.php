@@ -42,11 +42,11 @@ final class S3Uploader extends AbstractFileUploader
         string $imageDriver = null,
         string $baseUrl = null
     ) {
+        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
+
         $this->s3Client = $s3Client;
         $this->s3Bucket = $s3Bucket;
         $this->baseUrl = $baseUrl;
-
-        parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
     }
 
     /**

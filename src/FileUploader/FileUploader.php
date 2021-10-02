@@ -2,6 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\FileUploader;
 
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Uid\Uuid;
@@ -31,9 +32,9 @@ final class FileUploader extends AbstractFileUploader
         int $maxFilesize,
         string $imageDriver = null
     ) {
-        $this->kernel = $kernel;
-
         parent::__construct($validator, $translator, $mimeTypesExtensions, $mimeTypesTypes, $maxFilesize, $imageDriver);
+
+        $this->kernel = $kernel;
     }
 
     /**
@@ -52,15 +53,16 @@ final class FileUploader extends AbstractFileUploader
         }
 
         // create folder if doesn't exists
-        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
-            mkdir($filePath, 0777, true);
-        }
+        $this->createFolder($directory);
 
         // generate filename
         $newFileName = sprintf('%s/%s', $directory, basename($fileName));
 
         // move file to ..
-        rename($fileName, sprintf('%s/public/%s', $this->kernel->getProjectDir(), $newFileName));
+        rename($fileName, $this->getFilePath($newFileName));
+
+        // fix permissions
+        $this->setFilePermissions($newFileName);
 
         return $newFileName;
     }
@@ -84,9 +86,7 @@ final class FileUploader extends AbstractFileUploader
         $this->fixOrientate($file);
 
         // create folder if doesn't exists
-        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $directory))) {
-            mkdir($filePath, 0777, true);
-        }
+        $this->createFolder($directory);
 
         if ($prefix) {
             $prefix .= '__';
@@ -96,7 +96,10 @@ final class FileUploader extends AbstractFileUploader
         $fileName = sprintf('%s/%s%s.%s', $directory, $prefix, Uuid::v4(), $file->guessExtension());
 
         // move file to ..
-        rename($file->getPathname(), sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));
+        rename($file->getPathname(), $this->getFilePath($fileName));
+
+        // fix permissions
+        $this->setFilePermissions($fileName);
 
         // delete old file (if exists)
         if ($oldFileName) {
@@ -111,20 +114,21 @@ final class FileUploader extends AbstractFileUploader
      */
     public function move(string $fromDir, string $toDir, string $fileName): ?string
     {
-        if (!file_exists($orgFilePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName))) {
+        if (!file_exists($orgFilePath = $this->getFilePath($fileName))) {
             return null;
         }
 
         // create folder if doesn't exists
-        if (!is_dir($filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $toDir))) {
-            mkdir($filePath, 0777, true);
-        }
+        $this->createFolder($toDir);
 
         // generate filename
         $fileName = str_replace($fromDir, $toDir, $fileName);
 
         // move file to ..
-        rename($orgFilePath, sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName));
+        rename($orgFilePath, $this->getFilePath($fileName));
+
+        // fix permissions
+        $this->setFilePermissions($fileName);
 
         return $fileName;
     }
@@ -134,7 +138,7 @@ final class FileUploader extends AbstractFileUploader
      */
     public function delete(string $fileName): void
     {
-        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+        $filePath = $this->getFilePath($fileName);
 
         if (file_exists($filePath)) {
             unlink($filePath);
@@ -146,7 +150,7 @@ final class FileUploader extends AbstractFileUploader
      */
     public function getContent(string $fileName): ?string
     {
-        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+        $filePath = $this->getFilePath($fileName);
 
         return file_exists($filePath)
             ? file_get_contents($filePath)
@@ -158,7 +162,7 @@ final class FileUploader extends AbstractFileUploader
      */
     public function getMimeType(string $fileName): ?string
     {
-        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+        $filePath = $this->getFilePath($fileName);
 
         return file_exists($filePath)
             ? mime_content_type($filePath)
@@ -170,10 +174,57 @@ final class FileUploader extends AbstractFileUploader
      */
     public function getFileSize(string $fileName): ?int
     {
-        $filePath = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $fileName);
+        $filePath = $this->getFilePath($fileName);
 
         return file_exists($filePath)
             ? filesize($filePath)
             : null;
+    }
+
+    /**
+     * @param string $dirName
+     */
+    private function createFolder(string $dirName): void
+    {
+        // create folder if doesn't exists
+        if (!is_dir($path = sprintf('%s/public/%s', $this->kernel->getProjectDir(), $dirName))) {
+            mkdir($path, 0777, true);
+        }
+    }
+
+    /**
+     * @param string $dirName
+     *
+     * @return string
+     */
+    private function getFilePath(string $dirName): string
+    {
+        return sprintf('%s/public/%s', $this->kernel->getProjectDir(), $dirName);
+    }
+
+    /**
+     * @param string $fileName
+     */
+    private function setFilePermissions(string $fileName): void
+    {
+        try {
+            $filePath = $this->getFilePath($fileName);
+
+            $userOwner = null;
+            $groupOwner = null;
+
+            $director = str_replace(basename($filePath), null, $filePath);
+            if (is_dir($director)) {
+                $userOwner = posix_getpwuid(fileowner($director))['name'] ?? null;
+                $groupOwner = posix_getgrgid(filegroup($director))['name'] ?? null;
+            }
+
+            if (file_exists($filePath) && $userOwner && $groupOwner) {
+                chmod($filePath, 0777);
+                chown($filePath, $userOwner);
+                chgrp($filePath, $groupOwner);
+            }
+        } catch (FileException $e) {
+        }
     }
 }
