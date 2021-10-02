@@ -220,7 +220,7 @@ final class FileUploader extends AbstractFileUploader
             }
 
             if (file_exists($filePath) && $userOwner && $groupOwner) {
-                chmod($filePath, 0777);
+                chmod($filePath, 0644);
                 chown($filePath, $userOwner);
                 chgrp($filePath, $groupOwner);
             }
