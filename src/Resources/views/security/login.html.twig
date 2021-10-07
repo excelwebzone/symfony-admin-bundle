@@ -1,9 +1,9 @@
 {% extends '@SymfonyAdmin/layout/auth/layout.html.twig' %}
 
 {% block body %}
-  <div class="title">Sign In</div>
-
-  {% block before_form %}{% endblock %}
+  {% block before_form %}
+    <div class="title">Sign In</div>
+  {% endblock %}
 
   <form action="{{ path('security_login') }}" autocomplete="off" method="post">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />

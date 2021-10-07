@@ -7,9 +7,10 @@
     </div>
   {% endif %}
 
-  <div class="title">Reset your password</div>
-
-  <p>Reset your password to continue.</p>
+  {% block before_form %}
+    <div class="title">Reset your password</div>
+    <p>Reset your password to continue.</p>
+  {% endblock %}
 
   {{ form_start(form, {
     action: path('resetting_reset', {token: token}),
@@ -32,4 +33,6 @@
       {{ form_rest(form) }}
     </div>
   {{ form_end(form) }}
+
+  {% block after_form %}{% endblock %}
 {% endblock %}
