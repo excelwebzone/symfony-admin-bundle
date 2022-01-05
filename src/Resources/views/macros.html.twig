@@ -350,11 +350,11 @@
   </div>
 {% endmacro %}
 
-{% macro listPageEmptyContent(icon, hide = true, relative = false) %}
+{% macro listPageEmptyContent(icon, hide = true, relative = false, title = null, message = null) %}
   <div class="list-page-empty-content {% if relative %}is-relative{% endif %}" {% if hide %}style="display: none"{% endif %}>
     <div class="empty-icon"><i class="ledger-icons ledger-icon-{{ icon|default('info') }}"></i></div>
-    <div class="empty-title">No Results Found</div>
-    <div class="empty-message">Search for something new or clear your filters</div>
+    <div class="empty-title">{{ title|default('No Results Found')|raw }}</div>
+    <div class="empty-message">{{ message|default('Search for something new or clear your filters')|raw }}</div>
   </div>
 {% endmacro %}
 
