@@ -73,7 +73,7 @@ class UserSubscriber implements EventSubscriber
      * @param bool $updateCanonicalFields
      * @param bool $updatePassword
      */
-    private function updateUserFields(User $user, bool $updateCanonicalFields = true, bool $updatePassword = true): void
+    protected function updateUserFields(User $user, bool $updateCanonicalFields = true, bool $updatePassword = true): void
     {
         if ($updateCanonicalFields) {
             $user->updateCanonicalFields();
