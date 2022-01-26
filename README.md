@@ -32,7 +32,6 @@ services:
         arguments:
             - '@doctrine'
             - '@security.token_storage'
-            - '@security.encoder_factory'
 
     app.cron_schedule_repository:
         class: App\Repository\CronScheduleRepository

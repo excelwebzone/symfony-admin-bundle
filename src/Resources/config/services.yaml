@@ -192,7 +192,6 @@ services:
         arguments:
             - '@doctrine'
             - '@security.token_storage'
-            - '@security.password_hasher_factory'
 
     EWZ\SymfonyAdminBundle\Repository\UserRepository:
         alias: 'symfony_admin.user_repository'
