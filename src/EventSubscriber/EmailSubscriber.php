@@ -82,8 +82,9 @@ class EmailSubscriber implements EventSubscriberInterface
      * @param array               $context
      * @param string|array        $toEmail
      * @param string|Address|null $sender
+     * @param array               $attachments
      */
-    protected function sendMessage(string $templateName, array $context, $toEmail, $sender = null): void
+    protected function sendMessage(string $templateName, array $context, $toEmail, $sender = null, array $attachments = []): void
     {
         if (empty($toEmail)) {
             return;
@@ -109,6 +110,10 @@ class EmailSubscriber implements EventSubscriberInterface
 
         if (!empty($htmlBody)) {
             $email->html($htmlBody);
+        }
+
+        foreach ($attachments as $attachment) {
+            $email->attachFromPath($attachment);
         }
 
         $this->mailer->send($email);
