@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
-use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
+use Symfony\Component\Security\Http\RememberMe\RememberMeHandlerInterface;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 
 /**
@@ -28,28 +28,28 @@ class LoginManager
     /** @var RequestStack */
     private $requestStack;
 
-    /** @var RememberMeServicesInterface */
-    private $rememberMeServices;
+    /** @var RememberMeHandlerInterface */
+    private $rememberMeHandler;
 
     /**
      * @param TokenStorageInterface                  $tokenStorage
      * @param UserCheckerInterface                   $userChecker
      * @param SessionAuthenticationStrategyInterface $sessionStrategy
      * @param RequestStack                           $requestStack
-     * @param RememberMeServicesInterface|null       $rememberMeService
+     * @param RememberMeHandlerInterface|null        $rememberMeHandler
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         UserCheckerInterface $userChecker,
         SessionAuthenticationStrategyInterface $sessionStrategy,
         RequestStack $requestStack,
-        ?RememberMeServicesInterface $rememberMeServices
+        ?RememberMeHandlerInterface $rememberMeHandler
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->userChecker = $userChecker;
         $this->sessionStrategy = $sessionStrategy;
         $this->requestStack = $requestStack;
-        $this->rememberMeServices = $rememberMeServices;
+        $this->rememberMeHandler = $rememberMeHandler;
     }
 
     /**
@@ -67,8 +67,8 @@ class LoginManager
         if (null !== $request) {
             $this->sessionStrategy->onAuthentication($request, $token);
 
-            if (null !== $response && null !== $this->rememberMeServices) {
-                $this->rememberMeServices->loginSuccess($request, $response, $token);
+            if (null !== $response && null !== $this->rememberMeHandler) {
+                $this->rememberMeHandler->createRememberMeCookie($user);
             }
         }
 
@@ -83,6 +83,6 @@ class LoginManager
      */
     protected function createToken(string $firewall, User $user): UsernamePasswordToken
     {
-        return new UsernamePasswordToken($user, null, $firewall, $user->getRoles());
+        return new UsernamePasswordToken($user, $firewall, $user->getRoles());
     }
 }

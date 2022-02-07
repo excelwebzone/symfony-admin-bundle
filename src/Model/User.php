@@ -497,7 +497,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Never use this to check if this user has access to anything!
      *
-     * Use the AuthorizationChecker, or an implementation of AccessDecisionManager
+     * Use the AuthorizationChecker, or an implementation of AccessDecisionStrategyInterface
      * instead, e.g.
      *
      *         $authorizationChecker->isGranted('ROLE_USER');
