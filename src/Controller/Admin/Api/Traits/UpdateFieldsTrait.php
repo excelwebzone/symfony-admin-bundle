@@ -98,9 +98,8 @@ trait UpdateFieldsTrait
                             $value = $value ? new \DateInterval($value) : null;
                             break;
 
-                        case Types::TARRAY:
+                        case Types::ARRAY:
                         case Types::SIMPLE_ARRAY:
-                        case Types::JSON_ARRAY:
                         case Types::JSON:
                             if ($value && !\is_array($value)) {
                                 $value = [$value];
