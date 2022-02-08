@@ -4,7 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -66,42 +66,42 @@ trait UpdateFieldsTrait
                     }
                 } elseif (isset($fieldMapping['type'])) {
                     switch ($fieldMapping['type']) {
-                        case Type::BOOLEAN:
+                        case Types::BOOLEAN:
                             $value = $value ? (bool) $value : false;
                             break;
 
-                        case Type::SMALLINT:
-                        case Type::INTEGER:
+                        case Types::SMALLINT:
+                        case Types::INTEGER:
                             $value = $value ? (int) $value : null;
                             break;
 
-                        case Type::DECIMAL:
-                        case Type::FLOAT:
+                        case Types::DECIMAL:
+                        case Types::FLOAT:
                             $value = $value ? (float) $value : null;
                             break;
 
-                        case Type::DATETIME:
-                        case Type::DATETIMETZ:
-                        case Type::DATE:
-                        case Type::TIME:
+                        case Types::DATETIME_MUTABLE:
+                        case Types::DATETIMETZ_MUTABLE:
+                        case Types::DATE_MUTABLE:
+                        case Types::TIME_MUTABLE:
                             $value = $value ? new \DateTime($value) : null;
                             break;
 
-                        case Type::DATETIME_IMMUTABLE:
-                        case Type::DATETIMETZ_IMMUTABLE:
-                        case Type::DATE_IMMUTABLE:
-                        case Type::TIME_IMMUTABLE:
+                        case Types::DATETIME_IMMUTABLE:
+                        case Types::DATETIMETZ_IMMUTABLE:
+                        case Types::DATE_IMMUTABLE:
+                        case Types::TIME_IMMUTABLE:
                             $value = $value ? new \DateTimeImmutable($value) : null;
                             break;
 
-                        case Type::DATEINTERVAL:
+                        case Types::DATEINTERVAL:
                             $value = $value ? new \DateInterval($value) : null;
                             break;
 
-                        case Type::TARRAY:
-                        case Type::SIMPLE_ARRAY:
-                        case Type::JSON_ARRAY:
-                        case Type::JSON:
+                        case Types::TARRAY:
+                        case Types::SIMPLE_ARRAY:
+                        case Types::JSON_ARRAY:
+                        case Types::JSON:
                             if ($value && !\is_array($value)) {
                                 $value = [$value];
                             }
