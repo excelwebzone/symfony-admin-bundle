@@ -51,7 +51,13 @@
                           {% for menu in category.items %}
                             {% if menu.hide is not defined or not menu.hide %}
                               <li class="{% if menu.active|default(false) %}is-active{% endif %}">
-                                <a href="{{ menu.path }}">
+                                <a href="{{ menu.path }}"
+                                  {% if menu.attr is defined %}
+                                    {% for key, value in menu.attr %}
+                                      {{ key }}="{{ value|e('html_attr')|raw }}"
+                                    {% endfor %}
+                                  {% endif %}
+                                >
                                   {{ menu.name }}
                                 </a>
                               </li>
@@ -67,7 +73,13 @@
                   {% for menu in item.items %}
                     {% if menu.hide is not defined or not menu.hide %}
                       <li class="{% if menu.active|default(false) %}is-active{% endif %}">
-                        <a href="{{ menu.path }}">
+                        <a href="{{ menu.path }}"
+                          {% if menu.attr is defined %}
+                            {% for key, value in menu.attr %}
+                              {{ key }}="{{ value|e('html_attr')|raw }}"
+                            {% endfor %}
+                          {% endif %}
+                        >
                           {{ menu.name }}
                         </a>
                       </li>
@@ -78,7 +90,13 @@
             </li>
           {% else %}
             <li class="{% if item.active|default(false) %}is-active{% endif %}">
-              <a href="{{ item.path }}">
+              <a href="{{ item.path }}"
+                {% if item.attr is defined %}
+                  {% for key, value in item.attr %}
+                    {{ key }}="{{ value|e('html_attr')|raw }}"
+                  {% endfor %}
+                {% endif %}
+              >
                 {{ item.name }}
               </a>
             </li>
