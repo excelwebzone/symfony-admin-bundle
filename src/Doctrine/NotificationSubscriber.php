@@ -2,8 +2,8 @@
 
 namespace EWZ\SymfonyAdminBundle\Doctrine;
 
+use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 /**
  * Doctrine listener to handle user notifications.
  */
-class NotificationSubscriber implements EventSubscriber
+class NotificationSubscriber implements EventSubscriberInterface
 {
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;

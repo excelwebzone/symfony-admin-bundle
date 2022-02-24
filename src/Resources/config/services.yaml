@@ -16,6 +16,13 @@ services:
     # Doctrine
     #
 
+    EWZ\SymfonyAdminBundle\Doctrine\NotificationSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+        arguments:
+            - '@event_dispatcher'
+            - '@security.token_storage'
+
     EWZ\SymfonyAdminBundle\Doctrine\UserSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }

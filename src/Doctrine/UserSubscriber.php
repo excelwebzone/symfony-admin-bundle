@@ -2,7 +2,7 @@
 
 namespace EWZ\SymfonyAdminBundle\Doctrine;
 
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 /**
  * Doctrine listener updating the canonical username and password fields.
  */
-class UserSubscriber implements EventSubscriber
+class UserSubscriber implements EventSubscriberInterface
 {
     /** @var PasswordHasherFactoryInterface */
     private $hasherFactory;
