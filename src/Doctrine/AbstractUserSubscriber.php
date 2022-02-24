@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 /**
  * Doctrine listener updating the canonical username and password fields.
  */
-class UserSubscriber implements EventSubscriberInterface
+abstract class AbstractUserSubscriber implements EventSubscriberInterface
 {
     /** @var PasswordHasherFactoryInterface */
     private $hasherFactory;

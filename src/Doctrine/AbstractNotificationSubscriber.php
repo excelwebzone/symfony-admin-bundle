@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 /**
  * Doctrine listener to handle user notifications.
  */
-class NotificationSubscriber implements EventSubscriberInterface
+abstract class AbstractNotificationSubscriber implements EventSubscriberInterface
 {
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;
