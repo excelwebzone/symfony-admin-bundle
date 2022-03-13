@@ -99,7 +99,9 @@ class EmailSubscriber implements EventSubscriberInterface
         $htmlBody = null;
 
         if ($template->hasBlock('body_html', $context)) {
-            $htmlBody = $template->renderBlock('body_html', $context);
+            $htmlBody = $this->parseHtmlBody(
+                $template->renderBlock('body_html', $context)
+            );
         }
 
         $email = (new Email())
@@ -117,5 +119,15 @@ class EmailSubscriber implements EventSubscriberInterface
         }
 
         $this->mailer->send($email);
+    }
+
+    /**
+     * @param string $htmlBody
+     *
+     * @return string
+     */
+    protected function parseHtmlBody(string $htmlBody): string
+    {
+        return $htmlBody;
     }
 }
