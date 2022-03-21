@@ -22,7 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const JS_DATE_FORMAT_US = 'MM/DD/YYYY';
     public const JS_DATE_FORMAT_OTHER = 'DD/MM/YYYY';
     public const JS_TIME_FORMAT_12HOURS = 'hh:mm A';
-    public const JS_TIME_FORMAT_24HOURS = 'HH:mm:ss';
+    public const JS_TIME_FORMAT_24HOURS = 'HH:mm';
 
     public const SETTINGS_KEY_TABLES = 'tables';
     public const SETTINGS_KEY_FILTERS = 'filters';
