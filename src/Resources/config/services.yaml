@@ -108,6 +108,12 @@ services:
     # Form
     #
 
+    EWZ\SymfonyAdminBundle\Form\Type\DateRangePickerType:
+        tags:
+            - { name: form.type }
+        arguments:
+            - '@security.token_storage'
+
     EWZ\SymfonyAdminBundle\Form\Type\DateTimePickerType:
         tags:
             - { name: form.type }

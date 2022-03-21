@@ -31,19 +31,53 @@
   </div>
 {%- endblock address_widget %}
 
+{% block date_range_picker_widget -%}
+  {%- if attr.original|default(false) -%}
+    {{ form_widget(form) }}
+  {%- else -%}
+    {{ form_widget(form, {type: 'hidden'}) }}
+
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-daterangepicker')|trim}) -%}
+    <input type="text"
+      {{ block('attributes') }}
+      {%- if disabled %} disabled="disabled"{% endif -%}
+      {%- if required %} required="required"{% endif -%}
+
+      {%- if locale_separator|default(false) -%}
+        data-locale-separator="{{ locale_separator }}"
+      {%- endif -%}
+
+      {%- if single_date|default(false) -%}
+        data-single-date="true"
+      {%- endif -%}
+
+      {%- if time_picker|default(false) -%}
+        data-time-picker="true"
+        data-time-increment="{{ time_interval }}"
+        data-time-24hour="{{ time_24hour }}"
+        data-time-hours="{{ time_hours|json_encode }}"
+        data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %} {% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_TIME_FORMAT_24HOURS') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_24HOURS') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_12HOURS') }}{% endif %}"
+      {%- else -%}
+        data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %}"
+      {%- endif -%}
+    />
+  {%- endif -%}
+{%- endblock date_range_picker_widget %}
+
 {% block date_widget -%}
   {%- if attr.original|default(false) -%}
     {{ form_widget(form) }}
   {%- else -%}
     {{ form_widget(form, {type: 'hidden'}) }}
 
-    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-datepicker')|trim}) -%}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control js-daterangepicker')|trim}) -%}
     <input type="text"
       {{ block('attributes') }}
       {%- if disabled %} disabled="disabled"{% endif -%}
       {%- if required %} required="required"{% endif -%}
       {%- if value is not empty %}value="{{ value|date(is_granted('ROLE_USER') ? app.user.dateFormat : constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US')) }}"{% endif -%}
       data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %}"
+      data-single-date="true"
     />
   {%- endif -%}
 {%- endblock date_widget %}
