@@ -56,10 +56,24 @@
         data-time-increment="{{ time_interval }}"
         data-time-24hour="{{ time_24hour }}"
         data-time-hours="{{ time_hours|json_encode }}"
-        data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %} {% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_TIME_FORMAT_24HOURS') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_24HOURS') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_12HOURS') }}{% endif %}"
+        data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %} {% if is_granted('ROLE_USER') and app.user.timeFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_TIME_FORMAT_12HOURS') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_12HOURS') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_TIME_FORMAT_24HOURS') }}{% endif %}"
       {%- else -%}
         data-format="{% if is_granted('ROLE_USER') and app.user.dateFormat == constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_US') }}{% else %}{{ constant('EWZ\\SymfonyAdminBundle\\Model\\User::JS_DATE_FORMAT_OTHER') }}{% endif %}"
       {%- endif -%}
+
+      {%- if value is not empty %}
+        {% set dates = value|split(locale_separator|default(constant('EWZ\\SymfonyAdminBundle\\Form\\Type\\DateRangePickerType::DEFAULT_SEPARATOR'))) %}
+
+        {% set string = dates[0]|date(is_granted('ROLE_USER') ? app.user.dateFormat ~ ' ' ~ app.user.timeFormat : constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') ~ ' ' ~ constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_TIME_FORMAT_12HOURS')) %}
+        {% if dates[1] and dates[1] != dates[0] %}
+          {% set string = string
+              ~ locale_separator|default(constant('EWZ\\SymfonyAdminBundle\\Form\\Type\\DateRangePickerType::DEFAULT_SEPARATOR'))
+              ~ dates[1]|date(is_granted('ROLE_USER') ? app.user.dateFormat ~ ' ' ~ app.user.timeFormat : constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_DATE_FORMAT_US') ~ ' ' ~ constant('EWZ\\SymfonyAdminBundle\\Model\\User::PHP_TIME_FORMAT_12HOURS'))
+          %}
+        {% endif %}
+
+        value="{{ string }}"
+      {% endif -%}
     />
   {%- endif -%}
 {%- endblock date_range_picker_widget %}
