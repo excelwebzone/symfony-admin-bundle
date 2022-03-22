@@ -47,10 +47,6 @@
         data-locale-separator="{{ locale_separator }}"
       {%- endif -%}
 
-      {%- if single_date|default(false) -%}
-        data-single-date="true"
-      {%- endif -%}
-
       {%- if time_picker|default(false) -%}
         data-time-picker="true"
         data-time-increment="{{ time_interval }}"

@@ -44,10 +44,6 @@ class DateRangePickerType extends AbstractType
             $view->vars['locale_separator'] = $options['locale_separator'];
         }
 
-        if ($options['single_date']) {
-            $view->vars['single_date'] = true;
-        }
-
         if ($options['time_picker']) {
             $view->vars['time_picker'] = true;
             $view->vars['time_interval'] = (int) ($options['time_interval']);
@@ -63,7 +59,6 @@ class DateRangePickerType extends AbstractType
     {
         $defaults = [
             'locale_separator' => self::DEFAULT_SEPARATOR,
-            'single_date' => false,
             'time_picker' => false,
             'time_interval' => 30,
             'time_24hour' => false,
