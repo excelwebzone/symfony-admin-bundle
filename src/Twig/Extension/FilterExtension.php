@@ -11,7 +11,7 @@ final class FilterExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('filter_preload_json', [$this, 'preloadJson']),
@@ -21,7 +21,7 @@ final class FilterExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('filter_json_encode', [$this, 'jsonEncode']),

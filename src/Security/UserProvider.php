@@ -26,9 +26,17 @@ class UserProvider implements UserProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function loadUserByUsername($username)
+    public function loadUserByUsername($username): SecurityUserInterface
     {
-        if (!$user = $this->findUser($username)) {
+        return $this->loadUserByIdentifier($username);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function loadUserByIdentifier(string $identifier): SecurityUserInterface
+    {
+        if (!$user = $this->findUser($identifier)) {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
 
@@ -42,7 +50,7 @@ class UserProvider implements UserProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function refreshUser(SecurityUserInterface $user)
+    public function refreshUser(SecurityUserInterface $user): SecurityUserInterface
     {
         if (!$user instanceof User) {
             throw new UnsupportedUserException(sprintf('Expected an instance of %s, but got "%s".', User::class, \get_class($user)));
@@ -66,7 +74,7 @@ class UserProvider implements UserProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsClass($class)
+    public function supportsClass($class): bool
     {
         $userClass = $this->userRepository->getClass();
 

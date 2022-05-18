@@ -30,7 +30,7 @@ final class AppExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('time', [$this, 'getTime']),
@@ -43,7 +43,7 @@ final class AppExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('rating', [$this, 'displayRating']),
