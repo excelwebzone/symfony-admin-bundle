@@ -149,6 +149,19 @@
   </div>
 {% endmacro %}
 
+{% macro addActionIcon(title, icon, cssClass = null, ignore = false) %}
+  {% import '@SymfonyAdmin/macros.html.twig' as UI %}
+
+  {% if not ignore %}
+    <span class="settings-content-table-item-action-icon {{ cssClass }}">
+      {{ UI.icon({
+        class: icon,
+        title: title
+      }) }}
+    </span>
+  {% endif %}
+{% endmacro %}
+
 {% macro addActionRedirect(title, icon, endpoint, class = null, ignore = false) %}
   {% import '@SymfonyAdmin/macros.html.twig' as UI %}
 
