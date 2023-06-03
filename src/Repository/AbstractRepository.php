@@ -798,38 +798,11 @@ abstract class AbstractRepository extends ServiceEntityRepository
             }
         }
 
-        $fieldNames = $this->getFieldNames(false);
-
         foreach ($sort as $key => $value) {
             list($sortBy, $sortDir) = explode('-', $value, 2);
+            list($alias, $field) = $this->guessAliasAndField($queryBuilder, $sortBy);
 
-            $aliases = [];
-            foreach ($this->getAssociationNames() as $assocName) {
-                $aliases[$assocName] = $alias = $this->getJoinName($assocName);
-
-                if (\strlen($sortBy) > \strlen($assocName)
-                    && $assocName === substr($sortBy, 0, \strlen($assocName))
-                    && !\in_array($sortBy, $fieldNames)
-                ) {
-                    $parentAlias = $alias;
-                    if (!\in_array($parentAlias, $queryBuilder->getAllAliases())) {
-                        $queryBuilder->leftJoin(sprintf('q.%s', $assocName), $parentAlias);
-                    }
-
-                    $sortBy = lcfirst(substr($sortBy, \strlen($assocName)));
-                    $aliases[$sortBy] = $this->getJoinName($assocName, $sortBy);
-                }
-            }
-
-            if (isset($aliases[$sortBy])) {
-                $alias = $aliases[$sortBy];
-
-                if (!\in_array($alias, $queryBuilder->getAllAliases())) {
-                    $queryBuilder->leftJoin(sprintf('%s.%s', $parentAlias ?? 'q', $sortBy), $alias);
-                }
-
-                $value = sprintf('%s-%s-%s', $fieldNames[$sortBy] ?? 'name', $sortDir, $alias);
-            }
+            $value = sprintf('%s-%s-%s', $field ?? 'name', $sortDir, $alias);
 
             $sort[$key] = $value;
         }
