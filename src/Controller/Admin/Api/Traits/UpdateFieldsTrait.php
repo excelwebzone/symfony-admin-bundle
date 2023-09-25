@@ -139,7 +139,7 @@ trait UpdateFieldsTrait
             // get updated value
             $method = sprintf('get%s', StringUtil::classify($key));
             if (method_exists($object, $method)) {
-                $value = $object->$method($value);
+                $value = $object->$method();
 
                 if ($value instanceof \DateTimeInterface) {
                     $value = $value->format(sprintf('%s %s', $this->getUser()->getDateFormat(), $this->getUser()->getTimeFormat()));
@@ -152,9 +152,9 @@ trait UpdateFieldsTrait
                 } elseif (\is_string($value) || \is_object($value)) {
                     $value = (string) $value;
                 }
-
-                $fields[$key] = $value;
             }
+
+            $fields[$key] = $value;
         }
 
         $data = [
@@ -163,7 +163,9 @@ trait UpdateFieldsTrait
             'fields' => [],
         ];
         if ($onCompleted instanceof \Closure) {
-            $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
+            foreach ($fields as $key => $value) {
+                $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
+            }
         }
 
         $data['fields'] = array_merge($fields, $data['fields']);
