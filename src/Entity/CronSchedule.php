@@ -25,8 +25,7 @@ class CronSchedule extends BaseCronSchedule
     protected $command;
 
     /**
-     * @ORM\Column(type="array")
-     * @Assert\NotBlank()
+     * @ORM\Column(type="array", nullable=true)
      */
     protected $arguments = [];
 

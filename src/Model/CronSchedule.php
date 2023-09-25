@@ -65,7 +65,7 @@ class CronSchedule
      */
     public function getArguments(): array
     {
-        return $this->arguments;
+        return $this->arguments ?: [];
     }
 
     /**
