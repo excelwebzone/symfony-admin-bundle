@@ -164,7 +164,7 @@ trait UpdateFieldsTrait
         ];
         if ($onCompleted instanceof \Closure) {
             foreach ($fields as $key => $value) {
-                $data = array_merge($data, $onCompleted->bindTo($this)($key, $object));
+                $data = array_merge_recursive($data, $onCompleted->bindTo($this)($key, $object));
             }
         }
 
