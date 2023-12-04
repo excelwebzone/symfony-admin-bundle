@@ -6,7 +6,9 @@
   {% endblock %}
 
   <form action="{{ path('security_login') }}" autocomplete="off" method="post">
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+    {% if not ignoreCsrf|default(false) %}
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+    {% endif %}
     <input type="hidden" name="_target_path" value="{{ app.request.get('_target_path') }}" />
 
     <div class="form-group has-icon has-floating-label">
