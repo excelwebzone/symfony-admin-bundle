@@ -37,7 +37,7 @@ class UserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): SecurityUserInterface
     {
         if (!$user = $this->findUser($identifier)) {
-            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
+            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $identifier));
         }
 
         if (!$user->isEnabled()) {
