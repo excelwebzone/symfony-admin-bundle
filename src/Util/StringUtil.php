@@ -38,7 +38,7 @@ final class StringUtil
      */
     public static function capitalize(string $string, string $delimiters = " \n\t\r\0\x0B-"): string
     {
-        return Inflector::getInstance()->capitalize($word);
+        return Inflector::getInstance()->capitalize($string);
     }
 
     /**
@@ -46,7 +46,7 @@ final class StringUtil
      */
     public static function seemsUtf8(string $string): bool
     {
-        return Inflector::getInstance()->seemsUtf8($word);
+        return Inflector::getInstance()->seemsUtf8($string);
     }
 
     /**
@@ -54,7 +54,7 @@ final class StringUtil
      */
     public static function unaccent(string $string): string
     {
-        return Inflector::getInstance()->unaccent($word);
+        return Inflector::getInstance()->unaccent($string);
     }
 
     /**
@@ -62,7 +62,7 @@ final class StringUtil
      */
     public static function urlize(string $string): string
     {
-        return Inflector::getInstance()->urlize($word);
+        return Inflector::getInstance()->urlize($string);
     }
 
     /**
