@@ -5,12 +5,13 @@ namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api;
 use EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits\BulkExportTrait;
 use EWZ\SymfonyAdminBundle\Model\Report;
 use EWZ\SymfonyAdminBundle\Report\AbstractReport;
+use EWZ\SymfonyAdminBundle\Util\CommandRunner;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractReportController extends AbstractController
 {
@@ -30,18 +31,18 @@ abstract class AbstractReportController extends AbstractController
         // convert request filters into query
         $criteria = json_decode($request->query->get('filters', '[]'), true);
 
-        /** @var AbstractReport $report */
-        $report = $this->getReportObject($report);
+        /** @var AbstractReport $reportObject */
+        $reportObject = $this->getReportObject($report);
 
         // remove compare from criteria
-        if ($report->getCompareField()) {
-            unset($criteria[$report->getCompareField()]);
+        if ($reportObject->getCompareField()) {
+            unset($criteria[$reportObject->getCompareField()]);
         }
 
-        $report->setCriteria($criteria);
-        $report->setGroupingType($groupingType);
+        $reportObject->setCriteria($criteria);
+        $reportObject->setGroupingType($groupingType);
 
-        list($totals, $items, $labels) = $report->chart();
+        list($totals, $items, $labels) = $reportObject->chart();
 
         return $this->json([
             'ok' => true,
@@ -52,13 +53,13 @@ abstract class AbstractReportController extends AbstractController
     }
 
     /**
-     * @param Request  $request
-     * @param Packages $assetsManager
-     * @param Report   $report
+     * @param Request $request
+     * @param KernelInterface kernel
+     * @param Report $report
      *
      * @return JsonResponse
      */
-    public function export(Request $request, Packages $assetsManager, Report $report): JsonResponse
+    public function export(Request $request, KernelInterface $kernel, Report $report): JsonResponse
     {
         // get consts
         $groupingType = $request->query->get('groupingType', 'monthly');
@@ -67,36 +68,97 @@ abstract class AbstractReportController extends AbstractController
         // convert request filters into query
         $criteria = json_decode($request->query->get('filters', '[]'), true);
 
-        /** @var AbstractReport $report */
-        $report = $this->getReportObject($report);
+        /** @var AbstractReport $reportObject */
+        $reportObject = $this->getReportObject($report);
 
         // remove compare from criteria
-        if ($report->getCompareField()) {
-            unset($criteria[$report->getCompareField()]);
+        if ($reportObject->getCompareField()) {
+            unset($criteria[$reportObject->getCompareField()]);
         }
 
-        $report->setCriteria($criteria);
-        $report->setGroupingType($groupingType);
-        $report->setSort($sort);
+        $reportObject->setCriteria($criteria);
+        $reportObject->setGroupingType($groupingType);
+        $reportObject->setSort($sort);
 
-        /** @var array $items */
-        $items = $report->export();
-
-        // empty or header only
-        if (1 >= \count($items)) {
+        // build export columns metadata
+        $columnsMeta = $reportObject->getExportVisibleColumns();
+        if (0 === \count($columnsMeta)) {
             return $this->json([
                 'ok' => true,
                 'message' => $this->translator->trans('alert.no_results_found'),
             ]);
         }
 
-        // get headers
-        $columns = $items[0];
+        // build columns and enum metadata
+        $columns = [];
+        $enumColumns = [];
+        foreach ($columnsMeta as $column => $options) {
+            // set label
+            $columns[$column] = $options['label'];
 
-        // remove header
-        array_shift($items);
+            // enum array metadata used by trait to expand columns
+            if (($options['format'] ?? '') === 'enum' && ($options['options']['isArray'] ?? false)) {
+                // if caller wants enum-array handling they should provide choices via enumClass
+                $enumClass = $options['options']['class'] ?? null;
+                if ($enumClass && method_exists($enumClass, 'getChoices')) {
+                    $choices = $enumClass::getChoices();
+                    $enumColumns[$column] = [
+                        'choices' => [],
+                        'count' => 0,
+                        'is_array' => true,
+                    ];
 
-        return $this->generateExport($assetsManager, $columns, $items);
+                    foreach ($choices as $value => $key) {
+                        $enumColumns[$column]['choices'][$key] = $value;
+                    }
+                }
+            }
+        }
+
+        // pagination parameters — tune page size to balance DB and memory
+        $pageSize = $this->getExportPageSize();
+
+        // determine total rows using the repository's pager if available
+        $reportObject->setPage(1);
+        $reportObject->setLimit($pageSize);
+
+        $searchResult = $reportObject->search();
+        $total = 0;
+        if ($searchResult instanceof Pagerfanta) {
+            $total = $searchResult->getNbResults();
+        } elseif (\is_array($searchResult)) {
+            $total = \count($searchResult);
+        }
+        if (0 === $total) {
+            return $this->json([
+                'ok' => true,
+                'message' => $this->translator->trans('alert.no_results_found'),
+            ]);
+        }
+
+        // @hack
+        $_SERVER['argv'] = [
+            sprintf('%s/bin/console', $kernel->getProjectDir()),
+        ];
+
+        CommandRunner::runCommand(
+            'admin:report:export',
+            array_merge(
+                [
+                    $this->getUser()->getId(),
+                    $report->getId(),
+                    base64_encode(json_encode($reportObject->getCriteria())),
+                    base64_encode(json_encode($reportObject->getGroupingType())),
+                    base64_encode(json_encode($reportObject->getSort())),
+                ],
+                ['--env' => $kernel->getEnvironment()]
+            )
+        );
+
+        return $this->json([
+            'ok' => true,
+            'message' => $this->translator->trans('alert.export_scheduled'),
+        ]);
     }
 
     /**

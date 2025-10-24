@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->integerNode('export_page_size')->defaultNull()->end()
             ->end()
         ;
 

@@ -15,6 +15,7 @@ alert:
     bulk_delete: '%total% records were deleted.'
     bulk_delete_empty: No records were deleted.
     export_completed: Export completed.
+    export_scheduled: Export scheduled. You will receive a download link when it is ready.
     no_results_found: No results found!
 
 link:

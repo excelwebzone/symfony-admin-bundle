@@ -37,4 +37,10 @@ final class Events
      * @var string
      */
     public const NOTIFICATION_OBJECT_CREATED = 'app.notification.object_created';
+    /**
+     * @Event("EWZ\SymfonyAdminBundle\Event\ObjectEvent")
+     *
+     * @var string
+     */
+    public const REPORT_EXPORT_COMPLETED = 'app.report.export_completed';
 }

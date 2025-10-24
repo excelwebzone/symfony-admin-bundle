@@ -85,6 +85,19 @@ services:
         arguments:
             - '@symfony_admin.cron_schedule_repository'
 
+    symfony_admin.command.report_export_command:
+            class: EWZ\SymfonyAdminBundle\Command\ReportExportCommand
+            tags:
+                - { name: console.command, command: "admin:report:export" }
+            arguments:
+                - '@doctrine'
+                - '@symfony_admin.user_repository'
+                - '@symfony_admin.report_repository'
+                - '@event_dispatcher'
+                - '@symfony_admin.file_uploader'
+                - '@parameter_bag'
+
+
     #
     # Controller
     #

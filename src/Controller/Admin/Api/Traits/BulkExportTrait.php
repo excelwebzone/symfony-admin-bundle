@@ -3,17 +3,28 @@
 namespace EWZ\SymfonyAdminBundle\Controller\Admin\Api\Traits;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Collections\Collection;
 use EWZ\SymfonyAdminBundle\Annotation\ConfigField;
+use EWZ\SymfonyAdminBundle\Util\ExportData;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Uid\Uuid;
 
 trait BulkExportTrait
 {
+    /**
+     * @return int
+     */
+    public function getExportPageSize(): int
+    {
+        $pageSize = (int) $this->getParameter('symfony_admin.export_page_size') ?: ExportData::PAGE_SIZE;
+        if ($pageSize <= 0) {
+            $pageSize = ExportData::PAGE_SIZE;
+        }
+
+        return $pageSize;
+    }
+
     /**
      * @param Packages $assetsManager
      * @param array    $objects
@@ -22,6 +33,7 @@ trait BulkExportTrait
      */
     private function doBulkExport(Packages $assetsManager, array $objects): JsonResponse
     {
+        // build columns and enum metadata via reflection of entity config annotations
         $objectClass = $this->getRepository()->getClass();
         $annotationReader = new AnnotationReader();
         $reflectionObject = new \ReflectionObject(new $objectClass());
@@ -56,12 +68,8 @@ trait BulkExportTrait
             }
         }
 
-        // load all rows (use pagination)
-        $items = [];
-
+        // determine enumColumns[count] for is_array enum columns
         foreach ($objects as $item) {
-            $items[] = $item;
-
             foreach ($enumColumns as $column => &$options) {
                 if (!$options['is_array']) {
                     continue;
@@ -91,115 +99,62 @@ trait BulkExportTrait
             }
         }
 
-        return $this->generateExport($assetsManager, $columns, $items, $enumColumns);
+        // initialize spreadsheet and header
+        $spreadsheet = $this->initExportSpreadsheet($columns, $enumColumns);
+
+        // append rows (objects -> rows conversion handled in appendExportRows)
+        $this->appendExportRows($spreadsheet, $columns, $objects, $enumColumns, 2);
+
+        return $this->finalizeExportSpreadsheet($assetsManager, $spreadsheet);
     }
 
     /**
-     * @param Packages $assetsManager
-     * @param array    $columns
-     * @param array    $items
-     * @param array    $enumColumns
+     * @param array $columns
+     * @param array $enumColumns
+     *
+     * @return Spreadsheet
+     */
+    private function initExportSpreadsheet(array $columns, array $enumColumns = []): Spreadsheet
+    {
+        return ExportData::initExportSpreadsheet($columns, $enumColumns);
+    }
+
+    /**
+     * @param Spreadsheet $spreadsheet
+     * @param array       $columns
+     * @param array       $rows
+     * @param array       $enumColumns
+     * @param int         $startRow
+     *
+     * @return int
+     */
+    private function appendExportRows(Spreadsheet $spreadsheet, array $columns, array $rows, array $enumColumns = [], int $startRow = 2): int
+    {
+        $dateFormat = $this->getUser()
+            ? $this->getUser()->getDateFormat()
+            : null;
+
+        return ExportData::appendExportRows($spreadsheet, $columns, $rows, $enumColumns, $startRow, $dateFormat);
+    }
+
+    /**
+     * @param Packages    $assetsManager
+     * @param Spreadsheet $spreadsheet
      *
      * @return JsonResponse
      */
-    private function generateExport(Packages $assetsManager, array $columns, array $items, array $enumColumns = []): JsonResponse
+    private function finalizeExportSpreadsheet(Packages $assetsManager, Spreadsheet $spreadsheet): JsonResponse
     {
-        // create a new Spreadsheet
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+        // save spreadsheet to temp file
+        $tmpFile = ExportData::saveSpreadsheetToTempFile($spreadsheet);
 
-        // header
-        $row = [];
-        foreach ($columns as $column => $header) {
-            if (isset($enumColumns[$column]) && $enumColumns[$column]['is_array']) {
-                for ($i = 0; $i < $enumColumns[$column]['count']; ++$i) {
-                    foreach ($enumColumns[$column]['choices'] as $key => $value) {
-                        $custom = sprintf('%s__%s_%d', $column, $key, $i);
-                        $row[$custom] = $value;
-                    }
-                }
-            } else {
-                $row[$column] = $header;
-            }
-        }
+        // upload temp file
+        $fileName = $this->fileUploader->create($tmpFile, $this->getParameter('symfony_admin.upload_url'));
 
-        // add headers
-        $source = [array_values($row)];
-
-        foreach ($items as $item) {
-            $row = [];
-            foreach (array_keys($columns) as $column) {
-                if (\is_array($item)) {
-                    $data = $item[$column];
-                } else {
-                    $method = sprintf('get%s', StringUtil::classify($column));
-                    if (!method_exists($item, $method)) {
-                        $method = sprintf('is%s', StringUtil::classify($column));
-                    }
-
-                    $data = $item->$method();
-                }
-
-                if ($data instanceof \DateTimeInterface) {
-                    $data = $data->format($this->getUser()->getDateFormat());
-                } elseif ($data instanceof Collection) {
-                    $elements = [];
-                    foreach ($data as $element) {
-                        $elements[] = (string) $element;
-                    }
-                    $data = implode(', ', $elements);
-                }
-
-                if (isset($enumColumns[$column])) {
-                    if ($enumColumns[$column]['is_array']) {
-                        for ($i = 0; $i < $enumColumns[$column]['count']; ++$i) {
-                            foreach ($enumColumns[$column]['choices'] as $key => $value) {
-                                $custom = sprintf('%s__%s_%d', $column, $key, $i);
-
-                                $found = false;
-                                foreach ($data as $index => $entry) {
-                                    if ($entry['key'] == $key) {
-                                        $found = true;
-
-                                        $row[$custom] = $entry['value'];
-
-                                        unset($data[$index]);
-
-                                        break;
-                                    }
-                                }
-
-                                if (!$found) {
-                                    $row[$custom] = null;
-                                }
-                            }
-                        }
-                    } else {
-                        $row[$column] = $enumColumns[$column]['choices'][$data] ?? null;
-                    }
-                } elseif (is_numeric($data) || \is_bool($data)) {
-                    $row[$column] = $data;
-                } else {
-                    $row[$column] = (string) $data ?: null;
-                }
-            }
-
-            // add data
-            $source[] = $row;
-        }
-
-        // fill worksheet from values in array
-        $sheet->fromArray($source);
-
-        // generate filename
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($excelName = sprintf('%s/%s.xlsx', ini_get('upload_tmp_dir') ?: sys_get_temp_dir(), Uuid::v4()));
-
-        // upload file
-        $fileName = $this->fileUploader->create($excelName, $this->getParameter('symfony_admin.upload_url'));
-
-        // delete tmp file
-        unlink($excelName);
+        // cleanup
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        @unlink($tmpFile);
 
         return $this->json([
             'ok' => true,

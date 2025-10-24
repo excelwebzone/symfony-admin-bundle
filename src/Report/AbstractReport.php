@@ -383,37 +383,21 @@ abstract class AbstractReport
      */
     public function export(): array
     {
-        if (0 === \count($this->getExportColumns())) {
+        $columns = $this->getExportVisibleColumns();
+
+        $items = $this->search();
+        if ($items instanceof Pagerfanta) {
+            $items = $items->getCurrentPageResults();
+        }
+        if ($items instanceof \Traversable) {
+            $items = iterator_to_array($items, false);
+        }
+        if (!$items) {
             return [];
         }
 
-        $columns = $this->getExportColumns();
+        $rows = [];
 
-        // remove hidden columns
-        foreach ($columns as $column => $options) {
-            $hide = $options['options']['hide'] ?? false;
-            if (true === $hide) {
-                unset($columns[$column]);
-            }
-        }
-
-        $data = [];
-
-        // add header
-        $data[0] = [];
-        foreach (array_values($columns) as $options) {
-            $data[0][] = $options['label'];
-        }
-
-        // force all records
-        $this->setPage(-1);
-
-        // handle empty results
-        if (!$items = $this->search()) {
-            return $data;
-        }
-
-        // add rows
         foreach ($items as $item) {
             $orgItem = $item;
             $row = [];
@@ -532,10 +516,10 @@ abstract class AbstractReport
                 $row[] = $value;
             }
 
-            $data[] = $row;
+            $rows[] = $row;
         }
 
-        return $data;
+        return $rows;
     }
 
     /**
@@ -570,6 +554,24 @@ abstract class AbstractReport
     public function getExportColumns(): array
     {
         return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExportVisibleColumns(): array
+    {
+        $columns = $this->getExportColumns();
+
+        // remove hidden columns
+        foreach ($columns as $column => $options) {
+            $hide = $options['options']['hide'] ?? false;
+            if (true === $hide) {
+                unset($columns[$column]);
+            }
+        }
+
+        return $columns;
     }
 
     /**

@@ -36,5 +36,7 @@ final class SymfonyAdminExtension extends Extension
 
         $container->setParameter('symfony_admin.mime_types.extensions', $config['mime_types']['extensions']);
         $container->setParameter('symfony_admin.mime_types.types', $config['mime_types']['types']);
+
+        $container->setParameter('symfony_admin.export_page_size', $config['export_page_size']);
     }
 }
