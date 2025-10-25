@@ -14,6 +14,7 @@ use EWZ\SymfonyAdminBundle\Repository\UserRepository;
 use EWZ\SymfonyAdminBundle\Util\ExportData;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,6 +37,9 @@ class ReportExportCommand extends Command
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
+    /** @var Packages */
+    private $assetsManager;
+
     /** @var FileUploaderInterface */
     private $fileUploader;
 
@@ -47,6 +51,7 @@ class ReportExportCommand extends Command
      * @param UserRepository           $userRepository
      * @param ReportRepository         $reportRepository
      * @param EventDispatcherInterface $eventDispatcher
+     * @param Packages                 $assetsManager
      * @param FileUploaderInterface    $fileUploader
      * @param ParameterBagInterface    $params
      */
@@ -55,6 +60,7 @@ class ReportExportCommand extends Command
         UserRepository $userRepository,
         ReportRepository $reportRepository,
         EventDispatcherInterface $eventDispatcher,
+        Packages $assetsManager,
         FileUploaderInterface $fileUploader,
         ParameterBagInterface $params
     ) {
@@ -63,6 +69,7 @@ class ReportExportCommand extends Command
         $this->managerRegistry = $managerRegistry;
         $this->userRepository = $userRepository;
         $this->reportRepository = $reportRepository;
+        $this->assetsManager = $assetsManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->fileUploader = $fileUploader;
         $this->params = $params;
@@ -217,7 +224,7 @@ class ReportExportCommand extends Command
 
         // dispatch event so app can handle notification/processing
         $this->eventDispatcher->dispatch(
-            new ReportExportedEvent($report, $user, $fileName),
+            new ReportExportedEvent($report, $user, $this->assetsManager->getUrl($fileName)),
             Events::REPORT_EXPORT_COMPLETED
         );
 
