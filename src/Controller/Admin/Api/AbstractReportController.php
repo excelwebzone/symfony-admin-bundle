@@ -148,8 +148,12 @@ abstract class AbstractReportController extends AbstractController
                     $this->getUser()->getId(),
                     $report->getId(),
                     base64_encode(json_encode($reportObject->getCriteria())),
-                    base64_encode(json_encode($reportObject->getGroupingType())),
-                    base64_encode(json_encode($reportObject->getSort())),
+                    $reportObject->getGroupingType()
+                        ? base64_encode(json_encode($reportObject->getGroupingType()))
+                        : null,
+                    $reportObject->getSort()
+                        ? base64_encode(json_encode($reportObject->getSort()))
+                        : null,
                 ],
                 ['--env' => $kernel->getEnvironment()]
             )

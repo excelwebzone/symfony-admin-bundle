@@ -232,11 +232,11 @@ class ReportExportCommand extends Command
     }
 
     /**
-     * @param string $arg
+     * @param string|null $arg
      *
      * @return mix
      */
-    private function decodeArg(string $arg)
+    private function decodeArg(string $arg = null)
     {
         if (!$arg) {
             return null;
