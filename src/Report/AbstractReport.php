@@ -425,7 +425,7 @@ abstract class AbstractReport
                                 && 0 === $item->count()
                             )
                         ) {
-                            $row[] = null;
+                            $row[$column] = null;
 
                             continue 2;
                         }
@@ -513,7 +513,7 @@ abstract class AbstractReport
                     $value = (string) $value;
                 }
 
-                $row[] = $value;
+                $row[$column] = $value;
             }
 
             $rows[] = $row;

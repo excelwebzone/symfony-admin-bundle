@@ -134,7 +134,7 @@ final class ExportData
             }
 
             // Write flat row into sheet at A{rowNumber}
-            $sheet->fromArray(array_values($flat), null, 'A'.$rowNumber);
+            $sheet->fromArray(array_values($flat), null, sprintf('A%d', $rowNumber));
 
             // Periodically collect GC to keep memory low for very large exports
             if (0 === ($rowNumber % 5000) && \function_exists('gc_collect_cycles')) {
