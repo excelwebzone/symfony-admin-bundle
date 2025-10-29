@@ -88,6 +88,25 @@ final class ExportData
         $rowNumber = max(2, (int) $startRow);
 
         foreach ($rows as $rowData) {
+            // If row is an entity/object, convert it to a simple array keyed by $columns
+            if (!\is_array($rowData)) {
+                $obj = $rowData;
+                $rowData = [];
+                foreach ($columns as $column => $_) {
+                    $uc = StringUtil::classify($column);
+                    $value = null;
+
+                    foreach ([sprintf('get%s', $uc), sprintf('is%s', $uc), $column] as $method) {
+                        if (\is_object($obj) && method_exists($obj, $method)) {
+                            $value = $obj->$method();
+                            break;
+                        }
+                    }
+
+                    $rowData[$column] = $value;
+                }
+            }
+
             // Build flattened row matching header order and enum expansions
             $flat = [];
             foreach ($columns as $column => $label) {
