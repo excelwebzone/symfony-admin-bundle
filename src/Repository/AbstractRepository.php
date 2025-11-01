@@ -238,7 +238,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * {@inheritdoc}
      */
-    public function findOneBy(array $criteria, ?array $orderBy = null)
+    public function findOneBy(array $criteria, array $orderBy = null)
     {
         // fixed string rules
         foreach ($criteria as $key => $value) {
@@ -253,7 +253,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * {@inheritdoc}
      */
-    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         // fixed string rules
         foreach ($criteria as $key => $value) {
