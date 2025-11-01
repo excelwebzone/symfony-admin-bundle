@@ -3,62 +3,84 @@
 namespace EWZ\SymfonyAdminBundle\Util;
 
 use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 /**
- * This runner runs a console command with parameters in the background without locking the main thread.
- * Please note, that this class should be used only from the console commands as it uses $_SERVER['argv'][0]
- * to get the path to symfony "console" file.
+ * Runs a console command from another console command.
+ * - When $wait = true: runs synchronously; if $outputFile is null, output is discarded (no file).
+ * - When $wait = false: starts detached; if $outputFile is null, output is discarded.
  */
 final class CommandRunner
 {
     /**
-     * Runs the command in background process without the lock of main stream.
-     *
-     * @param string $command
-     * @param array  $params
-     * @param string $outputFile
+     * @param string      $command    e.g. "admin:report:export"
+     * @param array       $params     assoc or indexed args/flags; flags use ['--flag'=>true] or ['--opt'=>'val']
+     * @param string|null $outputFile path to redirect stdout/stderr; null => discard
+     * @param bool        $wait       true => synchronous, returns exit code; false => background, returns null
      */
-    public static function runCommand(string $command, array $params, string $outputFile = '/dev/null'): void
+    public static function runCommand(string $command, array $params, ?string $outputFile = null, bool $wait = false): ?int
     {
-        $phpFinder = new PhpExecutableFinder();
-        $phpPath = $phpFinder->find();
+        $phpPath = (new PhpExecutableFinder())->find();
+        if (!$phpPath) {
+            throw new \RuntimeException('Unable to locate PHP executable.');
+        }
 
-        // convert command arguments to the string
+        // Build parameter string (with escaping)
         $parametersString = '';
         foreach ($params as $name => $value) {
-            if (\is_string($name) && '-' === $name[0]) {
+            if (\is_string($name) && isset($name[0]) && '-' === $name[0]) {
                 if (true === $value) {
                     $parametersString .= ' '.$name;
-                } elseif (false !== $value) {
-                    $parametersString .= ' '.sprintf('%s=%s', $name, $value);
+                } elseif (false === $value || null === $value) {
+                    // skip
+                } else {
+                    $parametersString .= ' '.$name.'='.escapeshellarg((string) $value);
                 }
             } else {
-                $parametersString .= ' '.$value;
+                if (null !== $value && false !== $value) {
+                    $parametersString .= ' '.escapeshellarg((string) $value);
+                }
             }
         }
 
-        // create command string
-        $runCommand = sprintf(
-            '%s %s %s%s',
-            $phpPath,
-            $_SERVER['argv'][0],
-            $command,
-            $parametersString
-        );
+        $console = $_SERVER['argv'][0] ?? 'bin/console';
+        $baseCmd = sprintf('%s %s %s%s', $phpPath, $console, $command, $parametersString);
 
-        // workaround for Windows
-        if (\defined('PHP_WINDOWS_VERSION_BUILD')) {
-            $wsh = new \COM('WScript.shell');
-            $wsh->Run($runCommand, 0, false);
+        // Synchronous
+        if ($wait) {
+            // If caller asked for a file, redirect to it; else discard output (no file writes)
+            if (null !== $outputFile) {
+                $cmdline = sprintf('%s > %s 2>&1', $baseCmd, escapeshellarg($outputFile));
+                $process = Process::fromShellCommandline($cmdline);
+            } else {
+                // No file capture; also don’t buffer output in memory
+                $process = Process::fromShellCommandline($baseCmd);
+                $process->disableOutput(); // drop stdout/stderr
+            }
+            $process->setTimeout(null);
+            $process->run();
 
-            return;
+            return $process->getExitCode();
         }
 
-        // run command
-        shell_exec(sprintf(
-            '%s > %s 2>&1 & echo $!',
-            $runCommand,
-            $outputFile
-        ));
+        // Asynchronous (detached)
+        if (\defined('PHP_WINDOWS_VERSION_BUILD')) {
+            $redir = null !== $outputFile
+                ? sprintf(' > %s 2>&1', $outputFile)
+                : ' > NUL 2>&1';
+            // COM WScript for true detachment
+            $wsh = new \COM('WScript.shell');
+            $wsh->Run($baseCmd.$redir, 0, false);
+
+            return null;
+        }
+
+        // *nix detached
+        $redir = null !== $outputFile
+            ? sprintf(' > %s 2>&1', escapeshellarg($outputFile))
+            : ' > /dev/null 2>&1';
+        shell_exec(sprintf('%s%s & echo $!', $baseCmd, $redir));
+
+        return null;
     }
 }
