@@ -398,125 +398,21 @@ abstract class AbstractReport
 
         $rows = [];
 
-        foreach ($items as $item) {
-            $orgItem = $item;
+        foreach ($items as $index => $item) {
             $row = [];
             foreach ($columns as $column => $options) {
-                $item = $orgItem;
-
-                // handle sub-columns
-                if (false !== strpos($column, '.')) {
-                    $split = explode('.', $column);
-
-                    // @hack: handle multi column with same field
-                    // usually used to show value in different column
-                    // based on "hide" rules
-                    if (is_numeric($split[0])) {
-                        array_shift($split);
-                    }
-
-                    for ($i = 0; $i < \count($split) - 1; ++$i) {
-                        $parentColumn = $split[$i];
-                        $item = $this->getColumnValue($parentColumn, $item);
-
-                        // skip empty parent
-                        if (!\is_object($item)
-                            || ($item instanceof Collection
-                                && 0 === $item->count()
-                            )
-                        ) {
-                            $row[$column] = null;
-
-                            continue 2;
-                        }
-                    }
-
-                    $column = end($split);
-                }
-
-                $value = $this->getColumnValue($column, $item);
-
-                if (!\in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
-                    $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns());
-                }
-
-                // hide value / reset to null
-                $hide = $options['options']['hide'] ?? false;
-                if (true === $hide || ($hide instanceof \Closure && $hide($orgItem))) {
-                    $value = null;
-                }
-
-                switch ($options['format']) {
-                    case 'number':
-                        $value = number_format($value, 2);
-                        break;
-
-                    case 'money':
-                        $value = sprintf('$%s', number_format($value, 2));
-                        break;
-
-                    case 'percent':
-                        $value = sprintf('%s%%', number_format($value, 2));
-                        break;
-
-                    case 'enum':
-                        $enumClass = $options['options']['class'];
-                        if ($value && $enumClass::isValueExist($value)) {
-                            $value = $enumClass::getReadableValue($value);
-                        }
-
-                        break;
-
-                    case 'datetime':
-                        if ($value instanceof \DateTimeInterface) {
-                            $value = $value->format(sprintf('%s %s', $this->getUser()->getDateFormat(), $this->getUser()->getTimeFormat()));
-                        }
-
-                        break;
-
-                    case 'serialize':
-                        try {
-                            $tmp = $value ? unserialize($value) : [];
-                            if (!\is_array($tmp)) {
-                                $tmp = [$tmp];
-                            }
-
-                            if ($enumClass = $options['options']['enumClass']) {
-                                foreach ($tmp as $k => $v) {
-                                    if ($enumClass::isValueExist($v)) {
-                                        $tmp[$k] = $enumClass::getReadableValue($v);
-                                    }
-                                }
-                            } else {
-                                foreach ($tmp as $k => $v) {
-                                    $tmp[$k] = ucwords($v);
-                                }
-                            }
-
-                            $value = implode(', ', $tmp);
-                        } catch (\Exception $e) {
-                            // do nothing
-                        }
-                }
-
-                if ($value instanceof \DateTimeInterface) {
-                    $value = $value->format($this->getUser()->getDateFormat());
-                } elseif (\is_array($value) || $value instanceof Collection) {
-                    $values = [];
-                    foreach ($value as $v) {
-                        $values[] = (string) $v;
-                    }
-                    $value = implode(', ', $values);
-                } elseif (is_numeric($value)) {
-                    $value = number_format($value, 2);
-                } elseif (\is_string($value) || \is_object($value)) {
-                    $value = (string) $value;
-                }
-
-                $row[$column] = $value;
+                $row[$column] = $this->formatExportCell($item, $column, $options);
             }
 
             $rows[] = $row;
+
+            unset($items[$index]);
+        }
+
+        unset($items);
+
+        if ($this->getRepository()) {
+            $this->getRepository()->clear();
         }
 
         return $rows;
@@ -978,12 +874,15 @@ abstract class AbstractReport
      * @param string $column
      * @param array  $data
      * @param array  $complexColumns
+     * @param mixed  $value
      *
      * @return float
      */
-    private function calcComplexColumn($column, $data, $complexColumns): float
+    private function calcComplexColumn($column, $data, $complexColumns, $value = null): float
     {
-        $value = $this->getColumnValue($column, $data);
+        if (!$value) {
+            $value = $this->getColumnValue($column, $data);
+        }
 
         if (\array_key_exists($column, $complexColumns)) {
             $formula = $complexColumns[$column];
@@ -996,5 +895,128 @@ abstract class AbstractReport
         }
 
         return (float) $value;
+    }
+
+    /**
+     * @param mixed  $item
+     * @param string $column
+     * @param array  $options
+     *
+     * @return mixed|null
+     */
+    private function formatExportCell($item, string $column, array $options = [])
+    {
+        // handle sub-columns
+        if (false !== strpos($column, '.')) {
+            $split = explode('.', $column);
+
+            if (is_numeric($split[0])) {
+                array_shift($split);
+            }
+
+            $current = $item;
+            for ($i = 0; $i < \count($split) - 1; ++$i) {
+                $parentColumn = $split[$i];
+                $current = $this->getColumnValue($parentColumn, $current);
+
+                if (!\is_object($current)
+                    || ($current instanceof Collection && 0 === $current->count())
+                ) {
+                    return null;
+                }
+            }
+            $item = $current;
+            $column = end($split);
+        }
+
+        // base value
+        $value = $this->getColumnValue($column, $item);
+
+        // non-basic formats
+        if (!\in_array($options['format'], ['text', 'enum', 'datetime', 'serialize'])) {
+            $value = $this->calcComplexColumn($column, $item, $this->getExportComplexColumns(), $value);
+        }
+
+        // hide value / reset to null
+        $hide = $options['options']['hide'] ?? false;
+        if (true === $hide || ($hide instanceof \Closure && true === $hide($item))) {
+            $value = null;
+        }
+
+        // formatting branch
+        switch ($options['format']) {
+            case 'number':
+                $value = is_numeric($value) ? number_format((float) $value, 2) : $value;
+                break;
+
+            case 'money':
+                $value = is_numeric($value) ? sprintf('$%s', number_format((float) $value, 2)) : $value;
+                break;
+
+            case 'percent':
+                $value = is_numeric($value) ? sprintf('%s%%', number_format((float) $value, 2)) : $value;
+                break;
+
+            case 'enum':
+                $enumClass = $options['options']['class'] ?? null;
+                if ($enumClass && $value && $enumClass::isValueExist($value)) {
+                    $value = $enumClass::getReadableValue($value);
+                }
+                break;
+
+            case 'datetime':
+                if ($value instanceof \DateTimeInterface) {
+                    $value = $value->format(sprintf('%s %s', $this->getUser()->getDateFormat(), $this->getUser()->getTimeFormat()));
+                }
+                break;
+
+            case 'serialize':
+                try {
+                    $tmp = $value ? unserialize($value) : [];
+                    if (!\is_array($tmp)) {
+                        $tmp = [$tmp];
+                    }
+
+                    $enumClass = $options['options']['enumClass'] ?? null;
+                    if ($enumClass) {
+                        foreach ($tmp as $k => $v) {
+                            if ($enumClass::isValueExist($v)) {
+                                $tmp[$k] = $enumClass::getReadableValue($v);
+                            }
+                        }
+                    } else {
+                        foreach ($tmp as $k => $v) {
+                            $tmp[$k] = ucwords((string) $v);
+                        }
+                    }
+
+                    $value = implode(', ', $tmp);
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+                break;
+
+            case 'text':
+            default:
+                // nothing special
+                break;
+        }
+
+        // final normalization
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format($this->getUser()->getDateFormat());
+        } elseif (\is_array($value) || $value instanceof Collection) {
+            $values = [];
+            foreach ($value as $v) {
+                $values[] = (string) $v;
+            }
+            $value = implode(', ', $values);
+        } elseif (is_numeric($value)) {
+            $value = number_format((float) $value, 2);
+        } elseif (\is_string($value) || \is_object($value)) {
+            $value = (string) $value;
+        }
+
+        return $value;
     }
 }
