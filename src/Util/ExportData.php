@@ -50,6 +50,9 @@ final class ExportData
             throw new \RuntimeException(sprintf('Unable to create temporary CSV file "%s".', $csvName));
         }
 
+        // UTF-8 BOM for Excel
+        fwrite($fp, "\xEF\xBB\xBF");
+
         // Use RFC4180-compatible defaults: comma delimiter, double-quote enclosure
         fputcsv($fp, array_values($header));
 
@@ -142,8 +145,46 @@ final class ExportData
                 }
             }
 
+            // Prepare output row with sanitization
+            $out = [];
+            foreach (array_values($flat) as $v) {
+                if (null === $v) {
+                    $out[] = null;
+                    continue;
+                }
+                if (\is_bool($v) || \is_int($v) || \is_float($v)) {
+                    $out[] = $v;
+                    continue;
+                }
+
+                $s = (string) $v;
+
+                // Neutralize CSV/Excel formula injection
+                if ('' !== $s && "'" !== $s[0] && preg_match('/^[\p{Z}\x00-\x1F]*[=+\-@]/u', $s)) {
+                    $s = "'".$s;
+                }
+
+                // UTF-8 normalization (best-effort)
+                if (\function_exists('mb_check_encoding') && !mb_check_encoding($s, 'UTF-8')) {
+                    if (\function_exists('mb_convert_encoding')) {
+                        $s = mb_convert_encoding($s, 'UTF-8', 'UTF-8,CP949,EUC-KR,CP1252,ISO-8859-1');
+                    } elseif (\function_exists('iconv')) {
+                        $s = iconv('UTF-8', 'UTF-8//IGNORE', $s);
+                    }
+                }
+
+                // Strip NULs and non-printable control chars (keep \t and \n)
+                $s = str_replace("\0", '', $s);
+                $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/u', '', $s);
+
+                // Normalize newlines
+                $s = str_replace(["\r\n", "\r"], "\n", $s);
+
+                $out[] = $s;
+            }
+
             // Write CSV row
-            fputcsv($fp, array_values($flat));
+            fputcsv($fp, $out);
 
             // Periodically collect GC to keep memory low for very large exports
             if (0 === ($counter % 5000) && \function_exists('gc_collect_cycles')) {
