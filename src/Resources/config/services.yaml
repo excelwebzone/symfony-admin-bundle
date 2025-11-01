@@ -90,6 +90,7 @@ services:
             tags:
                 - { name: console.command, command: "admin:report:export" }
             arguments:
+                - '@kernel'
                 - '@doctrine'
                 - '@symfony_admin.user_repository'
                 - '@symfony_admin.report_repository'

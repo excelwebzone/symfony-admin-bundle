@@ -6,7 +6,6 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use EWZ\SymfonyAdminBundle\Annotation\ConfigField;
 use EWZ\SymfonyAdminBundle\Util\ExportData;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -99,61 +98,63 @@ trait BulkExportTrait
             }
         }
 
-        // initialize spreadsheet and header
-        $spreadsheet = $this->initExportSpreadsheet($columns, $enumColumns);
+        // initialize CSV and header
+        $csvFile = $this->initCsvExport($columns, $enumColumns);
 
-        // append rows (objects -> rows conversion handled in appendExportRows)
-        $this->appendExportRows($spreadsheet, $columns, $objects, $enumColumns, 2);
+        // append rows (objects -> rows conversion handled in ExportData::appendCsvRows)
+        $this->appendCsvRows($csvFile, $columns, $objects, $enumColumns);
 
-        return $this->finalizeExportSpreadsheet($assetsManager, $spreadsheet);
+        return $this->finalizeCsvExport($assetsManager, $csvFile);
     }
 
     /**
+     * Initialize CSV file and write header.
+     *
      * @param array $columns
      * @param array $enumColumns
      *
-     * @return Spreadsheet
+     * @return string path to temp CSV
      */
-    private function initExportSpreadsheet(array $columns, array $enumColumns = []): Spreadsheet
+    private function initCsvExport(array $columns, array $enumColumns = []): string
     {
-        return ExportData::initExportSpreadsheet($columns, $enumColumns);
+        return ExportData::initCsvExport($columns, $enumColumns);
     }
 
     /**
-     * @param Spreadsheet $spreadsheet
-     * @param array       $columns
-     * @param array       $rows
-     * @param array       $enumColumns
-     * @param int         $startRow
+     * Append rows to an existing CSV file.
      *
-     * @return int
+     * @param string $csvFilePath
+     * @param array  $columns
+     * @param array  $rows
+     * @param array  $enumColumns
      */
-    private function appendExportRows(Spreadsheet $spreadsheet, array $columns, array $rows, array $enumColumns = [], int $startRow = 2): int
+    private function appendCsvRows(string $csvFilePath, array $columns, array $rows, array $enumColumns = []): void
     {
         $dateFormat = $this->getUser()
             ? $this->getUser()->getDateFormat()
             : null;
 
-        return ExportData::appendExportRows($spreadsheet, $columns, $rows, $enumColumns, $startRow, $dateFormat);
+        ExportData::appendCsvRows($csvFilePath, $columns, $rows, $enumColumns, $dateFormat);
     }
 
     /**
-     * @param Packages    $assetsManager
-     * @param Spreadsheet $spreadsheet
+     * Finalize CSV file: optional compression/perm setting handled in ExportData::closeCsvFile,
+     * upload finalized file and cleanup temporary file.
+     *
+     * @param Packages $assetsManager
+     * @param string   $csvFilePath
      *
      * @return JsonResponse
      */
-    private function finalizeExportSpreadsheet(Packages $assetsManager, Spreadsheet $spreadsheet): JsonResponse
+    private function finalizeCsvExport(Packages $assetsManager, string $csvFilePath): JsonResponse
     {
-        // save spreadsheet to temp file
-        $tmpFile = ExportData::saveSpreadsheetToTempFile($spreadsheet);
+        // close/finalize CSV (no gzip/chmod by default)
+        $tmpFile = ExportData::closeCsvFile($csvFilePath);
 
         // upload temp file
         $fileName = $this->fileUploader->create($tmpFile, $this->getParameter('symfony_admin.upload_url'));
 
-        // cleanup
-        $spreadsheet->disconnectWorksheets();
-        unset($spreadsheet);
+        // cleanup temporary file
         @unlink($tmpFile);
 
         return $this->json([

@@ -11,6 +11,7 @@ use EWZ\SymfonyAdminBundle\FileUploader\FileUploaderInterface;
 use EWZ\SymfonyAdminBundle\Report\AbstractReport;
 use EWZ\SymfonyAdminBundle\Repository\ReportRepository;
 use EWZ\SymfonyAdminBundle\Repository\UserRepository;
+use EWZ\SymfonyAdminBundle\Util\CommandRunner;
 use EWZ\SymfonyAdminBundle\Util\ExportData;
 use EWZ\SymfonyAdminBundle\Util\StringUtil;
 use Pagerfanta\Pagerfanta;
@@ -21,10 +22,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ReportExportCommand extends Command
 {
+    /** @var KernelInterface */
+    private $kernel;
+
     /** @var ManagerRegistry */
     private $managerRegistry;
 
@@ -47,6 +52,7 @@ class ReportExportCommand extends Command
     private $params;
 
     /**
+     * @param KernelInterface          $kernel
      * @param ManagerRegistry          $managerRegistry
      * @param UserRepository           $userRepository
      * @param ReportRepository         $reportRepository
@@ -56,6 +62,7 @@ class ReportExportCommand extends Command
      * @param ParameterBagInterface    $params
      */
     public function __construct(
+        KernelInterface $kernel,
         ManagerRegistry $managerRegistry,
         UserRepository $userRepository,
         ReportRepository $reportRepository,
@@ -66,6 +73,7 @@ class ReportExportCommand extends Command
     ) {
         parent::__construct();
 
+        $this->kernel = $kernel;
         $this->managerRegistry = $managerRegistry;
         $this->userRepository = $userRepository;
         $this->reportRepository = $reportRepository;
@@ -82,13 +90,15 @@ class ReportExportCommand extends Command
     {
         $this
             ->setName('admin:report:export')
-            ->setDescription('Export report to XLSX (background job)')
+            ->setDescription('Export report to CSV (background job)')
             ->addArgument('userId', InputArgument::REQUIRED, 'User ID')
             ->addArgument('reportId', InputArgument::REQUIRED, 'Report ID')
             ->addArgument('criteria', InputArgument::OPTIONAL, 'Base64-encoded JSON criteria')
             ->addArgument('grouping', InputArgument::OPTIONAL, 'Base64-encoded groupingType')
             ->addArgument('sort', InputArgument::OPTIONAL, 'Base64-encoded sort')
-            ->addOption('page-size', null, InputOption::VALUE_OPTIONAL, 'Rows per page', ExportData::PAGE_SIZE);
+            ->addOption('page', null, InputOption::VALUE_OPTIONAL, 'Page')
+            ->addOption('page-size', null, InputOption::VALUE_OPTIONAL, 'Rows per page', ExportData::PAGE_SIZE)
+            ->addOption('csv-file', null, InputOption::VALUE_OPTIONAL, 'Full path to temporary CSV file');
     }
 
     /**
@@ -103,7 +113,9 @@ class ReportExportCommand extends Command
         $grouping = $this->decodeArg($input->getArgument('grouping'));
         $sort = $this->decodeArg($input->getArgument('sort'));
 
+        $page = (int) $input->getOption('page') ?: null;
         $pageSize = (int) $input->getOption('page-size') ?: ExportData::PAGE_SIZE;
+        $csvFile = $input->getOption('csv-file');
 
         /** @var User|null $user */
         $user = $this->getUserById($userId);
@@ -120,6 +132,9 @@ class ReportExportCommand extends Command
 
             return 2;
         }
+
+        // set user date format
+        $dateFormat = $user->getDateFormat();
 
         // instantiate concrete report class
         list($category, $name) = explode('_', str_replace('-', '_', $report->getToken()), 2);
@@ -168,6 +183,21 @@ class ReportExportCommand extends Command
             }
         }
 
+        $reportObject->setPage($page ?: 1);
+        $reportObject->setLimit($pageSize);
+
+        // If a csv-file path was provided (child invocation), just export current page and append to file then exit.
+        if (!empty($csvFile)) {
+            $rows = $reportObject->export();
+
+            if (!empty($rows)) {
+                // append rows to CSV (writes to EOF)
+                ExportData::appendCsvRows($csvFile, $columns, $rows, $enumColumns, $dateFormat);
+            }
+
+            return 0;
+        }
+
         // determine total rows using the repository's pager if available
         $reportObject->setPage(1);
         $reportObject->setLimit($pageSize);
@@ -187,37 +217,55 @@ class ReportExportCommand extends Command
 
         // number of pages to iterate
         $pages = (int) max(1, ceil($total / $pageSize));
-        $currentRow = 2; // header is on row 1
-        $dateFormat = $user->getDateFormat();
 
-        // initialize spreadsheet header
-        $spreadsheet = ExportData::initExportSpreadsheet($columns, $enumColumns);
+        // initialize CSV header
+        $csvFile = ExportData::initCsvExport($columns, $enumColumns);
 
-        // iterate and append per page (report->export() must return only current page rows)
+        // iterate and append per page (child process must return only current page rows)
         for ($page = 1; $page <= $pages; ++$page) {
-            $reportObject->setPage($page);
-            $reportObject->setLimit($pageSize);
+            // ensure child process can find the project's console binary when it constructs the command
+            $_SERVER['argv'] = [
+                sprintf('%s/bin/console', $this->kernel->getProjectDir()),
+            ];
 
-            $rows = $reportObject->export();
-            if (empty($rows)) {
-                continue;
-            }
+            // Prepare criteria payload: only pass criteria if it is an array.
+            $criteriaArg = \is_array($criteria) ? base64_encode(json_encode($criteria)) : null;
+            $groupingArg = $grouping ? base64_encode(json_encode($grouping)) : null;
+            $sortArg = $sort ? base64_encode(json_encode($sort)) : null;
 
-            $currentRow = ExportData::appendExportRows($spreadsheet, $columns, $rows, $enumColumns, $currentRow, $dateFormat);
+            // Start child process and WAIT until it completes before continuing to next page.
+            CommandRunner::runCommand(
+                'admin:report:export',
+                array_merge(
+                    [
+                        $userId,
+                        $reportId,
+                        $criteriaArg,
+                        $groupingArg,
+                        $sortArg,
+                    ],
+                    [
+                        '--env' => $this->kernel->getEnvironment(),
+                        '--page' => $page,
+                        '--page-size' => $pageSize,
+                        '--csv-file' => $csvFile,
+                    ]
+                ),
+                null,
+                true // wait for completion
+            );
 
             $output->writeln(sprintf('Appended page %d/%d', $page, $pages));
         }
 
-        // save to temp file
-        $tmpFile = ExportData::saveSpreadsheetToTempFile($spreadsheet);
+        // finalize CSV file (no gzip/chmod by default)
+        $tmpFile = ExportData::closeCsvFile($csvFile);
 
         // upload temp file
         $fileName = $this->fileUploader->create($tmpFile, $this->params->get('symfony_admin.upload_url'));
         $output->writeln(sprintf('<info>Uploaded to: %s</info>', $fileName));
 
-        // cleanup
-        $spreadsheet->disconnectWorksheets();
-        unset($spreadsheet);
+        // cleanup temporary file
         @unlink($tmpFile);
 
         $output->writeln('<info>Export complete</info>');
@@ -234,7 +282,7 @@ class ReportExportCommand extends Command
     /**
      * @param string|null $arg
      *
-     * @return mix
+     * @return mixed
      */
     private function decodeArg(string $arg = null)
     {
