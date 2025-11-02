@@ -25,21 +25,17 @@ final class CommandRunner
             throw new \RuntimeException('Unable to locate PHP executable.');
         }
 
-        // Build parameter string (with escaping)
+        // Convert command arguments to the string
         $parametersString = '';
         foreach ($params as $name => $value) {
-            if (\is_string($name) && isset($name[0]) && '-' === $name[0]) {
+            if (\is_string($name) && '-' === $name[0]) {
                 if (true === $value) {
                     $parametersString .= ' '.$name;
-                } elseif (false === $value || null === $value) {
-                    // skip
-                } else {
-                    $parametersString .= ' '.$name.'='.escapeshellarg((string) $value);
+                } elseif (false !== $value) {
+                    $parametersString .= ' '.sprintf('%s=%s', $name, $value);
                 }
             } else {
-                if (null !== $value && false !== $value) {
-                    $parametersString .= ' '.escapeshellarg((string) $value);
-                }
+                $parametersString .= ' '.$value;
             }
         }
 
