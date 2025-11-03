@@ -148,7 +148,7 @@ trait BulkExportTrait
      */
     private function finalizeCsvExport(Packages $assetsManager, string $csvFilePath): JsonResponse
     {
-        // finalize export (gzip by default, original CSV removed) - returns .csv.gz
+        // close/finalize CSV (no gzip/chmod by default)
         $tmpFile = ExportData::closeCsvFile($csvFilePath);
 
         // upload temp file
