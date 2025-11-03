@@ -214,7 +214,7 @@ final class ExportData
      *
      * @return string path to finalized file (CSV or .gz)
      */
-    public static function closeCsvFile(string $csvFilePath, int $chmod = null, bool $gzip = false, bool $removeOriginalOnGzip = false): string
+    public static function closeCsvFile(string $csvFilePath, int $chmod = null, bool $gzip = true, bool $removeOriginalOnGzip = true): string
     {
         if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
             throw new \RuntimeException(sprintf('CSV file "%s" is not readable or does not exist.', $csvFilePath));

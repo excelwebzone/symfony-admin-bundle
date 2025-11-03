@@ -258,8 +258,8 @@ class ReportExportCommand extends Command
             $output->writeln(sprintf('Appended page %d/%d', $page, $pages));
         }
 
-        // finalize CSV file (no gzip/chmod by default)
-        $tmpFile = ExportData::closeCsvFile($csvFile);
+        // finalize export (gzip by default, original CSV removed) - returns .csv.gz
+        $tmpFile = ExportData::closeCsvFile($csvFilePath);
 
         // upload temp file
         $fileName = $this->fileUploader->create($tmpFile, $this->params->get('symfony_admin.upload_url'));
