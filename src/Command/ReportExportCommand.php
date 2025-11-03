@@ -259,7 +259,7 @@ class ReportExportCommand extends Command
         }
 
         // finalize export (gzip by default, original CSV removed) - returns .csv.gz
-        $tmpFile = ExportData::closeCsvFile($csvFilePath);
+        $tmpFile = ExportData::closeCsvFile($csvFile);
 
         // upload temp file
         $fileName = $this->fileUploader->create($tmpFile, $this->params->get('symfony_admin.upload_url'));
