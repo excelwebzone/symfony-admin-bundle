@@ -4,6 +4,7 @@ namespace EWZ\SymfonyAdminBundle\Util;
 
 use Doctrine\Common\Collections\Collection;
 use EWZ\SymfonyAdminBundle\Model\User;
+use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -72,8 +73,13 @@ final class ExportData
      * @param array       $enumColumns enum metadata used to expand columns (same as init)
      * @param string|null $dateFormat  user date format (used to format DateTimeInterface values)
      */
-    public static function appendCsvRows(string $csvFilePath, array $columns, array $rows, array $enumColumns = [], string $dateFormat = null): void
-    {
+    public static function appendCsvRows(
+        string $csvFilePath,
+        array $columns,
+        array $rows,
+        array $enumColumns = [],
+        string $dateFormat = null
+    ): void {
         $fp = @fopen($csvFilePath, 'a');
         if (false === $fp) {
             throw new \RuntimeException(sprintf('Unable to open CSV file "%s" for appending.', $csvFilePath));
@@ -198,37 +204,51 @@ final class ExportData
     }
 
     /**
-     * Close and optionally finalize the CSV file.
+     * Close and finalize the export file.
      *
-     * This method performs a couple of useful finalization tasks:
-     *  - validate the file exists and is readable
-     *  - optionally set file permissions (chmod)
-     *  - optionally produce a gzipped copy and return the gz path
+     * By default this will convert the CSV to an XLSX file using OpenSpout (streaming, low memory), then optionally gzip
+     * the resulting file and remove the uncompressed original. When $gzip is true, the returned path will be the ".gz"
+     * file; otherwise it will be the path to the final uncompressed file (".xlsx" when $convertToXlsx is true, else ".csv").
      *
-     * Returns the path to the "final" file (gz path when $gzip=true, otherwise the CSV path).
+     * @param string   $csvFilePath          full path to the temporary CSV file produced by initCsvExport/appendCsvRows
+     * @param int|null $chmod                Optional permissions to set on the final file (e.g. 0640). Null to skip chmod.
+     * @param bool     $gzip                 whether to create a gzipped copy of the final file and return its path
+     * @param bool     $removeOriginalOnGzip whether to remove the uncompressed final file after gzip is created
+     * @param bool     $convertToXlsx        Whether to convert the CSV to XLSX before optional gzip. Uses OpenSpout streaming.
      *
-     * @param string   $csvFilePath          full path to temporary CSV file
-     * @param int|null $chmod                optional permissions to set (e.g. 0640). Pass null to skip chmod.
-     * @param bool     $gzip                 whether to create a .gz compressed copy and return that path
-     * @param bool     $removeOriginalOnGzip whether to remove the original CSV when gzip is created (default false)
+     * @return string Path to the finalized file. Returns "<final>.<gz>" when $gzip is true, otherwise the path to "<final>".
      *
-     * @return string path to finalized file (CSV or .gz)
+     * @throws \RuntimeException when the input CSV is missing/unreadable or compression fails
      */
-    public static function closeCsvFile(string $csvFilePath, int $chmod = null, bool $gzip = false, bool $removeOriginalOnGzip = false): string
-    {
+    public static function closeCsvFile(
+        string $csvFilePath,
+        int $chmod = null,
+        bool $gzip = false,
+        bool $removeOriginalOnGzip = false,
+        bool $convertToXlsx = true
+    ): string {
         if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
             throw new \RuntimeException(sprintf('CSV file "%s" is not readable or does not exist.', $csvFilePath));
         }
 
-        if (null !== $chmod) {
-            // best-effort chmod; ignore failure
-            @chmod($csvFilePath, $chmod);
+        $finalPath = $csvFilePath;
+
+        if ($convertToXlsx) {
+            $xlsxPath = self::convertCsvToXlsx($csvFilePath);
+            if (null !== $chmod) {
+                @chmod($xlsxPath, $chmod);
+            }
+
+            // remove CSV after successful conversion
+            @unlink($csvFilePath);
+
+            $finalPath = $xlsxPath;
         }
 
         if ($gzip) {
-            $gzPath = $csvFilePath.'.gz';
+            $gzPath = $finalPath.'.gz';
 
-            $in = @fopen($csvFilePath, 'r');
+            $in = @fopen($finalPath, 'r');
             if (false === $in) {
                 throw new \RuntimeException(sprintf('Unable to open CSV file "%s" for compression.', $csvFilePath));
             }
@@ -251,7 +271,7 @@ final class ExportData
             gzclose($out);
 
             if ($removeOriginalOnGzip) {
-                @unlink($csvFilePath);
+                @unlink($finalPath);
             }
 
             if (null !== $chmod) {
@@ -261,6 +281,73 @@ final class ExportData
             return $gzPath;
         }
 
-        return $csvFilePath;
+        if (null !== $chmod) {
+            // best-effort chmod; ignore failure
+            @chmod($finalPath, $chmod);
+        }
+
+        return $finalPath;
+    }
+
+    /**
+     * Stream-convert a CSV file to XLSX using OpenSpout.
+     *
+     * Reads the CSV as UTF-8 (skipping a UTF-8 BOM if present) and writes rows directly to an XLSX file without loading
+     * everything into memory. Values are written as-is; any prior CSV sanitization (e.g., formula neutralization) is preserved.
+     *
+     * @param string      $csvFilePath full path to the source CSV file
+     * @param string|null $xlsxPath    Optional explicit output path; defaults to the CSV path with ".xlsx" extension.
+     * @param string      $delimiter   CSV delimiter character used by fgetcsv
+     * @param string      $enclosure   CSV enclosure character used by fgetcsv
+     * @param string      $escape      CSV escape character used by fgetcsv
+     *
+     * @return string path to the generated XLSX file
+     *
+     * @throws \RuntimeException when the CSV is missing or cannot be opened
+     */
+    private static function convertCsvToXlsx(
+        string $csvFilePath,
+        string $xlsxPath = null,
+        string $delimiter = ',',
+        string $enclosure = '"',
+        string $escape = '\\'
+    ): string {
+        if (!is_file($csvFilePath) || !is_readable($csvFilePath)) {
+            throw new \RuntimeException(sprintf('CSV "%s" not readable.', $csvFilePath));
+        }
+
+        $xlsxPath = $xlsxPath ?: preg_replace('/\.csv$/i', '.xlsx', $csvFilePath) ?: ($csvFilePath.'.xlsx');
+
+        $in = @fopen($csvFilePath, 'r'); // Windows-safe
+        if (false === $in) {
+            throw new \RuntimeException(sprintf('Unable to open CSV "%s".', $csvFilePath));
+        }
+
+        $writer = WriterEntityFactory::createXLSXWriter();
+        // optional if you want to control tmp dir:
+        // $writer->setTempFolder(sys_get_temp_dir());
+        $writer->openToFile($xlsxPath);
+
+        // If you wrote a UTF-8 BOM into the CSV for Excel, skip it if present.
+        $peek = fgets($in, 4);
+        if (false !== $peek) {
+            $bom = "\xEF\xBB\xBF";
+            if (0 === strncmp($peek, $bom, 3)) {
+                // already consumed BOM bytes in $peek; nothing else to do
+            } else {
+                // push back what we read since no BOM
+                fseek($in, 0);
+            }
+        }
+
+        while (($row = fgetcsv($in, 0, $delimiter, $enclosure, $escape)) !== false) {
+            // Keep values as-is; OpenSpout will write them as text/numbers appropriately.
+            $writer->addRow(WriterEntityFactory::createRowFromArray($row));
+        }
+
+        fclose($in);
+        $writer->close();
+
+        return $xlsxPath;
     }
 }

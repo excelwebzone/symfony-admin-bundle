@@ -17,6 +17,7 @@
     "php": "^7.4 || ^8.0",
     "dragonmantank/cron-expression": "^3.3",
     "intervention/image": "^2.7",
+    "openspout/openspout": "^3.7",
     "pagerfanta/pagerfanta": "^3.5",
     "sensio/framework-extra-bundle": "^6.2",
     "symfony/asset": "^5.4",

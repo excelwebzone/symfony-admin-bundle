@@ -138,8 +138,16 @@ trait BulkExportTrait
     }
 
     /**
-     * Finalize CSV file: optional compression/perm setting handled in ExportData::closeCsvFile,
-     * upload finalized file and cleanup temporary file.
+     * Finalize the export and return a download link response.
+     *
+     * Converts the temporary CSV to XLSX via ExportData::closeCsvFile()
+     * (streaming; no gzip by default), uploads the finalized file, and
+     * removes the local temporary file. The JSON payload includes a
+     * translated success message and an action link to download the file.
+     *
+     * NOTE: If ExportData::closeCsvFile() defaults change (e.g. gzip on),
+     * this method will transparently upload whatever path it returns
+     * (e.g. ".xlsx" or ".xlsx.gz").
      *
      * @param Packages $assetsManager
      * @param string   $csvFilePath
@@ -148,7 +156,7 @@ trait BulkExportTrait
      */
     private function finalizeCsvExport(Packages $assetsManager, string $csvFilePath): JsonResponse
     {
-        // close/finalize CSV (no gzip/chmod by default)
+        // finalize export (CSV -> XLSX)
         $tmpFile = ExportData::closeCsvFile($csvFilePath);
 
         // upload temp file

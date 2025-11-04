@@ -258,7 +258,7 @@ class ReportExportCommand extends Command
             $output->writeln(sprintf('Appended page %d/%d', $page, $pages));
         }
 
-        // finalize CSV file (no gzip/chmod by default)
+        // finalize export (CSV -> XLSX)
         $tmpFile = ExportData::closeCsvFile($csvFile);
 
         // upload temp file
