@@ -113,7 +113,7 @@ class ReportExportCommand extends Command
         $grouping = $this->decodeArg($input->getArgument('grouping'));
         $sort = $this->decodeArg($input->getArgument('sort'));
 
-        $page = (int) $input->getOption('page') ?: null;
+        $page = (int) $input->getOption('page') ?: 1;
         $pageSize = (int) $input->getOption('page-size') ?: ExportData::PAGE_SIZE;
         $csvFile = $input->getOption('csv-file');
 
@@ -183,7 +183,7 @@ class ReportExportCommand extends Command
             }
         }
 
-        $reportObject->setPage($page ?: 1);
+        $reportObject->setPage($page);
         $reportObject->setLimit($pageSize);
 
         // If a csv-file path was provided (child invocation), just export current page and append to file then exit.
