@@ -732,21 +732,25 @@ abstract class AbstractRepository extends ServiceEntityRepository
             } elseif (isset($value['notIn'])) {
                 unset($value['notIn']);
 
-                $queryBuilder
-                    ->andWhere(sprintf('%s.%s NOT IN (:%s)', $alias, $key, $name))
-                    ->setParameter($name, $value)
-                ;
-            } else {
+                if (!empty($value)) {
+                    $queryBuilder
+                        ->andWhere(sprintf('%s.%s NOT IN (:%s)', $alias, $key, $name))
+                        ->setParameter($name, $value)
+                    ;
+                }
+            } elseif (!empty($value)) {
                 $queryBuilder
                     ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
                     ->setParameter($name, $value)
                 ;
             }
         } elseif ($value instanceof Collection) {
-            $queryBuilder
-                ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
-                ->setParameter($name, $value)
-            ;
+            if (!$value->isEmpty()) {
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s IN (:%s)', $alias, $key, $name))
+                    ->setParameter($name, $value)
+                ;
+            }
         } elseif (null === $value) {
             $queryBuilder->andWhere(sprintf('%s.%s IS NULL', $alias, $key));
         } elseif (!\is_string($value)
