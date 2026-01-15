@@ -13,10 +13,31 @@ final class StringExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
+            new TwigFunction('preg_extract_matches', [$this, 'pregExtractMatches']),
             new TwigFunction('preg_match', [$this, 'pregMatch']),
             new TwigFunction('preg_replace', [$this, 'pregReplace']),
             new TwigFunction('serialize', [$this, 'serialize']),
         ];
+    }
+
+    /**
+     * @param string $pattern
+     * @param string $subject
+     * @param int    $flags
+     * @param int    $offset
+     *
+     * @return array<int, array<int, string>>|array<int, array<int, array<int, string>>>  (depending on flags)
+     */
+    public function pregExtractMatches(
+        string $pattern,
+        string $subject,
+        int $flags = \PREG_SET_ORDER,
+        int $offset = 0
+    ): array {
+        $matches = [];
+        preg_match_all($pattern, $subject, $matches, $flags, $offset);
+
+        return $matches;
     }
 
     /**

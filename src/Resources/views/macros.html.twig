@@ -257,31 +257,117 @@
   </div>
 {% endmacro %}
 
-{% macro listPageColumns(layoutTableName, column, index, fixedColumns, defaultColumns) %}
+{% macro listPageColumns(layoutTableName, columnKey, index, fixedColumns, defaultColumns) %}
   {% import _self as UI %}
 
-  {% set columns = null %}
+  {# Load saved settings safely #}
+  {% set tables = null %}
   {% if app.user.settingsKeyValue is defined %}
-    {% set columns = app.user.settingsKeyValue(constant('EWZ\\SymfonyAdminBundle\\Model\\User::SETTINGS_KEY_TABLES'), layoutTableName) %}
+    {% set tables = app.user.settingsKeyValue(constant('EWZ\\SymfonyAdminBundle\\Model\\User::SETTINGS_KEY_TABLES'), layoutTableName) %}
   {% endif %}
+  {% set savedCols = (tables and tables[columnKey] is defined) ? tables[columnKey] : [] %}
 
-  {% set defaultSortField = app.request.get('sort')|default('createdAt-desc')|split('-')[0] %}
-  {% set defaultSortDir = app.request.get('sort')|default('createdAt-desc')|split('-')[1] %}
+  {# Optional aliases for renamed fields #}
+  {% set aliases = { 'rep1': 'salesReps' } %}
+
+  {# Regex-extract default column defs from the defaultColumns HTML #}
+  {% set pattern = '/<div[^>]*data-column-width="([^"]+)"[^>]*data-field="([^"]+)"[^>]*data-name="([^"]*)"[^>]*data-align="([^"]+)"[^>]*data-sortable="([01])"[^>]*>/s' %}
+  {% set matches = preg_extract_matches(pattern, defaultColumns) %}
+
+  {# Build:
+     - defaultOrder: list of fields in default order
+     - defaultByField: map field => {field, width, name, align, sortable}
+     - defaultFieldSet: a cheap membership string for "in" checks
+  #}
+  {% set defaultOrder = [] %}
+  {% set defaultByField = {} %}
+  {% set defaultFieldSet = '|' %}
+
+  {% for m in matches %}
+    {% set width = m[1] %}
+    {% set field = m[2] %}
+    {% set name = m[3] %}
+    {% set align = m[4] %}
+    {% set sortable = (m[5] == '1') %}
+
+    {% set defaultOrder = defaultOrder|merge([field]) %}
+    {% set defaultByField = defaultByField|merge({
+      (field): { field: field, width: width, name: name, align: align, sortable: sortable }
+    }) %}
+    {% set defaultFieldSet = defaultFieldSet ~ field ~ '|' %}
+  {% endfor %}
+
+  {# Sorting params #}
+  {% set sortParam = app.request.get('sort')|default('createdAt-desc') %}
+  {% set defaultSortField = sortParam|split('-')[0] %}
+  {% set defaultSortDir = sortParam|split('-')[1] %}
 
   {{ fixedColumns }}
 
-  {% if columns %}
-    {% for column in columns[column] %}
-      {% set sortDir = null %}
-      {% set classList = column.mobileCell ? 'table-cell-mobile' : null %}
-      {% if defaultSortField == column.field %}
-        {% set sortDir = defaultSortDir %}
-        {% set classList = (classList ~ ' js-default-sort')|trim %}
+  {# If no defaults parsed (regex didn’t match), fail safe to previous behavior #}
+  {% if defaultOrder|length == 0 %}
+    {% if savedCols|length %}
+      {% for col in savedCols %}
+        {% set sortDir = (defaultSortField == col.field) ? defaultSortDir : null %}
+        {% set classList = col.mobileCell ? 'table-cell-mobile' : null %}
+        {% if defaultSortField == col.field %}
+          {% set classList = (classList ~ ' js-default-sort')|trim %}
+        {% endif %}
+        {{ UI.itemColumn(loop.index + index, col.width, col.field, col.name, col.align, col.sortable, sortDir, classList) }}
+      {% endfor %}
+    {% else %}
+      {{ defaultColumns }}
+    {% endif %}
+  {% elseif savedCols|length %}
+    {# Render saved columns that still exist in defaults; track what we rendered #}
+    {% set renderedFieldSet = '|' %}
+    {% set outIndex = 0 %}
+
+    {% for col in savedCols %}
+      {% set field = col.field|default(null) %}
+      {% if field and aliases[field] is defined %}
+        {% set field = aliases[field] %}
       {% endif %}
 
-      {{ UI.itemColumn(loop.index + index, column.width, column.field, column.name, column.align, column.sortable, sortDir, classList) }}
+      {% if field and ('|' ~ field ~ '|') in defaultFieldSet %}
+        {% set outIndex = outIndex + 1 %}
+
+        {# Use saved values, but you can also overlay missing keys from defaults #}
+        {% set def = defaultByField[field] %}
+
+        {% set width = col.width|default(def.width) %}
+        {% set name = col.name|default(def.name) %}
+        {% set align = col.align|default(def.align) %}
+        {% set sortable = col.sortable is defined ? col.sortable : def.sortable %}
+
+        {% set sortDir = (defaultSortField == field) ? defaultSortDir : null %}
+        {% set classList = col.mobileCell ? 'table-cell-mobile' : null %}
+        {% if defaultSortField == field %}
+          {% set classList = (classList ~ ' js-default-sort')|trim %}
+        {% endif %}
+
+        {{ UI.itemColumn(outIndex + index, width, field, name, align, sortable, sortDir, classList) }}
+        {% set renderedFieldSet = renderedFieldSet ~ field ~ '|' %}
+      {% endif %}
+    {% endfor %}
+
+    {# Append new default columns the user doesn’t have #}
+    {% for field in defaultOrder %}
+      {% if ('|' ~ field ~ '|') not in renderedFieldSet %}
+        {% set outIndex = outIndex + 1 %}
+        {% set def = defaultByField[field] %}
+
+        {% set sortDir = (defaultSortField == field) ? defaultSortDir : null %}
+        {% set classList = null %}
+        {% if defaultSortField == field %}
+          {% set classList = 'js-default-sort' %}
+        {% endif %}
+
+        {{ UI.itemColumn(outIndex + index, def.width, def.field, def.name, def.align, def.sortable, sortDir, classList) }}
+      {% endif %}
     {% endfor %}
   {% else %}
+    {# No saved settings => defaults #}
     {{ defaultColumns }}
   {% endif %}
 {% endmacro %}
@@ -396,6 +482,9 @@
     data-index="{{ index }}"
     data-column-width="{{ width }}"
     data-field="{{ field }}"
+    data-name="{{ name|striptags|e('html_attr') }}"
+    data-align="{{ align|e('html_attr') }}"
+    data-sortable="{{ sortable ? 1 : 0 }}"
   >
     <div class="table-header-cell-content">
       <span>{{ name|raw }} {% if sortable %}<i class="ledger-icons ledger-icon-sort-desc"></i>{% endif %}</span>

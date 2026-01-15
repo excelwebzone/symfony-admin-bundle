@@ -181,6 +181,13 @@ services:
         arguments:
             - '@twig'
 
+    symfony_admin.twig.extension.table_layout_extension:
+        class: EWZ\SymfonyAdminBundle\Twig\Extension\TableLayoutExtension
+        tags:
+            - { name: twig.extension }
+        arguments:
+            - '@twig'
+
     #
     # Cron-Schedule Repository
     #
