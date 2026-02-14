@@ -202,14 +202,16 @@
           </div>
         {% endblock %}
 
+        {% set reportConfig = {
+          endpoint: path('admin_api_report_cget', {id: report.id}),
+          totals: reportTotals|default(false) ? 'true' : 'false',
+          'card-view': reportCardView|default(false) ? 'true' : 'false',
+        }|merge(reportData|default({})) %}
+
         <div class="tab-pane active list-page-table report-table-component"
-          data-endpoint="{{ path('admin_api_report_cget', {id: report.id}) }}"
-          {% if reportTotals is defined and reportTotals == true %}
-            data-totals="true"
-          {% endif %}
-          {% if reportCardView is defined and reportCardView == true %}
-            data-card-view="true"
-          {% endif %}
+          {% for name, value in reportConfig %}
+            data-{{ name }}="{{ value|e('html_attr') }}"
+          {% endfor %}
         >
           {% block report_table %}{% endblock %}
         </div>
