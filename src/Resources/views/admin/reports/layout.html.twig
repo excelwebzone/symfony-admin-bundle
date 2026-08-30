@@ -44,6 +44,9 @@
           {% endif %}
 
           {{ UI.filterDropdown(sectionFilter, publicFilters, privateFilters, app.request.get('filters'), defaultFilterUrl|default(null), editFilterUrl|default(null), deleteFilterUrl|default(null)) }}
+
+          {# on items selection #}
+          {% block report_bulk_actions %}{% endblock %}
         </div>
 
         {# tools/actions #}
