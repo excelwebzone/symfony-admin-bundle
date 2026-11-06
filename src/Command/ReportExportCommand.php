@@ -186,7 +186,7 @@ class ReportExportCommand extends Command
         $reportObject->setPage($page);
         $reportObject->setLimit($pageSize);
 
-        // If a csv-file path was provided (child invocation), just export current page and append to file then exit.
+        // if a csv-file path was provided (child invocation), just export current page and append to file then exit.
         if (!empty($csvFile)) {
             $rows = $reportObject->export();
 
@@ -215,66 +215,81 @@ class ReportExportCommand extends Command
             return 0;
         }
 
-        // number of pages to iterate
-        $pages = (int) max(1, ceil($total / $pageSize));
+        // array-based reports return the complete result rather than a page. Export them once.
+        $pages = $searchResult instanceof Pagerfanta ? (int) max(1, ceil($total / $pageSize)) : 1;
+        unset($searchResult);
 
         // initialize CSV header
         $csvFile = ExportData::initCsvExport($columns, $enumColumns);
 
-        // iterate and append per page (child process must return only current page rows)
-        for ($page = 1; $page <= $pages; ++$page) {
-            // ensure child process can find the project's console binary when it constructs the command
-            $_SERVER['argv'] = [
-                sprintf('%s/bin/console', $this->kernel->getProjectDir()),
-            ];
+        // track the expected workbook path so a failed conversion can also be cleaned up.
+        $tmpFile = preg_replace('/\.csv$/i', '.xlsx', $csvFile);
+        try {
+            // append each page, or the full result once for array-based reports.
+            for ($page = 1; $page <= $pages; ++$page) {
+                // ensure child process can find the project's console binary when it constructs the command
+                $_SERVER['argv'] = [
+                    sprintf('%s/bin/console', $this->kernel->getProjectDir()),
+                ];
 
-            // Prepare criteria payload: only pass criteria if it is an array.
-            $criteriaArg = \is_array($criteria) ? base64_encode(json_encode($criteria)) : null;
-            $groupingArg = $grouping ? base64_encode(json_encode($grouping)) : null;
-            $sortArg = $sort ? base64_encode(json_encode($sort)) : null;
+                // prepare criteria payload: only pass criteria if it is an array.
+                $criteriaArg = \is_array($criteria) ? base64_encode(json_encode($criteria)) : null;
+                $groupingArg = $grouping ? base64_encode(json_encode($grouping)) : null;
+                $sortArg = $sort ? base64_encode(json_encode($sort)) : null;
 
-            // Start child process and WAIT until it completes before continuing to next page.
-            CommandRunner::runCommand(
-                'admin:report:export',
-                array_merge(
-                    [
-                        $userId,
-                        $reportId,
-                        $criteriaArg,
-                        $groupingArg,
-                        $sortArg,
-                    ],
-                    [
-                        '--env' => $this->kernel->getEnvironment(),
-                        '--page' => $page,
-                        '--page-size' => $pageSize,
-                        '--csv-file' => $csvFile,
-                    ]
-                ),
-                null,
-                true // wait for completion
+                // start child process and WAIT until it completes before continuing to next page.
+                $exitCode = CommandRunner::runCommand(
+                    'admin:report:export',
+                    array_merge(
+                        [
+                            $userId,
+                            $reportId,
+                            $criteriaArg,
+                            $groupingArg,
+                            $sortArg,
+                        ],
+                        [
+                            '--env' => $this->kernel->getEnvironment(),
+                            '--page' => $page,
+                            '--page-size' => $pageSize,
+                            '--csv-file' => $csvFile,
+                        ]
+                    ),
+                    null,
+                    true // wait for completion
+                );
+
+                if (0 !== $exitCode) {
+                    throw new \RuntimeException(sprintf('Report export failed on page %d/%d (exit code %s).', $page, $pages, $exitCode));
+                }
+
+                $output->writeln(sprintf('Appended page %d/%d', $page, $pages));
+            }
+
+            // finalize export (CSV -> XLSX)
+            $tmpFile = ExportData::closeCsvFile($csvFile);
+
+            // upload temp file
+            $fileName = $this->fileUploader->create($tmpFile, $this->params->get('symfony_admin.upload_url'));
+            if (!$fileName) {
+                throw new \RuntimeException('Unable to upload the report export.');
+            }
+
+            $output->writeln(sprintf('<info>Uploaded to: %s</info>', $fileName));
+
+            // dispatch event so app can handle notification/processing
+            $this->eventDispatcher->dispatch(
+                new ReportExportedEvent($report, $user, $this->assetsManager->getUrl($fileName)),
+                Events::REPORT_EXPORT_COMPLETED
             );
 
-            $output->writeln(sprintf('Appended page %d/%d', $page, $pages));
+            $output->writeln('<info>Export complete</info>');
+        } finally {
+            @unlink($csvFile);
+            if ($tmpFile) {
+                @unlink($tmpFile);
+            }
         }
-
-        // finalize export (CSV -> XLSX)
-        $tmpFile = ExportData::closeCsvFile($csvFile);
-
-        // upload temp file
-        $fileName = $this->fileUploader->create($tmpFile, $this->params->get('symfony_admin.upload_url'));
-        $output->writeln(sprintf('<info>Uploaded to: %s</info>', $fileName));
-
-        // cleanup temporary file
-        @unlink($tmpFile);
-
-        $output->writeln('<info>Export complete</info>');
-
-        // dispatch event so app can handle notification/processing
-        $this->eventDispatcher->dispatch(
-            new ReportExportedEvent($report, $user, $this->assetsManager->getUrl($fileName)),
-            Events::REPORT_EXPORT_COMPLETED
-        );
 
         return 0;
     }

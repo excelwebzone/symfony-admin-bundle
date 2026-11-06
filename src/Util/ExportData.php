@@ -52,12 +52,19 @@ final class ExportData
         }
 
         // UTF-8 BOM for Excel
-        fwrite($fp, "\xEF\xBB\xBF");
+        // Use RFC4180-compatible defaults: comma delimiter, double-quote enclosure.
+        if (false === fwrite($fp, "\xEF\xBB\xBF") || false === fputcsv($fp, array_values($header))) {
+            fclose($fp);
+            @unlink($csvName);
 
-        // Use RFC4180-compatible defaults: comma delimiter, double-quote enclosure
-        fputcsv($fp, array_values($header));
+            throw new \RuntimeException('Unable to write the export header.');
+        }
 
-        fclose($fp);
+        if (!fclose($fp)) {
+            @unlink($csvName);
+
+            throw new \RuntimeException('Unable to finish the export header.');
+        }
 
         return $csvName;
     }
@@ -190,7 +197,11 @@ final class ExportData
             }
 
             // Write CSV row
-            fputcsv($fp, $out);
+            if (false === fputcsv($fp, $out)) {
+                fclose($fp);
+
+                throw new \RuntimeException('Unable to write an export row.');
+            }
 
             // Periodically collect GC to keep memory low for very large exports
             if (0 === ($counter % 5000) && \function_exists('gc_collect_cycles')) {
@@ -200,7 +211,9 @@ final class ExportData
             ++$counter;
         }
 
-        fclose($fp);
+        if (!fclose($fp)) {
+            throw new \RuntimeException('Unable to finish writing export rows.');
+        }
     }
 
     /**
@@ -324,8 +337,8 @@ final class ExportData
         }
 
         $writer = WriterEntityFactory::createXLSXWriter();
-        // optional if you want to control tmp dir:
-        // $writer->setTempFolder(sys_get_temp_dir());
+        // Set sizing while streaming instead of loading the completed worksheet into a DOM.
+        $writer->setDefaultRowHeight(15.0);
         $writer->openToFile($xlsxPath);
 
         // If you wrote a UTF-8 BOM into the CSV for Excel, skip it if present.
@@ -348,91 +361,6 @@ final class ExportData
         fclose($in);
         $writer->close();
 
-        // Force a fixed height for all rows (e.g., 15pt)
-        self::forceXlsxRowHeights($xlsxPath, 15.0);
-
         return $xlsxPath;
-    }
-
-    /**
-     * Force a fixed row height (ht + customHeight) for all rows in every sheet.
-     * Excel honors this even when cell content contains line breaks.
-     *
-     * @param string $xlsxPath
-     * @param float  $heightPt
-     */
-    private static function forceXlsxRowHeights(string $xlsxPath, float $heightPt = 15.0): void
-    {
-        $zip = new \ZipArchive();
-        if (true !== $zip->open($xlsxPath)) {
-            throw new \RuntimeException(sprintf('Unable to open XLSX "%s".', $xlsxPath));
-        }
-
-        $height = rtrim(rtrim(sprintf('%.2F', $heightPt), '0'), '.');
-
-        for ($i = 0; $i < $zip->numFiles; ++$i) {
-            $stat = $zip->statIndex($i);
-            if (!$stat) {
-                continue;
-            }
-
-            $name = $stat['name'];
-            if (!preg_match('#^xl/worksheets/sheet\d+\.xml$#', $name)) {
-                continue;
-            }
-
-            $xml = $zip->getFromIndex($i);
-            if (false === $xml) {
-                continue;
-            }
-
-            $dom = new \DOMDocument('1.0', 'UTF-8');
-            $dom->preserveWhiteSpace = false;
-            $dom->formatOutput = false;
-            if (false === @$dom->loadXML($xml)) {
-                continue;
-            }
-
-            /** @var \DOMElement $ws */
-            $ws = $dom->documentElement;
-            if (!$ws) {
-                continue;
-            }
-
-            // Find <sheetData>
-            $sheetData = null;
-            foreach ($ws->childNodes as $child) {
-                if ($child instanceof \DOMElement && 'sheetData' === $child->localName) {
-                    $sheetData = $child;
-                    break;
-                }
-            }
-            if (!$sheetData) {
-                continue;
-            }
-
-            // Set ht/customHeight on each <row …>
-            foreach ($sheetData->childNodes as $rowNode) {
-                if (!$rowNode instanceof \DOMElement || 'row' !== $rowNode->localName) {
-                    continue;
-                }
-                // remove existing attributes if present to avoid duplicates
-                if ($rowNode->hasAttribute('ht')) {
-                    $rowNode->removeAttribute('ht');
-                }
-                if ($rowNode->hasAttribute('customHeight')) {
-                    $rowNode->removeAttribute('customHeight');
-                }
-
-                $rowNode->setAttribute('ht', $height);
-                $rowNode->setAttribute('customHeight', '1');
-            }
-
-            // Write back
-            $zip->deleteIndex($i);
-            $zip->addFromString($name, $dom->saveXML());
-        }
-
-        $zip->close();
     }
 }

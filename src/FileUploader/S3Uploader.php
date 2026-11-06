@@ -71,7 +71,7 @@ final class S3Uploader extends AbstractFileUploader
         $result = $this->s3Client->putObject([
             'ACL' => 'public-read',
             'StorageClass' => 'REDUCED_REDUNDANCY',
-            'Body' => file_get_contents($fileName),
+            'SourceFile' => $fileName,
             'Bucket' => $this->s3Bucket,
             'Key' => $newFileName,
             'ContentType' => mime_content_type($fileName),
