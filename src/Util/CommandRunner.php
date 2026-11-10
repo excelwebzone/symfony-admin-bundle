@@ -30,17 +30,17 @@ final class CommandRunner
         foreach ($params as $name => $value) {
             if (\is_string($name) && '-' === $name[0]) {
                 if (true === $value) {
-                    $parametersString .= ' '.escapeshellarg($name);
+                    $parametersString .= ' '.$name;
                 } elseif (false !== $value) {
-                    $parametersString .= ' '.escapeshellarg(sprintf('%s=%s', $name, $value));
+                    $parametersString .= ' '.sprintf('%s=%s', $name, $value);
                 }
             } else {
-                $parametersString .= ' '.escapeshellarg((string) $value);
+                $parametersString .= ' '.$value;
             }
         }
 
         $console = $_SERVER['argv'][0] ?? 'bin/console';
-        $baseCmd = sprintf('%s %s %s%s', escapeshellarg($phpPath), escapeshellarg($console), escapeshellarg($command), $parametersString);
+        $baseCmd = sprintf('%s %s %s%s', $phpPath, $console, $command, $parametersString);
 
         // Synchronous
         if ($wait) {
@@ -62,7 +62,7 @@ final class CommandRunner
         // Asynchronous (detached)
         if (\defined('PHP_WINDOWS_VERSION_BUILD')) {
             $redir = null !== $outputFile
-                ? sprintf(' > %s 2>&1', escapeshellarg($outputFile))
+                ? sprintf(' > %s 2>&1', $outputFile)
                 : ' > NUL 2>&1';
             // COM WScript for true detachment
             $wsh = new \COM('WScript.shell');
