@@ -21,6 +21,15 @@ final class CommandRunner
     public static function runCommand(string $command, array $params, ?string $outputFile = null, bool $wait = false): ?int
     {
         $phpPath = (new PhpExecutableFinder())->find();
+
+        // CGI cannot run console commands; use the CLI executable beside it.
+        if ('cgi-fcgi' === \PHP_SAPI) {
+            $cliPath = \PHP_BINDIR.'/php'.('\\' === \DIRECTORY_SEPARATOR ? '.exe' : '');
+            if (is_executable($cliPath)) {
+                $phpPath = $cliPath;
+            }
+        }
+
         if (!$phpPath) {
             throw new \RuntimeException('Unable to locate PHP executable.');
         }
